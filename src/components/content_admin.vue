@@ -23,7 +23,7 @@
 							<!-- 新建的列表数据   当有多个循环的时候key值不能重复-->
 							<tr v-for="(num,index1) in num" :key="index1" :class="{list_color:true}" style="margin-top: 0;  align-self:flex-end">
 								<td class="fixed">{{index1+child_index_page}}</td>
-								<td class="fixed"><input type="checkbox" v-model="add_checkeds" :value="index1"></td>
+								<td class="fixed"><input type="checkbox" v-model="add_checkeds" :value="index1" disabled></td>
 								<td class="fixed-list" v-for="(le,index) in len" :key="index">
 									
 									<!-- 输入框根据索引显示内容当添加新项目时会把之前的索引添加到现有的索引中所以会把输入框的内容添加到新的项目中 :id="'fld'+index"-->
@@ -62,6 +62,7 @@
 										<input v-if="(fields[index_list].type=='text'&&fields[index_list].Name!=response.PRIMARY)" type="text" v-model="rows[index][key]">
 										<input v-if="(fields[index_list].type=='password')" type="text" v-model="rows[index][key]">
 										<input v-if="(fields[index_list].type=='date_time')" type="text" v-model="rows[index][key]">
+										<span v-if="(fields[index_list].type=='text'&&fields[index_list].Name==response.PRIMARY)">{{project}}</span>
 										<span v-if="fields[index_list].Action!=undefined" class="serch_box" @click="serch(index,index_list,key)"
 									 ><i class="fa fa-ellipsis-h fa-1x "></i></span>
 									</template>
@@ -1715,6 +1716,10 @@
     vertical-align: super;
     padding-bottom: 2px;
 } */
+#tbody input{
+    border: none;
+    height: 25px;
+}
 .table tr td{
 	padding-left: 10px!important;
 	padding-right: 10px!important;

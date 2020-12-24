@@ -62,12 +62,18 @@
 				</div>
 				<!-- 加载状态 -->
 				<div class="loading" v-if="anate"><i class="fa fa-spin fa-refresh"></i></div>
-				<!-- shop组件 -->
 				<div class="data" :class="[active]">
-					<shop @lookup="lookup" @child_home="child_home" @child="child" @child_next="child_next" @child_end="child_end"
+					<!-- content-admin组件 -->
+					<content-admin @lookup="lookup" @child_home="child_home" @child="child" @child_next="child_next" @child_end="child_end"
 		 				  @parent_data_sort="parent_data_sort" @parent_refresh="parent_refresh" @query="query" :sub_url="sub_url" :sub_index="sub_index"
 		                  :fields="fields" :rows="rows" :project_data="project_data" :response="response" v-if="flag" :istrue="istrue" :isquery="isquery" 
-		                  :no_data="no_data" :flag_head="flag_head"></shop>
+		                  :no_data="no_data" :flag_head="flag_head">
+					</content-admin>
+					<content-warship @lookup="lookup" @child_home="child_home" @child="child" @child_next="child_next" @child_end="child_end"
+		 				  @parent_data_sort="parent_data_sort" @parent_refresh="parent_refresh" @query="query" :sub_url="sub_url" :sub_index="sub_index"
+		                  :fields="fields" :rows="rows" :project_data="project_data" :response="response" v-if="flag_warship" :istrue="istrue" :isquery="isquery" 
+		                  :no_data="no_data" :flag_head="flag_head">
+					</content-warship>
 					<!-- 组件 -->
 					<page v-if="box_data.sel" ></page>
 					<send-mail v-if="box_data.mail"></send-mail>
@@ -86,7 +92,8 @@
 </template>
 <script>
 	//表格数据组件
-	import shop from '@/components/shop.vue';
+	import contentAdmin from '@/components/content_admin.vue';
+	import contentWarship from '@/components/content_warship.vue';
 	//角色查询组件
 	import page from '@/components/page.vue';
 	//邮件组件
@@ -98,7 +105,8 @@
 	export default {
 		name: 'Home',
 		components: {
-			shop,
+			contentAdmin,
+			contentWarship,
 			page,
 			sendMail,
 			nacos,
@@ -188,6 +196,7 @@
 				//菜单显示隐藏的索引值
 				change_index: 0,
 				flag: false,
+				flag_warship:false,
 				//上下翻页时数据请求完成执行代码
 				istrue: {
 					isnext: true,
@@ -516,7 +525,7 @@
 						}else if(this.response.PAGE_TEMPLATE=="page_grid_nacos"){
 							this.flag = true;
 						}else if(this.response.PAGE_TEMPLATE=="base_page"){
-							this.flag = true;
+							this.flag_warship = true;
 						}
 						
 						this.sub_url = url;

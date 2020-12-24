@@ -37,15 +37,16 @@
               <table class="table table-hover text-nowrap">
                     <thead class="th" :style="{transform:'translateY('+tans_late+'px)'}">
                     <tr>
-                      <th>项目(工程)</th>
-                      <th>类型</th>
-                      <th>数据库</th>
-                      <th>表(页面)</th>
-                      <th>说明</th>
+                      <th><label>项目(工程)</label></th>
+                      <th><label>类型</label></th>
+                      <th><label>数据库</label></th>
+                      <th><label>表(页面)</label></th>
+                      <th><label>说明</label></th>
                       <th><label>浏览<input type="checkbox" id="browse" v-model="parent.browse" @change="cahnge_browse"></label></th>
                       <th><label>增加<input type="checkbox" v-model="parent.increase" @change="change_increase"></label></th>
                       <th><label>删除<input type="checkbox" v-model="parent.del" @change="change_del"></label></th>
                       <th><label>修改<input type="checkbox" v-model="parent.modify" @change="change_modify"></label></th>
+                      <th><label>数据权限</label></th>
                     </tr>
                   </thead> 
                     <tbody class="t-body">
@@ -58,7 +59,8 @@
                       <td><input class="inp-check" type="checkbox" :value="list.Project+list.Type+list.DBase+list.Table+'View'" v-model="child.child_browse" @click="change_child_browse(list,index)"></td>
                       <td><input class="inp-check" type="checkbox" :value="list.Project+list.Type+list.DBase+list.Table+'Add'" v-if="show_data[index]" v-model="child.child_increase" @click="change_child_increase(list,index)"></td>
                       <td><input class="inp-check" type="checkbox" :value="list.Project+list.Type+list.DBase+list.Table+'Del'" v-if="show_data[index]" v-model="child.child_del" @click="change_child_del(list,index)"></td>
-                      <td><input class="inp-check" type="checkbox" :value="list.Project+list.Type+list.DBase+list.Table+'Update'" v-if="show_data[index]" v-model="child.child_modify" @click="change_child_modify(list,index)"></td>  
+                      <td><input class="inp-check" type="checkbox" :value="list.Project+list.Type+list.DBase+list.Table+'Update'" v-if="show_data[index]" v-model="child.child_modify" @click="change_child_modify(list,index)"></td>
+                      <td><span v-if="list.Type=='TABLE'"><input type="text" v-model="input_data[index]" class="data-input"><span class="serch-box" @click="serch_box(index)"><i class="fa fa-ellipsis-h fa-1x "></i></span></span></td>  
                     </tr>   
                   </tbody>                                                       
               </table>
@@ -76,13 +78,23 @@
       </div>
     </div>
   </div>
+  <!-- 数据权限组件 -->
+  <!-- <data-permission-list v-if="true" :columns="columns" :data_list="data_list"></data-permission-list> -->
+  <data-permission-list v-if="flag" :project="project" :db="db" :table="table" @close_box='close_box' @confirm_data="confirm_data"></data-permission-list>
   </div>
 </template>
 <script>
+import dataPermissionList from "../plug/data_permission.vue"
 export default {
   name:'sel',
   data () {
     return {
+            index:null,
+            //输入框中的数据
+            input_data:[],
+            flag:false,
+            //公共的用户信息
+            userInfo:'',
             //选择框的响应数据
             selected:'',
             //数据类型响应数据
@@ -136,6 +148,16 @@ export default {
            anate:true,
             //距离头部的位置
            tans_late:'',
+           //三点的头部数据
+           //columns:null,
+           //三点的数据列表
+           //data_list:null,
+           //每条数据需获取的项目名
+           project:null,
+           //每条数据的数据库名
+           db:null,
+           //每条数据的表
+           tabel:null
     }
   },
   props: {
@@ -144,16 +166,40 @@ export default {
     item_fun:String,
     rule_data:String
   },
-  computed: {
-
+  components:{
+    dataPermissionList
+  },
+ computed: {
   },
   created(){
     this.get_data();
   },
   mounted () {
-
+    
   },
   methods: {
+    //提交选中项
+    confirm_data(data){
+      this.input_data[this.index]=data;
+      this.flag=false;
+    },
+    //关闭弹框组件
+    close_box(){
+      this.flag=false
+    },
+    //当点击三个点时显示组件弹框
+    serch_box(index){
+      // alert(1)
+      // console.log(this.res_data)
+      this.index=index;
+      this.project=this.res_data[index].Project;
+      this.db=this.res_data[index].DBase;
+      this.table=this.res_data[index].Table
+      window.setTimeout(()=>{
+        this.flag=true;
+      },0);
+      this.flag=false;
+    },
     //固定表头
     table_cont(e){
 				// alert(1)
@@ -162,23 +208,29 @@ export default {
 				},
     //复选框中选中的项目
     btn_chected(){
-      this.child_rule_data=JSON.parse(this.child_rule_data);
+      if(this.child_rule_data!=''){
+        this.child_rule_data=JSON.parse(this.child_rule_data);
+      //获取对象中所有的属性（数组形式的key）
       let arrProject=Object.keys(this.child_rule_data);
       //第一次循环项目结果
       if(arrProject.length>0){
         arrProject.forEach((item,index)=>{
+          //获取所有的type的key
           var arrType=Object.keys(this.child_rule_data[item]);          
             arrType.forEach((item1,index)=>{
+              //获取所有的website的key
               var arrWebsite=Object.keys(this.child_rule_data[item][item1])
               arrWebsite.forEach((item2,index)=>{
+                //获取所有的table的key
                var arrPage=Object.keys(this.child_rule_data[item][item1][item2])
                arrPage.forEach((item3,index)=>{
+                 //获取所有的选中复选框的key
                var arrViue=Object.keys(this.child_rule_data[item][item1][item2][item3])
                if(arrViue.length==0){
                  this.child.child_browse.push(item+item1+item2+item3);
                  this.parent.browse=true;
                }else{
-                 arrViue.forEach((item4,index)=>{
+                 arrViue.forEach((item4,index1)=>{
                  if(item1=='DBase'){
                     let item1_1='TABLE'
                     if(item4=="View"){
@@ -196,6 +248,9 @@ export default {
                      if(item4=="Update"){
                       this.child.child_modify.push(item+item1_1+item2+item3+item4);
                       this.parent.modify=true;
+                    }
+                    if(item4=='Recordld'){
+                      this.input_data[index]=this.child_rule_data[item][item1][item2][item3][item4];
                     }
                }else{
                     if(item4=="View"){
@@ -222,6 +277,10 @@ export default {
             })
         })
       }
+      }else{
+        return false
+      }
+      
     },
    //浏览总复选框  
     cahnge_browse(){
@@ -443,15 +502,16 @@ export default {
          this.child.child_increase=[];
          this.child.child_del=[];
          this.child.child_modify=[];
+         this.input_data=[];
      },
      //确认按钮
      //当选择好每一项时保存在变化的数组中，想办法保存在不变的数组中，不变的数组意味着索引不同，当渲染时根据不变的数组索引拿出数据，渲染的时候只能用动态的数据数组
      //当点击复选框的时候根据不变的数据数组也就是当新建时选择好后索引是不变数组的索引
      confirm(){
        if(this.parent.browse==''&&this.parent.increase==''&&this.parent.del==''&&this.parent.modify==''){
-         alert(1)
+        //  alert(1)
         //  return '{}'
-         var data='';
+         var data=undefined;
           this.$emit('auth_data',data)
        }else{   
          //根据不变数据数组拿到选中的数据项
@@ -475,18 +535,21 @@ export default {
               return view==item
             });
             if(browse||increase||del||modify){
+              // if(this.input_data[index]){
+
+              // }
                 if(ite['Type']=="TABLE"){
                   var Type='DBase';
-                        if(browse){ this.dataTypeCom(ite,Type,"View");
+                        if(browse){ this.dataTypeCom(ite,Type,"View",this.input_data[index]);
                         };
                         if(increase){
-                            this.dataTypeCom(ite,Type,"Add");
+                            this.dataTypeCom(ite,Type,"Add",this.input_data[index]);
                         }
                         if(modify){
-                            this.dataTypeCom(ite,Type,"Update");                
+                            this.dataTypeCom(ite,Type,"Update",this.input_data[index]);                
                         }
                         if(del){
-                            this.dataTypeCom(ite,Type,"Del");                  
+                            this.dataTypeCom(ite,Type,"Del",this.input_data[index]);                  
                         }
                     }else if(ite['Type']=="PAGE"){
                         var Type="PAGE"; 
@@ -501,43 +564,59 @@ export default {
           this.$emit('auth_data',data)
         }
      },
-     dataTypeCom(item,Type,tblDo){
+     dataTypeCom(item,Type,tblDo,data){
+       //如果对象的Project为undefined
                   if(this.obj[item.Project]==undefined){
                     this.obj[item.Project]={};
                     if(this.obj[item.Project][Type]==undefined){
                       this.obj[item.Project][Type]={};
+                      //判断数据库是否为空
                       if(item.DBase==""){
                         if(this.obj[item.Project][Type][item.Table]==undefined){  
                           this.obj[item.Project][Type][item.Table]={};
-                          this.obj[item.Project][Type][item.Table][tblDo]=true;   
+                          this.obj[item.Project][Type][item.Table][tblDo]=true;
+                          this.obj[item.Project][Type][item.Table]['Recordld']=data
                         }else{
-                          this.obj[item.Project][Type][item.Table][tblDo]=true;   
-                        }  
+                          this.obj[item.Project][Type][item.Table][tblDo]=true; 
+                          this.obj[item.Project][Type][item.Table]['Recordld']=data  
+                        }
+                        //如果数据库不为空那么把数据库字段定义为对象  
                       }else{
+                        //如果数据库是undefined
                         if(this.obj[item.Project][Type][item.DBase]==undefined){                       
-                          this.obj[item.Project][Type][item.DBase]={};                         
+                          this.obj[item.Project][Type][item.DBase]={};  
+                          //如果表字段为空那么定义为对象                       
                           if(this.obj[item.Project][Type][item.DBase][item.Table]==undefined){
                             this.obj[item.Project][Type][item.DBase][item.Table]={}
                             this.obj[item.Project][Type][item.DBase][item.Table][tblDo]=true;
+                            this.obj[item.Project][Type][item.DBase][item.Table]['Recordld']=data;
                           }else{
                             this.obj[item.Project][Type][item.DBase][item.Table][tblDo]=true;
+                            this.obj[item.Project][Type][item.DBase][item.Table]['Recordld']=data;
                           } 
+                          //如果数据库不是undefined
                         }else{                         
                           if(this.obj[item.Project][Type][item.DBase][item.Table]==undefined){
                             this.obj[item.Project][Type][item.DBase][item.Table]={}
                             this.obj[item.Project][Type][item.DBase][item.Table][tblDo]=true;
+                            this.obj[item.Project][Type][item.DBase][item.Table]['Recordld']=data;
                           }else{
                             this.obj[item.Project][Type][item.DBase][item.Table][tblDo]=true;
+                            this.obj[item.Project][Type][item.DBase][item.Table]['Recordld']=data;
                           }                        
                         }
-                      }                     
+                      }   
+                      //如果类型不等于undefined                  
                     }else{
+                      //如果数据库等于空
                       if(item.DBase==""){
                         if(this.obj[item.Project][Type][item.Table]==undefined){                       
                           this.obj[item.Project][Type][item.Table]={};
-                          this.obj[item.Project][Type][item.Table][tblDo]=true;                         
+                          this.obj[item.Project][Type][item.Table][tblDo]=true; 
+                          this.obj[item.Project][Type][item.Table]['Recordld']=data;              
                         }else{
-                          this.obj[item.Project][Type][item.Table][tblDo]=true;   
+                          this.obj[item.Project][Type][item.Table][tblDo]=true; 
+                          this.obj[item.Project][Type][item.Table]['Recordld']=data;
                         }                                            
                       }else{
                         if(this.obj[item.Project][Type][item.DBase]==undefined){                       
@@ -545,28 +624,35 @@ export default {
                           if(this.obj[item.Project][Type][item.DBase][item.Table]==undefined){
                             this.obj[item.Project][Type][item.DBase][item.Table]={}
                             this.obj[item.Project][Type][item.DBase][item.Table][tblDo]=true;
+                            this.obj[item.Project][Type][item.DBase][item.Table]['Recordld']=data;
                           }else{
                             this.obj[item.Project][Type][item.DBase][item.Table][tblDo]=true;
+                            this.obj[item.Project][Type][item.DBase][item.Table]['Recordld']=data;
                           }                         
                         }else{                         
                           if(this.obj[item.Project][Type][item.DBase][item.Table]==undefined){
                             this.obj[item.Project][Type][item.DBase][item.Table]={}
                             this.obj[item.Project][Type][item.DBase][item.Table][tblDo]=true;
+                            this.obj[item.Project][Type][item.DBase][item.Table]['Recordld']=data;
                           }else{
                             this.obj[item.Project][Type][item.DBase][item.Table][tblDo]=true;
+                            this.obj[item.Project][Type][item.DBase][item.Table]['Recordld']=data;
                           }                         
                         }
                       }                      
                     }
+                    //如果对象的Project不为undefined
                   }else{
                     if(this.obj[item.Project][Type]==undefined){
                       this.obj[item.Project][Type]={};
                       if(item.DBase==""){
                         if(this.obj[item.Project][Type][item.Table]==undefined){                       
                           this.obj[item.Project][Type][item.Table]={};
-                          this.obj[item.Project][Type][item.Table][tblDo]=true;                         
+                          this.obj[item.Project][Type][item.Table][tblDo]=true; 
+                          this.obj[item.Project][Type][item.Table]['Recordld']=data;                        
                         }else{
-                          this.obj[item.Project][Type][item.Table][tblDo]=true;   
+                          this.obj[item.Project][Type][item.Table][tblDo]=true; 
+                          this.obj[item.Project][Type][item.Table]['Recordld']=data;      
                         }                                               
                       }else{
                         if(this.obj[item.Project][Type][item.DBase]==undefined){                       
@@ -574,15 +660,19 @@ export default {
                           if(this.obj[item.Project][Type][item.DBase][item.Table]==undefined){
                             this.obj[item.Project][Type][item.DBase][item.Table]={}
                             this.obj[item.Project][Type][item.DBase][item.Table][tblDo]=true;
+                            this.obj[item.Project][Type][item.DBase][item.Table]['Recordld']=data;
                           }else{
                             this.obj[item.Project][Type][item.DBase][item.Table][tblDo]=true;
+                            this.obj[item.Project][Type][item.DBase][item.Table]['Recordld']=data;
                           }                         
                         }else{                         
                           if(this.obj[item.Project][Type][item.DBase][item.Table]==undefined){
                             this.obj[item.Project][Type][item.DBase][item.Table]={}
                             this.obj[item.Project][Type][item.DBase][item.Table][tblDo]=true;
+                            this.obj[item.Project][Type][item.DBase][item.Table]['Recordld']=data;
                           }else{
                             this.obj[item.Project][Type][item.DBase][item.Table][tblDo]=true;
+                            this.obj[item.Project][Type][item.DBase][item.Table]['Recordld']=data;
                           }                          
                         }
                       }
@@ -590,9 +680,11 @@ export default {
                       if(item.DBase==""){
                         if(this.obj[item.Project][Type][item.Table]==undefined){                       
                           this.obj[item.Project][Type][item.Table]={};
-                          this.obj[item.Project][Type][item.Table][tblDo]=true;                         
+                          this.obj[item.Project][Type][item.Table][tblDo]=true;  
+                          this.obj[item.Project][Type][item.Table]['Recordld']=data;         
                         }else{
-                          this.obj[item.Project][Type][item.Table][tblDo]=true;   
+                          this.obj[item.Project][Type][item.Table][tblDo]=true;  
+                          this.obj[item.Project][Type][item.Table]['Recordld']=data; 
                         }                                              
                       }else{
                         if(this.obj[item.Project][Type][item.DBase]==undefined){                       
@@ -600,15 +692,19 @@ export default {
                           if(this.obj[item.Project][Type][item.DBase][item.Table]==undefined){
                             this.obj[item.Project][Type][item.DBase][item.Table]={}
                             this.obj[item.Project][Type][item.DBase][item.Table][tblDo]=true;
+                            this.obj[item.Project][Type][item.DBase][item.Table]['Recordld']=data;
                           }else{
                             this.obj[item.Project][Type][item.DBase][item.Table][tblDo]=true;
+                            this.obj[item.Project][Type][item.DBase][item.Table]['Recordld']=data;
                           }                         
                         }else{                         
                           if(this.obj[item.Project][Type][item.DBase][item.Table]==undefined){
                             this.obj[item.Project][Type][item.DBase][item.Table]={}
                             this.obj[item.Project][Type][item.DBase][item.Table][tblDo]=true;
+                            this.obj[item.Project][Type][item.DBase][item.Table]['Recordld']=data;
                           }else{
                             this.obj[item.Project][Type][item.DBase][item.Table][tblDo]=true;
+                            this.obj[item.Project][Type][item.DBase][item.Table]['Recordld']=data;
                           }                         
                         }
                       }                     
@@ -671,9 +767,6 @@ export default {
        this.filter_data();
      }
   },
-  components: {
-     
-  },
      directives: {
             drag: {inserted(el) {
                 let drag_Box = el; //获取当前元素
@@ -703,6 +796,17 @@ export default {
 }
 </script>
 <style scoped>
+  .data-input{
+    width: 159px;
+  }
+  .fa-ellipsis-h{
+    color: #fff;
+  }
+  .serch-box{
+    padding: 4px 3px;
+    background-color: #AAB2BD;
+    cursor: pointer;
+  }
   .th{
   background: white;
   }
@@ -757,10 +861,14 @@ export default {
    }
   .sel{
     position: fixed;
-    top: 30%;
-    left: 20%;
-    z-index:999
+    top: 50%;
+    left: 50%;
+    z-index:999;
     /* transform: translate(-40%, -40%); */
+    overflow: visible;
+	  bottom: inherit;
+	  right: inherit;
+	  transform: translate(calc(-50% + 0.5px), calc(-50% + 0.5px));
   }
   .t-body{
     height: 500px;
