@@ -1,14 +1,50 @@
 <template>
 	<div class="hello" @click="close">
 			<div class="row no-gutters shop">
+				<div class="col-lg-12  col-md-12  footer " v-show="fields" style="margin-top:20px;margin-bottom:20px">
+					<button @click="query" style="outline: none;">查询</button>
+					<button @click="add" v-if="option.new_add" :disabled="newly_build" :class="{color:btn_build}" style="outline: none;">新增</button>
+					<button @click="updata" v-if="option.updata" :disabled="isedit" :class="{color:btn_edit}" style="outline: none;">编辑</button>					
+					<button @click="submit(fields)" v-if="option.updata_add" :disabled="preservation" :class="{color:btn_preservation}"
+					 style="outline: none;">保存</button>
+					<button v-if="option.revoke" @click="bt_revoke" :disabled="revoke" :class="{color:btn_revoke}" style="outline: none;">撤销</button>
+					<button @click="del" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;">删除</button>
+					<button @click="del" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;">导出</button>
+					 <div class="modal-body">
+								
+								<!-- 当点击添加的时候要遍历这个元素 -->
+						  <div class="modal-body" v-for="(item,index) in add_num" :key="index" style="display:inline-block">
+							  <select class="body-sty" v-model="project_box" >
+								    <option disabled value="">请选择</option>
+									<option v-for="(item,index) in project_condition" :key="index" :value="item">{{item}}</option>
+								</select>
+								<i @click="accumulation">+</i>
+							  <div style="display:inline-block">
+							  <select name="" class="body-sle" v-model="project_slected[index]">
+								  <option disabled value="">请选择</option>
+								  <option v-for="(item,index) in head_data" :key="index" :value="item">{{item}}</option>
+							  </select>
+							  <select name="" class="body-sle-one" v-model="type_slected[index]">
+								  <option disabled value="">请选择</option>
+								  <option v-for="(item,index) in query_scope" :key="index" :value="item" >{{item}}</option>
+							  </select>
+							  <input type="text" class="body-input" v-model="condition[index]">
+							  <i class="body-i" @click="Query_remove(item)" :key="index">-</i>
+							</div>
+  					    </div>
+						  
+							  
+						</div>
+					<button @click="refresh" style="outline: none;">刷新</button>
+				</div>
 				<div class="col-lg-12  col-md-12 table-responsive" style="overflow: auto ;" @scroll="table_cont" :style="{maxHeight:fontSize+'px'}">
 						
 					<table class="table table-bordered text-nowrap " style="" >
 						<!-- 表格头部 -->
 						<thead class="thead" :style="{transform:'translateY('+tans_late+'px)'}">
 							<tr>
-								<td v-show="fields" class="fixed" ></td>
-								<td v-show="fields" class="fixed" ><input type="checkbox" v-model="btn_check" @change="tr_flag && btn_check_cli()"></td>
+								<!-- <td v-show="fields" class="fixed" ></td> -->
+								<td v-show="fields" class="fixed" ><input type="checkbox" class="box_size" v-model="btn_check" @change="tr_flag && btn_check_cli()"></td>
 								<td class="thb" v-for="(head,index) in fields" :key="index" >{{head.Comment}} 
 									<span v-show="head.Name==response.PRIMARY" @click="sort_flag && data_sort()" style="display: inline-block;vertical-align: -3px;">
 										<i class="fa-up" :class="[isup]"></i>
@@ -22,8 +58,8 @@
 						<tbody id="tbody" >
 							<!-- 新建的列表数据   当有多个循环的时候key值不能重复-->
 							<tr v-for="(num,index1) in num" :key="index1" :class="{list_color:true}" style="margin-top: 0;  align-self:flex-end">
-								<td class="fixed">{{index1+child_index_page}}</td>
-								<td class="fixed"><input type="checkbox" v-model="add_checkeds" :value="index1" disabled></td>
+								<!-- <td class="fixed">{{index1+child_index_page}}</td> -->
+								<td class="fixed"><input type="checkbox" class="box_size" v-model="add_checkeds" :value="index1" disabled></td>
 								<td class="fixed-list" v-for="(le,index) in len" :key="index">
 									
 									<!-- 输入框根据索引显示内容当添加新项目时会把之前的索引添加到现有的索引中所以会把输入框的内容添加到新的项目中 :id="'fld'+index"-->
@@ -44,25 +80,27 @@
 							
 							<!-- 初始请求的列表数据 -->
 							<!-- 编辑时把数据填充到输入框中 加上item是为了避免key值的和上一个tr的key值重复-->
-							<tr v-for="(item,index) in rows" :class="{list_color:dynamic[index]==item}" :key="index+item" 
-                            @click="tr_flag && tr_list($event,item,index)" @mouseenter="if_updata(index,item)" @mouseleave="else_updata(index)">
+							<!-- <tr v-for="(item,index) in rows" :class="{list_color:dynamic[index]==item}" :key="index+item" 
+                            @click="tr_flag && tr_list($event,item,index)" @mouseenter="if_updata(index,item)" @mouseleave="else_updata(index)"> -->
+							<tr v-for="(item,index) in rows" :class="{list_color:dynamic[index]==item}" :key="index+item" >
 								<!-- {{item}} -->
-								<td class="fixed">{{index+1+child_index}} </td>
+								<!-- <td class="fixed">{{index+1+child_index}} </td> -->
 								<!-- 给每个复选框绑定不一样的v-model -->
-								<td class="fixed"><input type="checkbox" v-model="btn_checkeds" :value="index"></td>
+								<!-- <td class="fixed"><input type="checkbox" v-model="btn_checkeds" :value="index"></td> -->
+								<td class="fixed"><input type="checkbox" class="box_size" v-model="btn_checkeds" @change="tr_list(item,index)" :value="index"></td>
 								 <!-- v-model="btn_checkeds[index]" -->
 								<!-- 渲染多个tr project为对象的每一项-->
 								<td class="fixed-list" v-for="(project,key,index_list) in item" :key="index_list" :title="project">
 									<!-- 如果没有点击编辑则直接是渲染的数据 -->
-									<template v-if="!edit_list[index]">
+									<template v-if="edit_list[index]">
 										{{project}}
 									</template>
 									<!-- 如果点击了编辑就渲染编辑后的数据 -->
-									<template v-if="edit_list[index]">
-										<input v-if="(fields[index_list].type=='textarea')" type="text" v-model="rows[index][key]">
-										<input v-if="(fields[index_list].type=='text'&&fields[index_list].Name!=response.PRIMARY)" type="text" v-model="rows[index][key]">
-										<input v-if="(fields[index_list].type=='password')" type="text" v-model="rows[index][key]">
-										<input v-if="(fields[index_list].type=='date_time')" type="text" v-model="rows[index][key]">
+									<template v-if="!edit_list[index]">
+										<input v-if="(fields[index_list].type=='textarea')" :readonly="!disabled_true[index]" type="text" v-model="rows[index][key]">
+										<input v-if="(fields[index_list].type=='text'&&fields[index_list].Name!=response.PRIMARY)" :readonly="!disabled_true[index]" type="text" v-model="rows[index][key]">
+										<input v-if="(fields[index_list].type=='password')" :readonly="!disabled_true[index]" type="text" v-model="rows[index][key]">
+										<input v-if="(fields[index_list].type=='date_time')" :readonly="!disabled_true[index]" type="text" v-model="rows[index][key]">
                                         <span v-if="(fields[index_list].type=='text'&&fields[index_list].Name==response.PRIMARY)">{{project}}</span>
 										<span v-if="fields[index_list].Action!=undefined" class="serch_box" @click="serch(index,index_list,key)"
 									 ><i class="fa fa-ellipsis-h fa-1x "></i></span>
@@ -78,7 +116,7 @@
 		<div style="margin-top: 100px;margin-left: 50%;color: #666;" v-show="!fields">暂无数据</div>
 		<!-- 底部结构 -->
 			<div class="row row-a" >
-				<div class="col-lg-4  col-md-2  footer " v-show="fields">
+				<!-- <div class="col-lg-4  col-md-2  footer " v-show="fields">
 					<button @click="query" style="outline: none;">查询</button>
 					<button @click="refresh" style="outline: none;">刷新</button>
 					<button @click="updata" v-if="option.updata" :disabled="isedit" :class="{color:btn_edit}" style="outline: none;">编辑</button>
@@ -87,7 +125,7 @@
 					 style="outline: none;">保存</button>
 					<button v-if="option.revoke" @click="bt_revoke" :disabled="revoke" :class="{color:btn_revoke}" style="outline: none;">撤销</button>
 					<button @click="del" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;">删除</button>
-				</div>
+				</div> -->
 				<div class="popup" v-if="show_hide">
 					<p class="content">确认要删除选择的条目吗</p>
 					<button class="confirm" @click="confirm_click" style="outline: none;">确认</button>
@@ -125,7 +163,7 @@
 				<div v-if="!no_data" class="col-lg-4  col-md-2  total">没有数据</div>
 				
 				<!-- 搜索的弹出框 -->
-				<div v-if="query_show" class="modal fade query" tabindex="-1" role="dialog" style="overflow: visible;opacity: 1" v-drag>
+				<!-- <div v-if="query_show" class="modal fade query" tabindex="-1" role="dialog" style="overflow: visible;opacity: 1" v-drag>
   					<div class="modal-dialog" role="document">
   					  <div class="modal-content">
   					    <div class="modal-header">
@@ -138,7 +176,7 @@
 								</select>
 								<i @click="accumulation">+</i>
   					    </div>
-						  <!-- 当点击添加的时候要遍历这个元素 -->
+						  当点击添加的时候要遍历这个元素 
 						  <div class="modal-body" v-for="(item,index) in add_num" :key="index" >
 							  <div>
 							  <select name="" class="body-sle" v-model="project_slected[index]">
@@ -160,11 +198,12 @@
   					    </div>
   					  </div>
   					</div>
-				</div>
+				</div> -->
 			</div>
 			<!-- <div style="background:red;position:relative"> -->
 			
 			<!-- 项目工程组件 -->
+	<template>
 		<ppr v-if="box_data.project_engineering" :rule_data="rule_data" :ppr_action="ppr_action" :ppr_action_param="ppr_action_param" :box_fun="box_fun" @close_project="close_project" @input_data="input_data">{{head_title}}</ppr>
 		<!-- 坦克活动数据中的对应渠道组件 -->
 		<pro v-if="box_data.tank_channel" :rule_data="rule_data" :ppr_action="ppr_action" :ppr_action_param="ppr_action_param" :box_fun="box_fun" @close_project="close_project" @channel_input_data="channel_input_data" ></pro>
@@ -188,6 +227,7 @@
 		<auth-role-edit v-if="box_data.role_edit" :rule_data="rule_data"  @close_project="close_project" @auth_data="auth_data"></auth-role-edit>
 		<!-- 提示组件 -->
 		<tips v-if="box_data.tips" :current_state="current_state"></tips>	
+	</template>
 			</div>	
 		
 	<!-- </div>    -->
@@ -209,6 +249,9 @@
 		name: 'shop',
 		data() {
 			return {
+				// flag_up:true,
+				//输入框禁止输入
+				disabled_true:{},
 				//不同组件的标题
 				head_title:'',
 				clientX:null,
@@ -303,7 +346,7 @@
 				//列表是否有选中的按钮
 				list_some: '',
 				//编辑列表的数据
-				edit_list: [],
+				edit_list: {},
 				//编辑更新的数据对象
 				updata_edit: [],
 				//当总项目条数大于16时显示一页16条数据
@@ -315,11 +358,11 @@
 				//查询代号
 				query_code:['eq','nc','ne','gt','ge','lt','le','cn','bw','bn','ew','en','nu','nn'],
 				//查询多条数据累加选项
-				add_num:[],
+				add_num:[1],
 				//查询的添加和移除
 				condition:[],
 				//搜索输入框的不同数据
-				search_data:-1,
+				search_data:1,
 				//项目选择框
 				project_slected:[],
 				//类型选择框
@@ -379,8 +422,9 @@
 			   authRoleEdit,
 			   tips,
 		},
+		created(){},
 		mounted() {
-            this.if_updata();
+            // this.if_updata();
             // this.else_updata()
 			//根据屏幕的高度计算数据的显示条数
 			if(window.screen.height>1080){
@@ -688,10 +732,11 @@
 					this.add_num=this.add_num.filter(item=>item!==p)
 			},
 			//查询多条数据累加选项
-			accumulation(){
+			accumulation(){		
 				//当点击添加的加号时给数组添加不同的项以便给input添加不同的v-model
 				this.search_data+=1;
 				this.add_num.push(this.search_data);
+				// this.add_num+=1;
 				//每添加一项都会在选择框中添加第一项数据
 				this.project_slected.push(this.head_data[0]);
 				this.type_slected.push(this.query_scope[0]);
@@ -793,26 +838,45 @@
 				this.dynamic={};
 			},
 			//列表复选框的选中和取消
-			tr_list(e,item,i){
-				if(this.btn_checkeds.length==0){
-					this.btn_checkeds.push(i);
-				}else if(this.btn_checkeds.every((item,index)=>{return item!=i})){
-					this.btn_checkeds.push(i);
-				}else{
-					this.btn_checkeds=this.btn_checkeds.filter((item,index)=>{
-						return i!=item;
-					});
-				};
+			tr_list(item,i){
+				// if(this.btn_checkeds.length==0){
+				// 	this.btn_checkeds.push(i);
+				// }else if(this.btn_checkeds.every((item,index)=>{return item!=i})){
+				// 	this.btn_checkeds.push(i);
+				// }else{
+				// 	this.btn_checkeds=this.btn_checkeds.filter((item,index)=>{
+				// 		return i!=item;
+				// 	});
+				// };
+				// if(this.btn_checkeds.length>0){
+				// 	this.btn_check=true;
+				// 	this.list_some=true;
+				// 	this.revoke = false;
+ 				// 	this.btn_revoke = false;
+				// };
+				// if(this.btn_checkeds.length==0){
+				// 	this.btn_check=false;
+				// };
+				// //点击列表改变背景色
+				// if(!this.dynamic[i]){
+				// 	this.dynamic[i]=item;
+				// }else{
+				// 	this.dynamic[i]='';
+				// }
+
+				// console.log(this.btn_checkeds)
 				if(this.btn_checkeds.length>0){
+					// this.edit_list[i] =true;
+					// this.flag_up=false;
 					this.btn_check=true;
 					this.list_some=true;
 					this.revoke = false;
- 					this.btn_revoke = false;
-				};
-				if(this.btn_checkeds.length==0){
+					 this.btn_revoke = false;
+					//  console.log(this.btn_checkeds)
+				}else{
+					// console.log(this.btn_checkeds)
 					this.btn_check=false;
-				};
-				//点击列表改变背景色
+				}
 				if(!this.dynamic[i]){
 					this.dynamic[i]=item;
 				}else{
@@ -835,6 +899,7 @@
 							});
 					})		
 						}
+						// console.log(this.btn_checkeds)
 			},
 			//点击动态的数据项后边的三点请求不同的数据
 			serch(index1,index,key) {
@@ -1012,10 +1077,11 @@
 						this.child_index_total=total;
 					}
 				}
-				
+				this.disabled_true={};
 			},
 			//撤销
 			bt_revoke() {
+				// this.disabled_true=true;
 				this.sort_flag=true;
 				this.child_index_total-=this.num;
 				//当点击时把新建取消
@@ -1262,9 +1328,10 @@
 					//updata_edit是一共有多少条数据对象
 					var parameter = {};
 					for (var i = 0; i < this.updata_edit.length; i++) {
+						// this.disabled_true[this.updata_edit.length[i]]=false;
 						//当有复选框的时候把boolean转换成数字类型
 						for (let k in this.updata_edit[i]) {
-							console.log(this.updata_edit[i][k])
+							// console.log(this.updata_edit[i][k])
 							if (typeof(this.updata_edit[i][k]) == 'boolean') {
 								this.updata_edit[i][k] = Number(this.updata_edit[i][k])
 							};
@@ -1290,6 +1357,7 @@
 								},2000)
 							}else{
 								this.rows.forEach((item, index) => {
+
 								if (this.btn_checkeds.length>0) {
 									this.btn_checkeds.forEach((item,i)=>{
 									this.edit_list[item] = false;
@@ -1310,31 +1378,12 @@
 					}
 					// this.refresh()
 					//修改完成后清空数组项
-					this.updata_edit = [];	
+					this.updata_edit = {};	
 				}
 					this.tr_flag=true;
 					//把之前保存的选中数清除
 					this.list_some=false ;
 					this.dynamic={};
-            },
-            if_updata(i,item){
-                //  console.log(index)
-                //当鼠标移上后数组的对应的index值设置为true
-                // this.rows.forEach((item,index)=>{
-                    // if(i==index){
-                        // this.edit_list[index]=true
-                    // }
-                    
-                // })
-                
-                //  this.edit_list[index] = 1;
-                //  console.log(this.edit_list)
-                //  this.updata_edit.push(this.rows[index]);
-            },
-            else_updata(i){
-                // this.rows.forEach((item,index)=>{
-                    // this.edit_list[i]=false
-                // })
             },
 			//编辑
 			updata() {
@@ -1363,16 +1412,20 @@
 				this.tr_flag=false;
 						//当选中其中一项
                         //当选中数组中的值大于0时遍历数组
-                        console.log(this.btn_checkeds)
+                        // console.log(this.btn_checkeds)
 						if (this.btn_checkeds.length>0) {
+							
 							this.btn_checkeds.forEach((item,index)=>{
+								this.disabled_true[item]=true;
                                 // console.log(item)
 								//当点击编辑时edit_list中的索引数据为true
                                 // console.log(typeof item)
                                 // console.log(this.rows[item])
-                                this.edit_list[item] = true;
-                                // console.log(this.edit_list)
+                                this.edit_list[item] = false;
+								// console.log(this.edit_list)
+								//编辑时把每条数据项保存起来
 							this.updata_edit.push(this.rows[item]);
+							// console.log(this.updata_edit)
 							})
 
 						} else {
@@ -1743,6 +1796,10 @@
     vertical-align: super;
     padding-bottom: 2px;
 } */
+.box_size{
+	width: 20px;
+	height: 20px;
+}
 #tbody input{
     border: none!important;
     height: 25px!important;
@@ -1921,6 +1978,7 @@ button, input{
 
 	.color {
 		opacity: .5;
+		cursor: no-drop;
 	}
 
 	.fa-up {

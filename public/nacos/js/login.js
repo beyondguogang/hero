@@ -39,10 +39,10 @@ let vm = new Vue({
                 .then(response => {
                     var error = response.data.error;
                     if (error === 0) {
-                        this.userInfo = response.data.message;
-                        sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo));
-                        var time = parseInt(new Date().getTime() / 1000);
-                        sessionStorage.setItem('startTime', time);
+                        // this.userInfo = response.data.message;
+                        // sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo));
+                        // var time = parseInt(new Date().getTime() / 1000);
+                        // sessionStorage.setItem('startTime', time);
                         this.shows=true;
                         this.verification="登陆成功";
                         setTimeout( ()=> {

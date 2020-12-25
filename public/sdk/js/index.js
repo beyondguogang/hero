@@ -27,20 +27,20 @@ let vm=new Vue({
     },
 
     mounted:function() {
-        let obj=window.location.href;
-        if(obj.indexOf('#')!=-1){
-            var hash=unescape(obj.substring(obj.indexOf('#')+1));
-            //var name=unescape(obj.substring(obj.indexOf('=')+1));
-            var hash_val=hash.split('&');
-            var arr=[];
-            for(var i=0;i<hash_val.length; i++){
-                //console.log(hash_val[i])
-                var vald=hash_val[i].split('=');
-                //console.log(vald)
-                arr.push(vald[1]) ;
-            }
+        // let obj=window.location.href;
+        // if(obj.indexOf('#')!=-1){
+        //     var hash=unescape(obj.substring(obj.indexOf('#')+1));
+        //     //var name=unescape(obj.substring(obj.indexOf('=')+1));
+        //     var hash_val=hash.split('&');
+        //     var arr=[];
+        //     for(var i=0;i<hash_val.length; i++){
+        //         //console.log(hash_val[i])
+        //         var vald=hash_val[i].split('=');
+        //         //console.log(vald)
+        //         arr.push(vald[1]) ;
+        //     }
            
-        };
+        // };
         // console.log(sessionStorage.getItem('user_copy'))
         // var params = (function oneValues() {
         //     var query = location.search.substr(1)
@@ -85,7 +85,7 @@ let vm=new Vue({
             this.userInfo=user;
         // }
         if(user==""||user==null ||user==undefined ||user=='null'){
-            window.location.href="./login.html";
+            window.location.href="/login";
             return false;
         }
         
@@ -93,7 +93,7 @@ let vm=new Vue({
         var timeCha=(time-startTime)-(30*60);
         if(timeCha>0){
             sessionStorage.setItem('user',null);
-            window.location.href="./login.html";
+            window.location.href="/login";
             return false;
         }
         var userObj=JSON.parse(user);

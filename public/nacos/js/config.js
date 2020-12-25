@@ -1,5 +1,6 @@
 
  let serverUrl="http://10.0.17.42:3000";
+ let webUrl='http://127.0.0.1:8080';
 //  let serverUrl="http://10.0.18.14:3000";
 
 

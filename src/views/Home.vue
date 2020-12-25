@@ -117,7 +117,7 @@
 			return {
 				address:'',
 				login_time:'',
-				user:'',
+				// user:'',
 				ht:'http://10.0.17.119:8082/index.html',
 				sel_tips:false,
 				//当前的状态
@@ -233,14 +233,14 @@
 		created() {},
 		computed: {},
 		mounted() {
-			console.log(0 - new Date().getTimezoneOffset() / 60)
+			// console.log(0 - new Date().getTimezoneOffset() / 60)
 			//根据
 			if(window.screen.height>1080){
 				this.data_page=20
 			}else{
 				this.data_page=17
 			}
-			this.user=encodeURIComponent(window.sessionStorage.getItem('userInfo'));
+			// this.user=encodeURIComponent(window.sessionStorage.getItem('userInfo'));
 			// console.log(window.sessionStorage.getItem('userInfo'))
 			//判断是否登录过期
 			if(window.sessionStorage.getItem('userInfo')==null){

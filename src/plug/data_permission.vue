@@ -93,12 +93,12 @@ export default {
     //获取数据
     get_data(){
       this.axios.post(this.api+'/bin/'+this.project+'/'+this.db+'/'+this.table+ '/columns',{userInfo:this.userInfo}).then((res)=>{
-          console.log(res.data)
+          // console.log(res.data)
           this.columns=res.data.FIELDS;
-          console.log(this.columns)
+          // console.log(this.columns)
           this.axios.get(this.api+'/data/'+this.project+'/'+this.db+'/'+this.table).then((res)=>{
-          console.log(res.data)
-          if(res.data.length==0){
+          // console.log(res.data)
+          if(res.data.length>0){
             if(Object.keys(res.data[0]).some((item)=>{return item=='fld_record_id'})){
             this.data_list=res.data;
           }else{
