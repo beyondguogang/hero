@@ -140,13 +140,13 @@
 						  <!-- 当点击添加的时候要遍历这个元素 -->
 						  <div class="modal-body" v-for="(item,index) in add_num" :key="index" >
 							  <div>
-							  <select name="" class="body-sle" v-model="project_slected[index]">
+							  <select name="" class="body-sle" v-model="project_slected[item]">
 								  <option v-for="(item,index) in head_data" :key="index" :value="item">{{item}}</option>
 							  </select>
-							  <select name="" class="body-sle-one" v-model="type_slected[index]">
+							  <select name="" class="body-sle-one" v-model="type_slected[item]">
 								  <option v-for="(item,index) in query_scope" :key="index" :value="item" >{{item}}</option>
 							  </select>
-							  <input type="text" class="body-input" v-model="condition[index]">
+							  <input type="text" class="body-input" v-model="condition[item]">
 							  <i class="body-i" @click="Query_remove(item)" :key="index">-</i>
 							  </div>
 							  
@@ -318,7 +318,7 @@
 				//查询的添加和移除
 				condition:[],
 				//搜索输入框的不同数据
-				search_data:-1,
+				search_data:0,
 				//项目选择框
 				project_slected:[],
 				//类型选择框
@@ -660,9 +660,12 @@
 							request_parameters.rules[index].op=this.query_code[i]
 						}
 					})
+					console.log(this.condition)
 						request_parameters.rules[index].data=this.condition[index];
 				})
+				console.log(request_parameters)
 				let project=JSON.stringify(request_parameters);
+				// console.log(this.project)
 				this.query_data=project;
 				this.$emit('query',this.sub_url, this.child_index,project,this.sort);
 				//让选项数据初始化一条
@@ -688,6 +691,7 @@
 			accumulation(){
 				//当点击添加的加号时给数组添加不同的项以便给input添加不同的v-model
 				this.search_data+=1;
+				console.log(this.search_data)
 				this.add_num.push(this.search_data);
 				//每添加一项都会在选择框中添加第一项数据
 				this.project_slected.push(this.head_data[0]);
@@ -701,7 +705,8 @@
 			//查询
 			query(){
 				this.query_show=true;
-				this.search_data+=1;
+				// this.search_data+=1;
+				console.log(this.search_data)
 				this.add_num.push(this.search_data);
 				this.project_box=this.project_condition[0];
 				this.fields.forEach((item,index) =>{
@@ -712,6 +717,7 @@
 						//在动态的选择框中始终把第一项放在框中
 									}				
 				})
+				// console.log(this.head_data[0])
 				this.project_slected.push(this.head_data[0]);
 				this.type_slected.push(this.query_scope[0]);
 				this.condition.push('')

@@ -2,40 +2,40 @@
 	<div class="hello" @click="close">
 			<div class="row no-gutters shop">
 				<div class="col-lg-12  col-md-12  footer " v-show="fields" style="margin-top:20px;margin-bottom:20px">
-					<button @click="query" style="outline: none;">查询</button>
 					<button @click="add" v-if="option.new_add" :disabled="newly_build" :class="{color:btn_build}" style="outline: none;">新增</button>
 					<button @click="updata" v-if="option.updata" :disabled="isedit" :class="{color:btn_edit}" style="outline: none;">编辑</button>					
 					<button @click="submit(fields)" v-if="option.updata_add" :disabled="preservation" :class="{color:btn_preservation}"
 					 style="outline: none;">保存</button>
 					<button v-if="option.revoke" @click="bt_revoke" :disabled="revoke" :class="{color:btn_revoke}" style="outline: none;">撤销</button>
-					<button @click="del" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;">删除</button>
+					<button @click="del" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;background:#d26267">删除</button>
 					<button @click="del" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;">导出</button>
-					 <div class="modal-body">
+					 <div class="modal-body" style="display:inline-block">
 								
 								<!-- 当点击添加的时候要遍历这个元素 -->
-						  <div class="modal-body" v-for="(item,index) in add_num" :key="index" style="display:inline-block">
+						  <div class="modal-body modal-pos" style="display:inline-block">
 							  <select class="body-sty" v-model="project_box" >
-								    <option disabled value="">请选择</option>
+								    <!-- <option disabled value="">请选择</option> -->
 									<option v-for="(item,index) in project_condition" :key="index" :value="item">{{item}}</option>
 								</select>
 								<i @click="accumulation">+</i>
-							  <div style="display:inline-block">
-							  <select name="" class="body-sle" v-model="project_slected[index]">
-								  <option disabled value="">请选择</option>
+							  <div style="display:inline-block;width:500px;z-index:1000" v-for="(item,index) in add_num" :key="index">
+							  <select class="body-sle" v-model="project_slected[item]">
+								  <!-- <option disabled value="">请选择</option> -->
 								  <option v-for="(item,index) in head_data" :key="index" :value="item">{{item}}</option>
 							  </select>
-							  <select name="" class="body-sle-one" v-model="type_slected[index]">
-								  <option disabled value="">请选择</option>
+							  <select class="body-sle-one" v-model="type_slected[item]">
+								  <!-- <option disabled value="">请选择</option> -->
 								  <option v-for="(item,index) in query_scope" :key="index" :value="item" >{{item}}</option>
 							  </select>
-							  <input type="text" class="body-input" v-model="condition[index]">
+							  <input type="text" class="body-input" placeholder="输入条件值" v-model="condition[item]">
 							  <i class="body-i" @click="Query_remove(item)" :key="index">-</i>
 							</div>
   					    </div>
 						  
 							  
 						</div>
-					<button @click="refresh" style="outline: none;">刷新</button>
+						<button @click="lookup" style="outline: none;margin-left:145px;background:#fff;color:#000;border:1px solid #808080;cursor: pointer">查询</button>
+						<button @click="refresh" style="outline: none;cursor: pointer">刷新</button>
 				</div>
 				<div class="col-lg-12  col-md-12 table-responsive" style="overflow: auto ;" @scroll="table_cont" :style="{maxHeight:fontSize+'px'}">
 						
@@ -131,8 +131,8 @@
 					<button class="confirm" @click="confirm_click" style="outline: none;">确认</button>
 					<button class="cancel" @click="cancel_click" style="outline: none;">取消</button>
 				</div>
-				<div class="col-lg-4  col-md-4 total-page footer">
-					<nav>
+				<div class="col-lg-4 offset-lg-8 col-md-4 total-page footer">
+					<!-- <nav>
 						<ul class="">
 							<li>
 								<a href="javascript:void(0);" @click.prevent="home_page">
@@ -154,54 +154,48 @@
 								</a>
 							</li>
 						</ul>
+					</nav> -->
+					<nav aria-label="Page navigation">
+					  <ul class="pagination pagination-lg">
+					    <li>
+					      <!-- <span aria-label="Previous"> -->
+					        <b aria-hidden="true" style="border:none">{{[increasing+project_data.records]}}</b>
+					      <!-- </span> -->
+					    </li>
+						<li v-show="is_previous_page">
+					      <span aria-label="Next" @click="previous_page">
+					        <span aria-hidden="true">上一页</span>
+					      </span>
+					    </li>
+						<li v-show="is_home_page">
+					      <span aria-label="Next" @click="home_page">
+					        <span aria-hidden="true">首页</span>
+					      </span>
+					    </li>
+						<li v-show="is_previous_ellipsis">...</li>
+					    <li><span @click="!first_box_bg && submit_input(page_init.first)" :class="{'first-box-bg':first_box_bg}">{{page_init.first}}</span></li>
+    					<li><span @click="!second_box_bg && submit_input(page_init.second)" :class="{'first-box-bg':second_box_bg}">{{page_init.second}}</span></li>
+    					<li><span @click="!third_box_bg && submit_input(page_init.third)" :class="{'first-box-bg':third_box_bg}">{{page_init.third}}</span></li>
+						<li v-show="is_next_ellipsis">...</li>
+					    <li v-show="is_Last_page">
+					      <span aria-label="Next" @click="last_page">
+					        <span aria-hidden="true">尾页</span>
+					      </span>
+					    </li>
+						<li v-show="is_next_page">
+					      <span aria-label="Next" @click="next_page">
+					        <span aria-hidden="true">下一页</span>
+					      </span>
+					    </li>
+					  </ul>
 					</nav>
 				</div>
-				<div v-if="no_data" class="col-lg-4  col-md-2  total footer">
+				<!-- <div v-if="no_data" class="col-lg-4  col-md-2  total footer">
 					<span class="page-num">第{{child_index_page}}到第{{count}}条</span>
 					<span class="total-num">共{{increasing+project_data.records}}条</span>
-				</div>
-				<div v-if="!no_data" class="col-lg-4  col-md-2  total">没有数据</div>
-				
-				<!-- 搜索的弹出框 -->
-				<!-- <div v-if="query_show" class="modal fade query" tabindex="-1" role="dialog" style="overflow: visible;opacity: 1" v-drag>
-  					<div class="modal-dialog" role="document">
-  					  <div class="modal-content">
-  					    <div class="modal-header">
-						 <span class="modal-title" >搜索&hellip;</span>
-  					      <span @click="close_win" v-if="query_show" aria-hidden="true" class="modal-span">&times;</span>
-  					    </div>
-  					    <div class="modal-body">
-								<select class="body-sty" v-model="project_box" >
-									<option v-for="(item,index) in project_condition" :key="index" :value="item">{{item}}</option>
-								</select>
-								<i @click="accumulation">+</i>
-  					    </div>
-						  当点击添加的时候要遍历这个元素 
-						  <div class="modal-body" v-for="(item,index) in add_num" :key="index" >
-							  <div>
-							  <select name="" class="body-sle" v-model="project_slected[index]">
-								  <option v-for="(item,index) in head_data" :key="index" :value="item">{{item}}</option>
-							  </select>
-							  <select name="" class="body-sle-one" v-model="type_slected[index]">
-								  <option v-for="(item,index) in query_scope" :key="index" :value="item" >{{item}}</option>
-							  </select>
-							  <input type="text" class="body-input" v-model="condition[index]">
-							  <i class="body-i" @click="Query_remove(item)" :key="index">-</i>
-							  </div>
-							  
-						  </div>
-  					    <div class="modal-footer">	
-  					      <span type="button" class="btn btn-default footer-reset" data-dismiss="modal" @click="box_reset"><i class="fa fa-reply" aria-hidden="true"
-							></i>重置</span>
-  					      <span type="button" class="btn footer-query" @click="lookup">查找
-								<i class="fa fa-search" aria-hidden="true" ></i></span>
-  					    </div>
-  					  </div>
-  					</div>
 				</div> -->
+				<div v-if="!no_data" class="col-lg-4  col-md-2  total">没有数据</div>
 			</div>
-			<!-- <div style="background:red;position:relative"> -->
-			
 			<!-- 项目工程组件 -->
 	<template>
 		<ppr v-if="box_data.project_engineering" :rule_data="rule_data" :ppr_action="ppr_action" :ppr_action_param="ppr_action_param" :box_fun="box_fun" @close_project="close_project" @input_data="input_data">{{head_title}}</ppr>
@@ -249,7 +243,30 @@
 		name: 'shop',
 		data() {
 			return {
-				// flag_up:true,
+				//第一个按钮的样式
+				first_box_bg:false,
+				//第二个按钮的样式
+				second_box_bg:false,
+				//第三个按钮的样式
+				third_box_bg:false,
+				//是否显示尾页按钮
+				is_Last_page:true,
+				//是否显示下一页按钮
+				is_next_page:true,
+				//是否显示页数后面的省略号
+				is_next_ellipsis:true,
+				//是否显示页数中前面的省略号
+				is_previous_ellipsis:false,
+				//是否显示前一页按钮
+				is_previous_page:false,
+				//是否显示首页按钮
+				is_home_page:false,
+				//初始的页数按钮
+			    page_init:{
+					first:1,
+					second:2,
+					third:3
+				},
 				//输入框禁止输入
 				disabled_true:{},
 				//不同组件的标题
@@ -358,11 +375,11 @@
 				//查询代号
 				query_code:['eq','nc','ne','gt','ge','lt','le','cn','bw','bn','ew','en','nu','nn'],
 				//查询多条数据累加选项
-				add_num:[1],
+				add_num:[],
 				//查询的添加和移除
 				condition:[],
 				//搜索输入框的不同数据
-				search_data:1,
+				search_data:-1,
 				//项目选择框
 				project_slected:[],
 				//类型选择框
@@ -424,6 +441,9 @@
 		},
 		created(){},
 		mounted() {
+			this.first_page();
+			this.query();
+			// this.lookup();
             // this.if_updata();
             // this.else_updata()
 			//根据屏幕的高度计算数据的显示条数
@@ -506,6 +526,10 @@
 			no_data:Boolean,
 		},
 		methods: {
+			//第一页默认的按钮样式、
+			first_page(){
+				this.first_box_bg=true;
+			},
 			//请求所有弹框的数据根据字段显示是否有查询的三个点
 			serch_fn(){
 				let time=new Date().getTime(); 
@@ -677,6 +701,8 @@
 			},
 			//查找
 			lookup(){
+				// this.condition=[];
+				console.log(this.condition)
 				this.child_index = 0;
 				this.page=1;
 				//获取选框中的值并赋值请求参数
@@ -692,6 +718,7 @@
 				request_parameters.rules=[];
 				//遍历有多少组数据
 				this.add_num.forEach((item,index)=>{
+					console.log(item)
 					//有几条数据就在request_parameters对象中添加几个对象
 					request_parameters.rules.push({});
 					//遍历头部数据
@@ -707,15 +734,21 @@
 							request_parameters.rules[index].op=this.query_code[i]
 						}
 					})
+					if(this.condition.length>0){
 						request_parameters.rules[index].data=this.condition[index];
+					}else{
+						return false
+					}
+						
 				})
 				let project=JSON.stringify(request_parameters);
 				this.query_data=project;
+				console.log(project)
 				this.$emit('query',this.sub_url, this.child_index,project,this.sort);
 				//让选项数据初始化一条
 				this.add_num=[];
 				//查询时让弹窗关闭
-				this.close_win();
+				// this.close_win();
 				//返回初始状态
 				this.condition=[];
 				this.type_slected=[];
@@ -723,34 +756,41 @@
 				this.head_data=[];
 			},
 			//重置
-			box_reset(){
-				this.condition=[];
-			},
+			// box_reset(){
+			// 	this.condition=[];
+			// },
 			//移除查询数据中的某一条
 			Query_remove(p){
 				//遍历数组中添加的数据有多少移除点击的项
-					this.add_num=this.add_num.filter(item=>item!==p)
+				console.log(p,this.add_num)
+					this.add_num=this.add_num.filter((item)=>{return p!=item})
+					console.log(this.add_num)
 			},
 			//查询多条数据累加选项
 			accumulation(){		
 				//当点击添加的加号时给数组添加不同的项以便给input添加不同的v-model
 				this.search_data+=1;
 				this.add_num.push(this.search_data);
+				console.log(this.search_data)
+				console.log(this.add_num)
 				// this.add_num+=1;
 				//每添加一项都会在选择框中添加第一项数据
 				this.project_slected.push(this.head_data[0]);
 				this.type_slected.push(this.query_scope[0]);
 				this.condition.push('')
+				console.log(this.condition)
 			},
 			//关闭查询弹窗
-			close_win(){
-				this.query_show=false;
-			},
+			// close_win(){
+			// 	this.query_show=false;
+			// },
 			//查询
 			query(){
-				this.query_show=true;
-				this.search_data+=1;
-				this.add_num.push(this.search_data);
+				// alert(0)
+				// this.query_show=true;
+				// this.search_data+=1;
+				console.log(this.search_data)
+				// this.add_num.push(this.search_data);
 				this.project_box=this.project_condition[0];
 				this.fields.forEach((item,index) =>{
 					//当点击查询的时候判断需要查寻的条件有哪些
@@ -762,18 +802,44 @@
 				})
 				this.project_slected.push(this.head_data[0]);
 				this.type_slected.push(this.query_scope[0]);
-				this.condition.push('')
+				// this.condition.push('')
+				console.log(this.condition)
 			},
 			//关闭输入框
 			close() {
 				this.input_page = false;
 			},
 			//enter事件提交请请求的页数点击底部的第几页出现输入框
-			submit_input() {
+			submit_input(data) {
 				//输入框的数据的判断
-				let page = this.project_data.page;
-				if (this.project_data.page != '' && !isNaN(this.project_data.page) && Number(this.project_data.page) > 0 && Number(
-						this.project_data.page) <= parseInt(this.project_data.total)) {
+				// let page = this.project_data.page;
+				if(data==1){
+					this.first_box_bg=true;
+					this.is_previous_page=false;
+					this.third_box_bg=false;
+					this.second_box_bg=false;
+					this.is_home_page=false;
+				}
+				if(data==2){
+					this.second_box_bg=true;
+					this.first_box_bg=false;
+					this.third_box_bg=false;
+					this.is_previous_page=true;
+					this.is_home_page=false;
+				}
+				if(data==3){
+					this.third_box_bg=true;
+					this.second_box_bg=false;
+					this.first_box_bg=false;
+					this.is_home_page=true;
+					this.is_previous_page=true;
+					this.page_init.first+=1
+					this.page_init.second+=1
+					this.page_init.third +=1
+				}
+				let page = data;
+				// if (this.project_data.page != '' && !isNaN(this.project_data.page) && Number(this.project_data.page) > 0 && Number(
+				// 		this.project_data.page) <= parseInt(this.project_data.total)) {
 					//当数据请求回来再执行下次方法
 					if (this.istrue.isnext == true) {
 						this.child_index = this.data_page * (page - 1);
@@ -788,14 +854,14 @@
 						}
 						this.$emit('lookup', this.sub_url, this.child_index, page,this.sort)
 					}
-				} else {
-					this.input_page = false;
-					this.child_index = 0;
-					this.child_index_total = this.data_page;
-					this.child_index_page=1;
-					this.$emit('lookup', this.sub_url, this.child_index, 1,this.sort)
-					return false;
-				}
+				// } else {
+				// 	this.input_page = false;
+				// 	this.child_index = 0;
+				// 	this.child_index_total = this.data_page;
+				// 	this.child_index_page=1;
+				// 	this.$emit('lookup', this.sub_url, this.child_index, 1,this.sort)
+				// 	return false;
+				// }
 				this.input_page = false;
 				this.page=page;
 				this.child_index_page=this.data_page*page-this.data_page+1;
@@ -1590,7 +1656,9 @@
 				}
 			},
 			//首页加载
-			home_page() {		
+			home_page() {
+				this.is_home_page=false;
+				this.is_previous_page=false;		
 				if(this.child_index_page!=1){
 					if (this.istrue.isstart == true) {
 					let time = new Date().getTime();
@@ -1796,6 +1864,30 @@
     vertical-align: super;
     padding-bottom: 2px;
 } */
+.first-box-bg{
+	background: #337ab7!important;
+	color:#fff!important;
+	cursor: auto!important;
+}
+.pagination li{
+	margin:0 5px
+}
+.pagination li span:hover{
+	background: darkgray;
+}
+.pagination>li>span{
+	position: relative;
+    float: left;
+    padding: 3px 10px;
+    margin-left: -1px;
+    line-height: 1.42857143;
+    color: #007bff;
+    text-decoration: none;
+    background-color: #fff;
+	border: 1px solid #ddd;
+	font-size: 10px;
+	cursor: pointer;
+}
 .box_size{
 	width: 20px;
 	height: 20px;
@@ -1921,6 +2013,13 @@ button, input{
 	.modal-body{
 		padding:6px;
 	}
+	.modal-pos{
+		width: 154px;
+    	position: absolute;
+    	top: -12px;
+    	left: 7px;
+    	z-index: 999;
+	}
 	.modal-body i{
 		font-size:18px;
 		vertical-align:top;
@@ -1928,6 +2027,8 @@ button, input{
 		border: 1px solid #808080;
 		border-left:none;
 		color:#007bff;
+		background: #fff;
+		padding:0 10px;
 	}
 	.modal-span{
 		font-size:20px;
@@ -2056,9 +2157,14 @@ button, input{
 		/* overflow: auto; */
 		/* max-height: 753px; */
 	}
-
+    .pagination{
+		margin-left: 75px;
+		float: right;
+		margin-right: 20px;
+	}
 	.pagination a {
 		color: #095ee8;
+		/* margin-left: 75px; */
 	}
 
 	.page {

@@ -444,6 +444,7 @@
 							headers: {
 								'Content-Type': 'application/x-www-form-urlencoded'}
 							}).then(res => {
+								console.log(res)
 						this.project_data = res.data;
 						// this.rows = res.data.rows;
 						//更新时区
@@ -1388,7 +1389,7 @@
 
 	.header {
 		position: fixed;
-		z-index: 1;
+		z-index: 1000;
 		width: 100%;
 	}
 
