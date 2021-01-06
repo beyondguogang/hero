@@ -9,7 +9,7 @@
     margin-top: 30px;
 }
 .det-box .server-tal th,td{
-    width: 7.5%;
+    /* width: 7.5%; */
     border: 1px solid #dcdee3;
     text-indent: 16px;
     font-size: 12px;

@@ -5,25 +5,29 @@ let vm=new Vue({
     },
     data:function(){
     return{
-        rea:'a',
-        isItemList:false,
-        isItemList1:false,
-        isItemList2:false,
-        msg1:'',
-        msg:'',
-        bor:'1px solid #5a6268',
-        bor1:'1px solid #5a6268',
-        hide:'none',
-        hide1:'none',
-        disappear:'',
+        // rea:'a',
+        // isItemList:false,
+        // isItemList1:false,
+        // isItemList2:false,
+        // msg1:'',
+        // msg:'',
+        // bor:'1px solid #5a6268',
+        // bor1:'1px solid #5a6268',
+        // hide:'none',
+        // hide1:'none',
+        // disappear:'',
+        // nameList:"",
+        // namespace_id:"",
+        // groupList:"",
+        // group_id:"",
+        // serverAddUrl:"",
         back:true,
         project_id:"",
         serverList:"",
-        nameList:"",
-        namespace_id:"",
-        groupList:"",
-        group_id:"",
-        serverAddUrl:"",
+        //弹框是否显示
+        shows:false,
+        //弹框内容
+        verification:'',
         /*添加权限*/
         pointer:'true',
         opacity:1,
@@ -40,29 +44,34 @@ let vm=new Vue({
         show_tips_box:false,
         current_state:'没有添加权限',
         //是否显示数据
-        t_body:true
+        t_body:true,
+        //弹框的显示与隐藏
+        spring:'none',
+        //弹框标题
+        item:'',
+        opacity_edit:1,
+        //编辑标志
+        edit:false,
+        //添加标志
+        add_to:false,
+        //数据主键id
+        fld_record_id:null,
+        //确认的标志
+        true_flag:true,
     }
 },
-
 mounted:function(){
-    // console.log(sessionStorage.getItem('user'))
-    // if(sessionStorage.getItem('user')==null){
-    //     this.userInfo=sessionStorage.getItem('user_copy');
-    // }else{
-        this.userInfo=sessionStorage.getItem('userInfo');
-    // }
-    
-    var projectId=getUrlParam("projectId");
-    var projectName=unescape(getUrlParam("project"));
-    this.projectName=projectName;
-    this.project_id=projectId?projectId:2;
+    //登录过期
+    this.login_expired();
+    //获取项目id
+    this.item_id();
+    //获取项目列表
     this.getServerList();
     //判断配置管理有没有增删改查权限
-    var serverconf=this.getAuth("tbl_serverconf");
+    this.getAuth("tbl_serverconf");
 },
-methods:{
-
-    change: function (e) {
+methods:{  
+   /* change: function (e) {
         console.log(e);
         var controller=e.toElement.attributes.controller.value;
         
@@ -72,29 +81,7 @@ methods:{
 
         }
     },
-    getServerList: function () {
-        
-        axios
-            .post(serverUrl+'/nacos/serverconfList',{fld_project_id:this.project_id,userInfo:this.userInfo})
-            .then(response => {
-                if(response.data.error==-1){
-                    this.show_tips_box=true;
-                    this.current_state=response.data.message;
-                    window.setTimeout(()=>{
-                        this.show_tips_box=false;
-                    },1000)
-                    return false;
-                }else{
-                    this.serverList = response.data.serverConfList;
-                    this.serverAddUrl="serverConfDetail.html?fld_project_id="+this.project_id;
-                }
-                
-                
-            })
-        
-        
-    },   
-    //获取组列表
+    获取组列表
     getGroup:function(){
         axios
             .post(serverUrl+'/nacos/groupList',{fld_project_id:this.project_id,userInfo:this.userInfo})
@@ -114,32 +101,7 @@ methods:{
                
             })
     },
-    //服务删除
-    serverDel:function(fld_id){
-        axios
-            .post(serverUrl+'/nacos/serverconfDel',{fld_id:fld_id,userInfo:this.userInfo})
-            .then(response => {
-                if(response.data.error==-1){
-                    // alert(response.data.message);
-                    this.show_tips_box=true;
-                    this.current_state=response.data.message;
-                    window.setTimeout(()=>{
-                        this.show_tips_box=false;
-                    },1000)
-                    return false;
-                }else{
-                    this.getServerList();
-                }
-                
-            })
-    },
-    //服务编辑跳转
-    serverDetail:function(fld_id){
-
-            window.location.href = 'serverConfDetail.html?fld_id='+fld_id+'&&fld_project_id='+this.project_id;
-        
-    },
-    //改变分组
+    改变分组
     groupChange:function(e){
         var groupid=e.target.attributes.groupid.value;
         this.group_id=groupid;
@@ -150,33 +112,7 @@ methods:{
 
 
     },
-    //搜索
-    search:function(){
-        var fld_name=this.$refs.namevalue.value;
-        var fld_group=this.$refs.groupvalue.value;
-
-        fld_name=fld_name.trim();
-        fld_group=fld_group.trim();
-        axios
-            .post(serverUrl+'/nacos/serverconfSearch',{fld_project_id:this.project_id,fld_name:fld_name,fld_group:fld_group,userInfo:this.userInfo})
-            .then(response => {
-                if(response.data.error==-1){
-                    this.show_tips_box=true;
-                    this.current_state=response.data.message;
-                    window.setTimeout(()=>{
-                        this.show_tips_box=false;
-                    },1000)
-                    return false;
-                }else{
-                    this.serverList = response.data.serverConfList;
-                }
-                
-            })
-
-
-
-    },  
-    fn:function(){
+   fn:function(){
        this.a1=this.a;
     },
     fn3:function(){
@@ -238,23 +174,148 @@ methods:{
     },
     getVal:function(){
         return this.disappear
+    },*/
+    item_id:function(){
+        //获取项目id根据url地址
+        var projectId=getUrlParam("projectId");
+        //获取项目名根据url地址
+        var projectName=unescape(getUrlParam("project"));
+        this.projectName=projectName;
+        this.project_id=projectId?projectId:1;
     },
+    //是否登录过期
+    login_expired:function(){
+        this.userInfo=sessionStorage.getItem('userInfo');
+    var user,time,startTime;
+            user=sessionStorage.getItem('userInfo');
+            time=parseInt(new Date().getTime()/1000);
+            startTime=sessionStorage.getItem('startTime');
+            this.userInfo=user;
+        // }
+        if(user==""||user==null ||user==undefined ||user=='null'){
+            window.location.href="/login";
+            return false;
+        }
+        
+        
+        var timeCha=(time-startTime)-(30*60);
+        if(timeCha>0){
+            sessionStorage.setItem('user',null);
+            window.location.href="/login";
+            return false;
+        }else{
+            startTime=sessionStorage.setItem('startTime',time);
+        }
+    },
+    //关闭弹框
+    cross:function(){
+        this.spring='none';
+    },
+    //获取数据列表
+    getServerList: function () {  
+        axios
+            .post(serverUrl+'/sdk/usdkList',{fld_project_id:this.project_id,userInfo:this.userInfo})
+            .then(response => {
+                if(response.data.error==-1){
+                    this.show_tips_box=true;
+                    this.current_state=response.data.message;
+                    window.setTimeout(()=>{
+                        this.show_tips_box=false;
+                    },1000)
+                    return false;
+                }else{
+                    // console.log(response)
+                    this.serverList = response.data.usdkList;
+                    //当添加时的页面地址及参数
+                    // this.serverAddUrl="serverConfDetail.html?fld_project_id="+this.project_id;
+                }
+                
+                
+            })
+        
+    },   
+    //服务删除
+    serverDel:function(server){
+        axios
+            .post(serverUrl+'/sdk/usdkDel',{fld_record_id:server.fld_record_id,userInfo:this.userInfo})
+            .then(response => {
+                if(response.data.error==-1){
+                    // alert(response.data.message);
+                    this.show_tips_box=true;
+                    this.current_state=response.data.message;
+                    window.setTimeout(()=>{
+                        this.show_tips_box=false;
+                    },1000)
+                    return false;
+                }else{
+                    this.show_tips_box=true;
+                    this.current_state=response.data.message;
+                    window.setTimeout(()=>{
+                        this.show_tips_box=false;
+                    },1000)
+                    this.getServerList();
+                }
+                
+            })
+    },
+    //服务编辑跳转
+    serverDetail:function(server){
+             this.edit=true;
+             this.add_to=false;
+            // window.location.href = 'serverConfDetail.html?fld_id='+fld_id+'&&fld_project_id='+this.project_id;
+            if(this.serverFlag==false){
+                this.show_tips_box=true;
+                window.setTimeout(()=>{
+                    this.show_tips_box=false;
+                },1000)
+            }else{  
+                this.$refs.projecturl.value=server.fld_product_url;
+                this.$refs.projectcode.value=server.fld_productcode;
+                this.$refs.projectkey.value=server.fld_productkey;
+                this.fld_record_id=server.fld_record_id;
+                this.item='修改项目';
+                this.spring='block';
+            }
+    },
+    //搜索
+    search:function(){
+        var fld_name=this.$refs.namevalue.value;
+        // var fld_group=this.$refs.groupvalue.value;
 
-    /**
-     * 
-     * 获取表权限
-     */
+        fld_name=fld_name.trim();
+        // fld_group=fld_group.trim();
+        axios
+            .post(serverUrl+'/sdk/usdkSearch',{fld_project_id:this.project_id,fld_productcode:fld_name,userInfo:this.userInfo})
+            .then(response => {
+                if(response.data.error==-1){
+                    this.show_tips_box=true;
+                    this.current_state=response.data.message;
+                    window.setTimeout(()=>{
+                        this.show_tips_box=false;
+                    },1000)
+                    return false;
+                }else{
+                    // console.log(response)
+                    this.serverList = response.data.usdkList;
+                }
+                
+            })
+
+
+
+    },  
+    //获取表权限
     getAuth:function(table){
         axios
-        .post(serverUrl+'/nacos/getUserAuth',
+        .post(serverUrl+'/sdk/getUserAuth',
         {
             TBName:table,
             userInfo:this.userInfo
             
         })
         .then(response => {
-            console.log("response.data.rule",response.data.rule);  
-            if(response.data.rule.Add==false){
+            // console.log("response.data.rule",response.data.rule);  
+            if(response.data.rule.Add==true){
                 this.show_dis=true;
             }else{
                 this.show_dis=false;
@@ -278,15 +339,79 @@ methods:{
     },
     //添加时的权限管理
     add:function(e){
+        this.add_to=true;
+        this.edit=false;
         e.preventDefault();
-        if(this.show_dis==true){
+        if(this.show_dis==false){
             this.show_tips_box=true;
             window.setTimeout(()=>{
                 this.show_tips_box=false;
             },1000)
         }else{
-            window.location.href=this.serverAddUrl;
+            // window.location.href=this.serverAddUrl;
+        this.$refs.projecturl.value='';
+        this.$refs.projectcode.value='';
+        this.$refs.projectkey.value='';    
+        this.item='新建项目';
+        this.spring='block';
         }
+       
+        // this.axios.post(serverUrl+'/sdk/usdkAddOrUpdate',{})
+    },
+    //弹框确认按钮
+    confirm: function(){
+        this.true_flag=false;
+        var fld_product_url=this.$refs.projecturl.value;
+        var fld_productcode=this.$refs.projectcode.value;
+        var fld_productkey=this.$refs.projectkey.value;
+        if(this.add_to==true){
+           axios.post(serverUrl+'/sdk/usdkAddOrUpdate',{fld_project_id:this.project_id,fld_product_url:fld_product_url,fld_productcode:fld_productcode,fld_productkey:fld_productkey,userInfo:this.userInfo}).then((res)=>{
+            
+            // this.cross();
+            this.shows=true;
+            this.verification=res.data.message;
+            if(res.data.error==-1){                            
+                setTimeout( ()=> {
+                    this.shows=false;
+                    this.true_flag=true;
+                },1000)                        
+                this.spring='none'
+            }else{
+                setTimeout( ()=> {
+                    this.shows=false;
+                    this.true_flag=true;
+                },1000)
+                this.getServerList();
+                this.spring='none'
+                }            
+            }) 
+        }else if(this.edit==true){
+            axios.post(serverUrl+'/sdk/usdkAddOrUpdate',{fld_record_id:this.fld_record_id,fld_project_id:this.project_id,fld_product_url:fld_product_url,fld_productcode:fld_productcode,fld_productkey:fld_productkey,userInfo:this.userInfo}).then((res)=>{
+                this.shows=true;
+                this.verification=res.data.message;
+                if(res.data.error==-1){                            
+                    setTimeout( ()=> {
+                        this.shows=false;
+                        this.true_flag=true;
+                    },1000)                        
+                    this.spring='none'
+                }else{
+                    setTimeout( ()=> {
+                        this.shows=false;
+                        this.true_flag=true;
+                    },1000)
+                    this.getServerList();
+                    this.spring='none'
+                    }  
+            }) 
+        }
+        
+    },
+    //取消按钮
+    cross_q: function(){
+        this.$refs.projecturl.value='';
+        this.$refs.projectcode.value='';
+        this.$refs.projectkey.value='';
     }
 }
 

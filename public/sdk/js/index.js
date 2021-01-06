@@ -11,7 +11,7 @@ let vm=new Vue({
         isItemList: false,
         isItemList1: false,
         isItemList2: false,
-        projectList: "",
+        projectList: "",//获取项目列表
         heo: true,
         sty: '',
         pro: '',
@@ -24,61 +24,12 @@ let vm=new Vue({
         current_state:'没有权限',
         show_tips_box:false,
         add:'',
+        //项目管理的列表
+        project_management:null,
     },
 
     mounted:function() {
-        // let obj=window.location.href;
-        // if(obj.indexOf('#')!=-1){
-        //     var hash=unescape(obj.substring(obj.indexOf('#')+1));
-        //     //var name=unescape(obj.substring(obj.indexOf('=')+1));
-        //     var hash_val=hash.split('&');
-        //     var arr=[];
-        //     for(var i=0;i<hash_val.length; i++){
-        //         //console.log(hash_val[i])
-        //         var vald=hash_val[i].split('=');
-        //         //console.log(vald)
-        //         arr.push(vald[1]) ;
-        //     }
-           
-        // };
-        // console.log(sessionStorage.getItem('user_copy'))
-        // var params = (function oneValues() {
-        //     var query = location.search.substr(1)
-        //     query = query.split('&')
-        //     var params = {}
-        //     for (let i = 0; i < query.length; i++) {
-        //         let q = query[i].split('=')
-        //         if (q.length === 2) {
-        //             params[q[0]] = q[1]
-        //         }
-        //     }
-        //     return params  //返回?号后面的参数名与参数值的数组
-        // }());
-        // if(sessionStorage.getItem('user_copy')==null){
-            // alert(1)
- 
-        // console.log(params)
-        // console.log(decodeURIComponent(params.num),decodeURIComponent(params.time),decodeURIComponent(params.add))
-        // console.log(sessionStorage.getItem('userInfo'))
-        //判断登陆是否过期
-        // this.userInfo=sessionStorage.getItem('user');
-        
-        // console.log(sessionStorage.getItem('user'))
-        // alert(1)
-        
-        // var user=sessionStorage.getItem('user');
         var user,time,startTime,add;
-        // if(sessionStorage.getItem('user')==null){
-        //     alert(2)
-        //     user=decodeURIComponent(params.num);
-        //     time=parseInt(new Date().getTime()/1000);
-        //     startTime=decodeURIComponent(params.time);
-        //     add=decodeURIComponent(params.add)
-        //     this.userInfo=user;
-        //     window.sessionStorage.setItem('user_add',add);
-        //     this.add=window.sessionStorage.getItem('user_add');
-        //     window.sessionStorage.setItem('user_copy',user)
-        // }else{
             user=sessionStorage.getItem('userInfo');
             time=parseInt(new Date().getTime()/1000);
             startTime=sessionStorage.getItem('startTime');
@@ -97,33 +48,18 @@ let vm=new Vue({
             return false;
         }
         var userObj=JSON.parse(user);
-        // alert(1212)
-        // }else{
-        //     if(params.add!=null){
-        //         console.log(decodeURIComponent(params.add))
-        //         this.add=decodeURIComponent(params.add);
-        //         window.sessionStorage.setItem('user_add',this.add);
-        //     }else{
-        //         this.add=window.sessionStorage.getItem('user_add');
-        //     }
-        //     this.userInfo=sessionStorage.getItem('user_copy');
-        //     var userObj=JSON.parse(this.userInfo);
-        // }
         this.getAuth();
-
-        
         this.fld_username=userObj.fld_name;
         this.getProject();
-// console.log(this.userInfo)
     },
     computed:{
         
     },
     methods: {
-        
+        //获取项目列表
         getProject: function () {
             axios
-                .post(serverUrl+'/nacos/projectList',{userInfo:this.userInfo})
+                .post(serverUrl+'/sdk/projectList',{userInfo:this.userInfo})
                 .then(response => {
                     if(response.data.error==-1){
                         // alert(response.data.message);
@@ -140,6 +76,7 @@ let vm=new Vue({
             //console.log(this.temprojectid);
 
         },
+        //是否显示子菜单
         config_fn: function () {
             if (!this.isItemList) {
                 this.isItemList = true;
@@ -162,45 +99,62 @@ let vm=new Vue({
             if (!this.isItemList2) {
                 this.isItemList2 = true;
                 this.isItemList = false;
-                this.isItemList1 = false
+                this.isItemList1 = false;
+                // axios.post(serverUrl+'/sdk/projectList',{userInfo:this.userInfo}).then((res)=>{
+                //     this.project_management=res.data.projectList;
+                // })
             } else {
                 this.isItemList2 = false
             }
 
         },
         change: function (index,e) {
+            // alert(1)
             var controller=e.target.attributes.controller.value;
             
             if(controller=="slc"){
                 var projectId=e.target.attributes.projectid.value;
                 
                 var projectName=$("#pid_"+projectId).html();
-                
+                // console.log(projectName,projectId)
                 $("#iframe").attr("src","serverList.html?projectId="+projectId+"&project="+projectName+index);
 
                 window.location.href=window.location.pathname+"#type="+escape('配置')+'&name='+escape(projectName)+'&id='+projectId+'&count='+index;
-            }else if(controller=="glc"){
-                $("#iframe").attr("src","group.html");
-                window.location.href=window.location.pathname+"#type="+escape('分组'+'&count='+index);
-            }else if(controller=="nlc"){
-                $("#iframe").attr("src","namespace.html");
-                window.location.href=window.location.pathname+"#type="+escape('命名空间'+'&count='+index);
-            }else if(controller=="prlc"){
-                $("#iframe").attr("src","project.html");
-                window.location.href=window.location.pathname+"#type="+escape('项目管理'+'&count='+index);
-            }else if(controller=="sflc"){
+             }
+            //else if(controller=="glc"){
+            //     $("#iframe").attr("src","group.html");
+            //     window.location.href=window.location.pathname+"#type="+escape('分组'+'&count='+index);
+            // }else if(controller=="nlc"){
+            //     $("#iframe").attr("src","namespace.html");
+            //     window.location.href=window.location.pathname+"#type="+escape('命名空间'+'&count='+index);
+            // }else if(controller=="prlc"){
+            //     $("#iframe").attr("src","project.html");
+            //     window.location.href=window.location.pathname+"#type="+escape('项目管理'+'&count='+index);
+            // }
+            else if(controller=="sflc"){
                 var projectId=e.target.attributes.projectid.value;
                 var projectName=$("#pid_"+projectId).html();
                 //projectName=escape(projectName);
 
                 $("#iframe").attr("src","serverFindList.html?projectId="+projectId+"&project="+projectName);
                 window.location.href=window.location.pathname+"#type="+escape('服务')+'&name='+escape(projectName)+'&id='+projectId+'&count='+index;
-            }else if(controller=="ulc"){
-                $("#iframe").attr("src","user-admin.html");
-                window.location.href=window.location.pathname+"#type="+escape('用户管理'+'&count='+index);
+            }
+            // else if(controller=="zflc"){
+            //     var projectId=e.target.attributes.projectid.value;
+            //     var projectName=$("#pid_"+projectId).html();
+            //     //projectName=escape(projectName);
 
-            }else if(controller=="plc"){
-                $("#iframe").attr("src","role-admin.html");
+            //     $("#iframe").attr("src","group.html?projectId="+projectId+"&project="+projectName);
+            //     window.location.href=window.location.pathname+"#type="+escape('管理')+'&name='+escape(projectName)+'&id='+projectId+'&count='+index;
+            // }
+            // else if(controller=="ulc"){
+            //     $("#iframe").attr("src","user-admin.html");
+            //     window.location.href=window.location.pathname+"#type="+escape('用户管理'+'&count='+index);
+
+            // }
+            else if(controller=="prlc"){
+                // alert(0)
+                $("#iframe").attr("src","project.html");
                 window.location.href=window.location.pathname+"#type="+escape('角色管理'+'&count='+index);
             }
             this.shows=index;
@@ -233,13 +187,13 @@ let vm=new Vue({
          */
         getAuth:function(){
             axios
-            .post(serverUrl+'/nacos/getUserAuth',
+            .post(serverUrl+'/sdk/getUserAuth',
             {
                 TBName:"tbl_project",
                 userInfo:this.userInfo
             })
             .then(response => {
-                console.log("response.data.rule",response.data.rule); 
+                // console.log("response.data.rule",response.data.rule); 
                 if(response.data.rule.View==true){
                     this.show_tips=true;
                 }else{

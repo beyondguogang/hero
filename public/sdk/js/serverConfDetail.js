@@ -111,7 +111,7 @@ methods:{
                 this.verification=response.data.message;
                 setTimeout( ()=> {
                     this.shows=false;
-                    window.location.href = '/serverList.html?projectId='+this.fld_project_id;
+                    window.location.href = 'serverList.html?projectId='+this.fld_project_id;
                 },2000)
             }else{
                 this.shows=true;

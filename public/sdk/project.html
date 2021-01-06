@@ -25,30 +25,37 @@
         <div class="header" style="font-size: 22px">
         <i style=" border:1px solid deepskyblue"></i>项目管理
         </div>
-        <button class="btn-six" @click="addProjectShow" :style="{opacity:new_role}">新建项目</button>
+        <button class="btn-six" @click="serverNewFlag && addProjectShow()" :style="{opacity:new_role}">新建项目</button>
         <div style="clear: both"></div>
-        <div class="data" >
+        <div class="data table-responsive" >
    
-        <table>
+        <table class="table table-bordered">
         <thead>
         <tr>
-        <th class="add" style="width:33.33% ">项目名称</th>
+        <!-- <th class="add" style="width:33.33% ">项目名称</th> -->
         <!-- <th class="add" style="width:25% ">所属项目</th> -->
         <!-- <th class="add" style="width:20% ">所属名称空间</th> -->
-        <th class="add"  style="width:33.33% ">描述</th>
-        <th class="add"  style="width:33.33% ">操作</th>
+        <!-- <th class="add"  style="width:33.33% ">描述</th> -->
+        <!-- <th class="add"  style="width:33.33% ">操作</th> -->
+        <th>record_id</th>
+        <th>项目名称</th>
+        <th>项目描述</th>
+        <th>操作</th>
         </tr>
         </thead>
         <tbody v-if="t_body"> 
           <tr v-for="project in projectList">
-        <td>{{project.fld_name}}</td>
+        <!-- <td>{{project.fld_name}}</td> -->
         <!-- <td>{{group.pdes}}</td> -->
         <!-- <td>{{group.fld_namespace_id}}</td> -->
+        <!-- <td>{{project.fld_des}}</td> -->
+        <td style="width:40px;">{{project.fld_id}}</td>
+        <td>{{project.fld_name}}</td>
         <td>{{project.fld_des}}</td>
         <td>
         <!-- <a @click="groupDetail" ref="isdetail" :fld_id="group.fld_id" href="#javascript ">详情</a> -->
-        <a @click="projectEdit" ref="isedit" :fld_id="project.fld_id" href="#javascript" >编辑</a>
-        <a @click="pointer_del&& projectDel($event)" ref="isdel" :fld_id="project.fld_id" href="#javascript" :style="{opacity:opacity_del}">删除</a>
+        <a @click="pointer_edit && projectEdit(event)" ref="isedit" :fld_id="project.fld_id" href="#javascript" :style="{opacity:opacity_edit}">编辑</a>
+        <a @click="pointer_del && projectDel($event)" ref="isdel" :fld_id="project.fld_id" href="#javascript" :style="{opacity:opacity_del}">删除</a>
 
         </td>
         </tr>  
@@ -62,7 +69,7 @@
 
             <div class="reset" style="display: none" :style="{display:spring}">
                 <div class="use-title clearfix" >
-                    <big class="title-t">新建项目</big>
+                    <big class="title-t">{{item}}</big>
                     <div class="use-div">
                         <img  class="error newly-build1 clearfix" src="img/resizeApi.png" alt="12" @click="cross" >
                     </div>
@@ -78,7 +85,7 @@
 
 
                 <div class="determine-cancel">
-                    <button @click="pointer_edit && add()" class="determine" :style="{opacity:opacity_edit}">确定</button>
+                    <button @click="true_flag && add()" class="determine">确定</button>
                     <button class="cancel" @click="cross">取消</button>
 
                 </div>

@@ -33,7 +33,9 @@ let vm=new Vue({
             show_tips_box:false,
             current_state:'没有添加权限',
             //是否显示数据
-            t_body:true
+            t_body:true,
+            //主体列表数据
+            project_management:null,
     },
 
     mounted() {
@@ -53,8 +55,11 @@ let vm=new Vue({
         //获取分组列表
         getGroup:function(){
             axios
-                .post(serverUrl+'/nacos/groupList',{userInfo:this.userInfo})
-                .then(response => (this.groupList = response.data.groupList))
+                // .post(serverUrl+'/nacos/groupList',{userInfo:this.userInfo})
+                // .then(response => (this.groupList = response.data.groupList))
+                axios.post(serverUrl+'/sdk/projectList',{userInfo:this.userInfo}).then((res)=>{
+                    this.project_management=res.data.projectList;
+                })
         },
         add:function(){
             var name=this.$refs.groupname.value;

@@ -21,7 +21,8 @@
 									<select v-model="btn_selected" @change="menu_list(btn_selected)">
 									<option disabled value="">请选择</option>
 									<option 
-										v-for="(project,index) in project_list" :key="index" :value="project.Name">{{project.Comment}}</option>
+										v-for="(project,index) in project_list" :key="index" :value="project">{{project.Comment}}
+									</option>
 									<!-- <option value="nacos">nacos</option> -->
 								</select>
 								</span>
@@ -32,7 +33,8 @@
 									</select>
 								</span>
 								<!-- <span><a :href="ht+'?num='+user+'&time='+login_time+'&add='+address">nacos</a></span> -->
-								<span><a :href="url+'/nacos/index.html'">nacos</a></span>
+								<!-- <span><a :href="url+'/nacos/index.html'">nacos</a></span> -->
+								<!-- <span><a :href="url+'/sdk/index.html'">wysdk</a></span> -->
 								<!-- <span><a :href="url+'/index1.html'">sdk</a></span> -->
 								<span>
 								<span>欢迎<b class="user_icon">{{username}}</b></span>
@@ -67,12 +69,12 @@
 					<content-admin @lookup="lookup" @child_home="child_home" @child="child" @child_next="child_next" @child_end="child_end"
 		 				  @parent_data_sort="parent_data_sort" @parent_refresh="parent_refresh" @query="query" :sub_url="sub_url" :sub_index="sub_index"
 		                  :fields="fields" :rows="rows" :project_data="project_data" :response="response" v-if="flag" :istrue="istrue" :isquery="isquery" 
-		                  :no_data="no_data" :flag_head="flag_head">
+		                  :no_data="no_data" >
 					</content-admin>
 					<content-warship @lookup="lookup" @child_home="child_home" @child="child" @child_next="child_next" @child_end="child_end"
 		 				  @parent_data_sort="parent_data_sort" @parent_refresh="parent_refresh" @query="query" :sub_url="sub_url" :sub_index="sub_index"
 		                  :fields="fields" :rows="rows" :project_data="project_data" :response="response" v-if="flag_warship" :istrue="istrue" :isquery="isquery" 
-		                  :no_data="no_data" :flag_head="flag_head">
+		                  :no_data="no_data" >
 					</content-warship>
 					<!-- 组件 -->
 					<page v-if="box_data.sel" ></page>
@@ -230,59 +232,21 @@
 			}
 			
 		},
-		created() {},
+		created() {
+			//判断是否登录过期
+			this.login_expired()
+		},
 		computed: {},
 		mounted() {
-			// console.log(0 - new Date().getTimezoneOffset() / 60)
-			//根据
-			if(window.screen.height>1080){
-				this.data_page=20
-			}else{
-				this.data_page=17
-			}
-			// this.user=encodeURIComponent(window.sessionStorage.getItem('userInfo'));
-			// console.log(window.sessionStorage.getItem('userInfo'))
-			//判断是否登录过期
-			if(window.sessionStorage.getItem('userInfo')==null){
-				this.$router.replace({
-					path: "/login"
-				})
-			}else{
-				let userInfo = JSON.parse(window.sessionStorage.getItem('userInfo'));
-			this.userInfo = userInfo;
-			this.username = userInfo.fld_name;
-			let startTime = window.sessionStorage.getItem('startTime');
-			this.login_time=encodeURIComponent(window.sessionStorage.getItem('startTime'));
-			console.log(window.sessionStorage.getItem('startTime').toString())
-			// console.log(parseInt(startTime/1000))
-			let time = parseInt(new Date().getTime() / 1000);
-			// console.log(parseInt(time/1000))
-			if (userInfo.fld_name == '' || userInfo.fld_name == undefined || userInfo.fld_name == null || userInfo.fld_name ==
-				'null') {
-				window.sessionStorage.setItem('btn_selected','');
-				this.$router.replace({
-					path: "/login"
-				})
-				return false;
-			};
-			let time_control = (time - startTime) - (30 * 60);
-			if (time_control > 0) {
-				window.sessionStorage.setItem('btn_selected','');
-				this.$router.replace({
-					path: "/login"
-				})
-				return false;
-			};
-			}
-			
 			//头部左边状态自动请求头部数据1607504568
 			this.axios.get(this.api + '/Login/ProjList').then(res => {
+				console.log(res)
 				this.project_list = res.data;
 				var select=window.sessionStorage.getItem('btn_selected');
 				//根据保存的项目为空时会自动请求第一个项目默认显示
 				if(select==''){
 					this.menu_list(this.project_list[0].Name);
-					this.btn_selected=this.project_list[0].Name;
+					this.btn_selected=this.project_list[0];
 				}
 			});
 			//刷新时根据之前保存的时区显示时间
@@ -299,11 +263,47 @@
 				// console.log(this.$route.params.pr+this.surl+'/'+this.index+'/'+this.change_index)
 				this.address=encodeURIComponent(this.$route.params.pr+this.surl+'/'+this.change_index+'/'+this.index)
 				//刷新时执行头部菜单中的函数并传入路由参数
-				this.menu_list(this.$route.params.pr,this.surl, this.index, this.change_index);
+				this.menu_list(this.btn_selected,this.surl, this.index, this.change_index);
 				this.getRow(this.surl, this.index, this.change_index,this.$route.params.pr);
 			}
 		},
 		methods: {
+			//登录过期
+			login_expired(){
+				if(window.sessionStorage.getItem('userInfo')=='null'){
+				this.$router.replace({
+					path: "/login"
+				})
+				}else{
+				let userInfo = JSON.parse(window.sessionStorage.getItem('userInfo'));
+				this.userInfo = userInfo;
+				this.username = userInfo.fld_name;
+				let startTime = window.sessionStorage.getItem('startTime');
+				this.login_time=encodeURIComponent(window.sessionStorage.getItem('startTime'));
+				// console.log(window.sessionStorage.getItem('startTime').toString())
+				// console.log(parseInt(startTime/1000))
+				let time = parseInt(new Date().getTime() / 1000);
+				// console.log(parseInt(time/1000))
+				if (userInfo.fld_name == '' || userInfo.fld_name == undefined || userInfo.fld_name == null || userInfo.fld_name ==
+					'null') {
+					window.sessionStorage.setItem('btn_selected','');
+					this.$router.replace({
+						path: "/login"
+					})
+					return false;
+				};
+				let time_control = (time - startTime) - (30 * 60);
+				if (time_control > 0) {
+					window.sessionStorage.setItem('btn_selected','');
+					this.$router.replace({
+						path: "/login"
+					})
+					return false;
+				}else{
+					startTime = window.sessionStorage.setItem('startTime',time);
+				}
+				}
+			},
 			//表格占比
 			icon_mune(){
 				if(!this.menu_show){
@@ -415,13 +415,13 @@
 			    return date_str;
 			},
 			//nacos
-			// nacos(){
-			// 	this.project_name='nacos';
-			// 	this.menu_data=[ 
-			// 		{name:'配置管理',sub_item:[{name:'坦克',url:'/tank/nacos/serverconfList'},{name:'巅峰战舰',url:'/warship/nacos/serverconfList'}]},
-			// 		{name:'服务管理',sub_item:[{name:'坦克',url:'/tank/nacos/groupList'},{name:'巅峰战舰',url:'/warship/nacos/groupList'}]}
-			// 	];
-			// },
+			/*nacos(){
+				this.project_name='nacos';
+				this.menu_data=[ 
+					{name:'配置管理',sub_item:[{name:'坦克',url:'/tank/nacos/serverconfList'},{name:'巅峰战舰',url:'/warship/nacos/serverconfList'}]},
+					{name:'服务管理',sub_item:[{name:'坦克',url:'/tank/nacos/groupList'},{name:'巅峰战舰',url:'/warship/nacos/groupList'}]}
+				];
+			},*/
 			//查询数据
 			query(url, index,project,sort){	
 				this.anate=true;
@@ -491,6 +491,14 @@
 					console.log(this.response)
 					// this.response.FIELDS.forEach(item=>{console.log(item.type)})
 					this.fields = res.data.FIELDS;
+					//根据表模板的字段显示不同的页面，做定制表的页面
+						if(this.response.PAGE_TEMPLATE=="page_grid"){
+							this.data_page=parseInt(window.screen.height/60);
+						}else if(this.response.PAGE_TEMPLATE=="page_grid_nacos"){
+							this.data_page=parseInt(window.screen.height/60);
+						}else if(this.response.PAGE_TEMPLATE=="base_page"){
+							this.data_page=parseInt(window.screen.height/65)
+						}
 					//当求情完成的标志
 					let parameter={
 						_search: false,
@@ -506,7 +514,7 @@
 						headers: {
 								'Content-Type': 'application/x-www-form-urlencoded'}
 					}).then(res => {
-						
+						console.log(res)
 						this.project_data = res.data;
 							if(res.data.rows!=undefined){
 								this.fields.map((ite,index,arr)=>{
@@ -519,8 +527,7 @@
 							this.rows = res.data.rows;
 							}
 						//显示shop组件
-						this.flag_head=true;
-						//根据表模板的字段显示不同的页面，做定制表的页面
+						// this.flag_head=true;
 						if(this.response.PAGE_TEMPLATE=="page_grid"){
 							this.flag = true;
 						}else if(this.response.PAGE_TEMPLATE=="page_grid_nacos"){
@@ -528,7 +535,6 @@
 						}else if(this.response.PAGE_TEMPLATE=="base_page"){
 							this.flag_warship = true;
 						}
-						
 						this.sub_url = url;
 						this.sub_index = index;
 						let len = window.history.length;
@@ -542,7 +548,6 @@
 						this.anate=false
 					})
 						}else{
-							// alert(1)
 							this.sel_tips=true;
 							this.current_state='没有权限';
 						setTimeout(()=>{
@@ -1146,68 +1151,14 @@
 			},
 			//左边菜单栏s
 			menu_list(name,url, index, change_index) {
+				console.log(name)
 				this.menu_show=true;
 				this.active='col-lg-11 offset-lg-1';
-				this.project_name = name;
-				// if(name=="nacos"){
-				// 	if(url=="/tank/nacos/serverconfList"){
-				// 		// alert(1)
-				// 		this.sub_url = url;
-				// 		this.sub_index = index;
-				// 		let len = window.history.length;
-				// 		this.change(change_index);
-				// 		if (this.is_sty === index) {
-				// 			this.is_sty = '';
-				// 		} else {
-				// 			this.is_sty = index;
-				// 		}
-				// 		this.nacos();
-				// 		this.box_data.nacos=true;
-				// 		this.btn_selected=name;
-				// 	}else if(url=="/tank/nacos/groupList"){
-				// 		this.sub_url = url;
-				// 		this.sub_index = index;
-				// 		let len = window.history.length;
-				// 		this.change(change_index);
-				// 		if (this.is_sty === index) {
-				// 			this.is_sty = '';
-				// 		} else {
-				// 			this.is_sty = index;
-				// 		}
-				// 		this.nacos();
-				// 		this.box_data.nacos=true;
-				// 		this.btn_selected=name;
-				// 	}else if(url=="/warship/nacos/serverconfList"){
-				// 		this.sub_url = url;
-				// 		this.sub_index = index;
-				// 		let len = window.history.length;
-				// 		this.change(change_index);
-				// 		if (this.is_sty === index) {
-				// 			this.is_sty = '';
-				// 		} else {
-				// 			this.is_sty = index;
-				// 		}
-				// 		this.nacos();
-				// 		this.box_data.nacos=true;
-				// 		this.btn_selected=name;
-				// 	}else if(url=="/warship/nacos/groupList"){
-				// 		this.sub_url = url;
-				// 		this.sub_index = index;
-				// 		let len = window.history.length;
-				// 		this.change(change_index);
-				// 		if (this.is_sty === index) {
-				// 			this.is_sty = '';
-				// 		} else {
-				// 			this.is_sty = index;
-				// 		}
-				// 		this.nacos();
-				// 		this.box_data.nacos=true;
-				// 		this.btn_selected=name;
-				// 	}	
-				// }else{
+				this.project_name = name.Name;
 					this.flag = false;
 					this.anate=true;
-					this.axios.get(this.api + '/Login/Menu?Project=' + name).then(res => {
+					this.axios.get(this.api + '/Login/Menu?Project=' + name.Name).then(res => {
+						console.log(res)
 					this.menu_data = res.data;
 					this.is_icon = '';
 					if(url=='/Tank/Other/QueryRoles'){
@@ -1234,9 +1185,16 @@
 						}
 						this.box_data.mail=true;
 						this.btn_selected=name;
-					}else if(url=="/wysdk/Other/Windex"){
-						window.location.href=this.url+'/sdk/index.html'
 					}
+					// else if(url=="/wysdk/Other/Windex"){
+					// 	window.location.href=this.url+'/sdk/index.html'
+					// }
+					 console.log(name.url)
+					// 	if(name.url!=undefined){
+					// 		// console.log(this.project_list.url)
+					// 		alert(1)
+					// 	window.location.href=this.url+name.url
+					// }
 					this.anate=false;
 				});
 				// }
@@ -1272,7 +1230,8 @@
 			//退出登录
 			out() { 
 				window.sessionStorage.setItem('btn_selected','');
-				this.$router.push({
+				window.sessionStorage.setItem('userInfo','null');
+				this.$router.replace({
 					path: "/login"
 				})
 			}
@@ -1438,7 +1397,9 @@
 		color: #ffffff;
 		font-size: 15px;
 	}
-
+	.navbar-rigth a{
+		color:#fff;
+	}
 	.active {
 		display: block;
 	}

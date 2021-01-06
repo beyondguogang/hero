@@ -1,8 +1,8 @@
 <template>
 	<div class="hello" @click="close">
 			<div class="row no-gutters shop">
-				<div class="col-lg-12  col-md-12 table-responsive" style="overflow: auto ;" @scroll="table_cont" :style="{maxHeight:fontSize+'px'}">
-						
+				<div class="col-lg-12  col-md-12 table-responsive" style="overflow: auto ;" @scroll="table_cont" >
+						<!-- :style="{maxHeight:fontSize+'px'}" -->
 					<table class="table table-bordered text-nowrap " style="" >
 						<!-- 表格头部 -->
 						<thead class="thead" :style="{transform:'translateY('+tans_late+'px)'}">
@@ -227,7 +227,7 @@
 				//第多少条数据
 				child_index_page:1,
 				//当屏幕高度是1080时的最大高度
-				fontSize:775,
+				// fontSize:775,
 				//数据列表颜色控制
 				dynamic:{},
 				rule_data:null,
@@ -380,14 +380,16 @@
 		},
 		mounted() {
 			//根据屏幕的高度计算数据的显示条数
-			if(window.screen.height>1080){
-				this.data_page=20;
-				this.child_index_total=20;
-				this.fontSize=900;
-			}else{
-				this.data_page=17;
-				this.child_index_total=17;
-			}
+			// if(window.screen.height>1080){
+			// 	this.data_page=20;
+			// 	this.child_index_total=20;
+			// 	this.fontSize=900;
+			// }else{
+			// 	this.data_page=17;
+			// 	this.child_index_total=17;
+			this.data_page=parseInt(window.screen.height/60);
+			this.child_index_total=this.data_page
+			// }
 			let userInfo = window.sessionStorage.getItem('userInfo');
 			this.userInfo = userInfo;
 			if (this.project_data.page == undefined) {
@@ -424,6 +426,7 @@
 				if (this.rows.length < this.data_page) {
 					return this.rows.length+(this.page*this.data_page-this.data_page)+this.increasing;//页数*16-16
 				} else {
+					// return this.data_page
 					return this.child_index_total
 				}
 			},

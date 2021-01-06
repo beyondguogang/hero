@@ -8,7 +8,7 @@
 					 style="outline: none;">保存</button>
 					<button v-if="option.revoke" @click="bt_revoke" :disabled="revoke" :class="{color:btn_revoke}" style="outline: none;">撤销</button>
 					<button @click="del" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;background:#d26267">删除</button>
-					<button @click="del" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;">导出</button>
+					<button @click="data_export" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;">导出</button>
 					 <div class="modal-body" style="display:inline-block">
 								
 								<!-- 当点击添加的时候要遍历这个元素 -->
@@ -37,8 +37,8 @@
 						<button @click="lookup" style="outline: none;margin-left:145px;background:#fff;color:#000;border:1px solid #808080;cursor: pointer">查询</button>
 						<button @click="refresh" style="outline: none;cursor: pointer">刷新</button>
 				</div>
-				<div class="col-lg-12  col-md-12 table-responsive" style="overflow: auto ;" @scroll="table_cont" :style="{maxHeight:fontSize+'px'}">
-						
+				<div class="col-lg-12  col-md-12 table-responsive" style="overflow: auto ;" @scroll="table_cont" >
+						<!-- :style="{maxHeight:fontSize+'px'"} -->
 					<table class="table table-bordered text-nowrap " style="" >
 						<!-- 表格头部 -->
 						<thead class="thead" :style="{transform:'translateY('+tans_late+'px)'}">
@@ -173,9 +173,9 @@
 					      </span>
 					    </li>
 						<li v-show="is_previous_ellipsis">...</li>
-					    <li><span @click="!first_box_bg && submit_input(page_init.first)" :class="{'first-box-bg':first_box_bg}">{{page_init.first}}</span></li>
-    					<li><span @click="!second_box_bg && submit_input(page_init.second)" :class="{'first-box-bg':second_box_bg}">{{page_init.second}}</span></li>
-    					<li><span @click="!third_box_bg && submit_input(page_init.third)" :class="{'first-box-bg':third_box_bg}">{{page_init.third}}</span></li>
+					    <li v-if="first_flag"><span @click="!first_box_bg && submit_input(page_init.first)" :class="{'first-box-bg':first_box_bg}">{{page_init.first}}</span></li>
+    					<li v-if="second_flag"><span @click="!second_box_bg && submit_input(page_init.second)" :class="{'first-box-bg':second_box_bg}">{{page_init.second}}</span></li>
+    					<li v-if="third_flag"><span @click="!third_box_bg && submit_input(page_init.third)" :class="{'first-box-bg':third_box_bg}">{{page_init.third}}</span></li>
 						<li v-show="is_next_ellipsis">...</li>
 					    <li v-show="is_Last_page">
 					      <span aria-label="Next" @click="last_page">
@@ -243,6 +243,12 @@
 		name: 'shop',
 		data() {
 			return {
+				//第一个按钮是否显示
+				first_flag:true,
+				//第二个按钮是否显示
+				second_flag:true,
+				//第三个按钮是否显示
+				third_flag:true,
 				//第一个按钮的样式
 				first_box_bg:false,
 				//第二个按钮的样式
@@ -288,7 +294,7 @@
 				//第多少条数据
 				child_index_page:1,
 				//当屏幕高度是1080时的最大高度
-				fontSize:775,
+				// fontSize:775,
 				//数据列表颜色控制
 				dynamic:{},
 				rule_data:null,
@@ -447,14 +453,16 @@
             // this.if_updata();
             // this.else_updata()
 			//根据屏幕的高度计算数据的显示条数
-			if(window.screen.height>1080){
-				this.data_page=20;
-				this.child_index_total=20;
-				this.fontSize=900;
-			}else{
-				this.data_page=17;
-				this.child_index_total=17;
-			}
+			// if(window.screen.height>1080){
+			// 	this.data_page=19;
+			// 	this.child_index_total=19;
+			// 	this.fontSize=900;
+			// }else{
+			// 	this.data_page=17;
+			// 	this.child_index_total=17;
+			this.data_page=parseInt(window.screen.height/65)
+			this.child_index_total=this.data_page
+			// }
 			let userInfo = window.sessionStorage.getItem('userInfo');
 			this.userInfo = userInfo;
 			if (this.project_data.page == undefined) {
@@ -526,9 +534,69 @@
 			no_data:Boolean,
 		},
 		methods: {
+			//导出
+			data_export(){
+				this.axios.post(this.api+'/bin/Warship/Launcher/tbl_server/to_excel',{userInfo: this.userInfo}).then((res)=>{
+					console.log(res)
+					// let blob = new Blob([res], {
+    				//     type: "application/vnd.ms-excel"
+					// });
+					//  let objectUrl = URL.createObjectURL(blob);
+
+    				// let a = document.createElement("a");
+					// a.href = objectUrl;
+					//  a.download = "客户";
+					this.axios.get(this.api+"/Export/tbl_server_1609386036291_13663.xlsx").then((res)=>{
+						console.log(res)
+					})
+				})
+				
+			},
 			//第一页默认的按钮样式、
 			first_page(){
+				if(parseInt(this.project_data.total)==1||parseInt(this.project_data.total)==0){
+				//第一个按钮是否显示
+				this.first_flag=false;
+				//第二个按钮是否显示
+				this.second_flag=false;
+				//第三个按钮是否显示
+				this.third_flag=false;
+				//是否显示尾页按钮
+				this.is_Last_page=false;
+				//是否显示下一页按钮
+				this.is_next_page=false;
+				//是否显示页数后面的省略号
+				this.is_next_ellipsis=false;
+				//是否显示页数中前面的省略号
+				this.is_previous_ellipsis=false;
+				//是否显示前一页按钮
+				this.is_previous_page=false;
+				//是否显示首页按钮
+				this.is_home_page=false;
+				}else if(parseInt(this.project_data.total)==2){
 				this.first_box_bg=true;
+				//第三个按钮是否显示
+				this.third_flag=false;
+				//是否显示尾页按钮
+				this.is_Last_page=false;
+				//是否显示下一页按钮
+				this.is_next_page=true;
+				//是否显示页数后面的省略号
+				this.is_next_ellipsis=false;
+				}else if(parseInt(this.project_data.total)==3){
+				this.first_box_bg=true;
+				//是否显示尾页按钮
+				this.is_Last_page=true;
+				//是否显示下一页按钮
+				this.is_next_page=true;
+				//是否显示页数后面的省略号
+				this.is_next_ellipsis=true;
+				}
+				else{
+				this.first_box_bg=true;
+				
+				}
+				
 			},
 			//请求所有弹框的数据根据字段显示是否有查询的三个点
 			serch_fn(){
@@ -813,30 +881,111 @@
 			submit_input(data) {
 				//输入框的数据的判断
 				// let page = this.project_data.page;
-				if(data==1){
-					this.first_box_bg=true;
-					this.is_previous_page=false;
-					this.third_box_bg=false;
-					this.second_box_bg=false;
-					this.is_home_page=false;
+				//如果表中的数据中有一页则只显示页数
+				// if(parseInt(this.project_data.total)==2){
+				// 	//第三个按钮是否显示
+				// 	alert(1)
+				// 	this.third_flag=false;
+				// }
+				// else{
+					if(data==1){
+						if(parseInt(this.project_data.total)==2){
+							this.first_box_bg=true;
+							this.is_previous_page=false;
+							this.third_box_bg=false;
+							this.second_box_bg=false;
+							this.is_home_page=false;
+							this.is_next_ellipsis=false;
+							this.is_Last_page=false;
+							this.is_next_page=true;
+						}else if(parseInt(this.project_data.total)==3){
+							this.first_box_bg=true;
+							this.is_previous_page=false;
+							this.third_box_bg=false;
+							this.second_box_bg=false;
+							this.is_home_page=false;
+							this.is_next_ellipsis=true;
+							this.is_previous_ellipsis=false;
+							this.is_Last_page=true;
+							this.is_next_page=true;
+						}
+						else{
+							this.first_box_bg=true;
+							this.is_previous_page=false;
+							this.third_box_bg=false;
+							this.second_box_bg=false;
+							this.is_home_page=false;
+							this.is_next_ellipsis=true;
+							this.is_Last_page=true;
+							this.is_next_page=true;
+						}
 				}
-				if(data==2){
-					this.second_box_bg=true;
-					this.first_box_bg=false;
-					this.third_box_bg=false;
-					this.is_previous_page=true;
-					this.is_home_page=false;
+				else if(data==2){
+					if(data<this.input_box){
+						if(data==parseInt(this.project_data.total)-1){
+						this.third_box_bg=false;
+						this.second_box_bg=true;
+						this.first_box_bg=false;
+						this.is_next_page=true;
+						}else{
+							this.first_box_bg=false;
+						this.is_previous_page=true;
+						this.is_previous_ellipsis=false;
+						this.third_box_bg=false;
+						this.second_box_bg=true;
+						this.is_home_page=false;
+						this.page_init.first -=1
+						this.page_init.second -=1
+						this.page_init.third -=1
+						}
+					}else{
+						this.second_box_bg=true;
+						this.first_box_bg=false;
+						this.third_box_bg=false;
+						this.is_previous_page=true;
+						this.is_home_page=false;	
+					}					
 				}
-				if(data==3){
-					this.third_box_bg=true;
-					this.second_box_bg=false;
-					this.first_box_bg=false;
-					this.is_home_page=true;
-					this.is_previous_page=true;
-					this.page_init.first+=1
-					this.page_init.second+=1
-					this.page_init.third +=1
-				}
+					else if(data==parseInt(this.project_data.total)){
+						this.third_box_bg=true;
+						this.second_box_bg=false;
+						this.first_box_bg=false;
+						this.is_next_ellipsis=false;
+						this.is_Last_page=false;
+						this.is_next_page=false;
+						this.is_home_page=true;
+						this.is_previous_page=true;
+						this.is_previous_ellipsis=true;
+					}else if(data>this.input_box){
+						this.second_box_bg=true;
+						this.first_box_bg=false;
+						this.third_box_bg=false;
+						this.is_home_page=true;
+						this.is_previous_page=true;
+						this.is_previous_ellipsis=true;
+						this.page_init.first+=1
+						this.page_init.second+=1
+						this.page_init.third +=1
+					}else if(data<this.input_box){
+						if(data==parseInt(this.project_data.total)-1){
+						this.third_box_bg=false;
+						this.second_box_bg=true;
+						this.first_box_bg=false;
+						this.is_next_page=true;
+						}else{
+						this.second_box_bg=true;
+						this.first_box_bg=false;
+						this.third_box_bg=false;
+						this.is_home_page=true;
+						this.is_previous_page=true;
+						this.is_previous_ellipsis=true;
+						this.is_Last_page=true;
+						this.is_next_ellipsis=true;
+						this.page_init.first -=1
+						this.page_init.second -=1
+						this.page_init.third -=1
+						}
+					}
 				let page = data;
 				// if (this.project_data.page != '' && !isNaN(this.project_data.page) && Number(this.project_data.page) > 0 && Number(
 				// 		this.project_data.page) <= parseInt(this.project_data.total)) {
@@ -865,6 +1014,8 @@
 				this.input_page = false;
 				this.page=page;
 				this.child_index_page=this.data_page*page-this.data_page+1;
+				
+			
 			},
 			//选择查找的页数当点击时出现输入框输入完成时点enter请求数据当没有点enter而是点击的别的地方不请求数据直接返回之前的状态
 			select_input() {
@@ -1657,168 +1808,194 @@
 			},
 			//首页加载
 			home_page() {
-				this.is_home_page=false;
-				this.is_previous_page=false;		
-				if(this.child_index_page!=1){
-					if (this.istrue.isstart == true) {
-					let time = new Date().getTime();
-					let page = 1;
-					this.btn_check = false;
-					this.btn_checkeds.forEach((item, index) => {
-						this.btn_checkeds[index] = false
-					});
-					this.child_index = 0;
-					this.child_index_total = this.data_page;
-					this.$emit('child_home', this.sub_url, this.child_index, page,this.sort);
-					this.page=page;
-					this.child_index_page=1;
-				   }
-				}else{
-					this.box_data.tips=true;
-					this.current_state='已经是第一页了';
-					setTimeout(()=>{
-						this.box_data.tips=false;
-					},1000)
-				}
+				this.submit_input(1)
+					// this.first_box_bg=true;
+					// this.is_previous_page=false;
+					// this.third_box_bg=false;
+					// this.second_box_bg=false;
+					// this.is_home_page=false;
+					this.is_previous_ellipsis=false;
+					this.page_init.first=1;
+					this.page_init.second=2;
+					this.page_init.third=3;	
+				// if(this.child_index_page!=1){
+				// 	if (this.istrue.isstart == true) {
+				// 	let time = new Date().getTime();
+				// 	let page = 1;
+				// 	this.btn_check = false;
+				// 	this.btn_checkeds.forEach((item, index) => {
+				// 		this.btn_checkeds[index] = false
+				// 	});
+				// 	this.child_index = 0;
+				// 	this.child_index_total = this.data_page;
+				// 	this.$emit('child_home', this.sub_url, this.child_index, page,this.sort);
+				// 	this.page=page;
+				// 	this.child_index_page=1;
+				//    }
+				// }else{
+				// 	this.box_data.tips=true;
+				// 	this.current_state='已经是第一页了';
+				// 	setTimeout(()=>{
+				// 		this.box_data.tips=false;
+				// 	},1000)
+				// }
 				
 			},
 			//上一页
 			previous_page() {
-				if (this.istrue.isfirst == true) {
-					this.btn_check = false;
-					this.btn_checkeds.forEach((item, index) => {
-						this.btn_checkeds[index] = false
-					});
-					//当前的页数
-					let page = this.project_data.page;
-					let time = new Date().getTime();
-					if (page > 1 && page != undefined && page != null) {
-						page--;
-						//总条数减去当前的条数如果是最后一条会等于0
-						if (this.project_data_copy - this.child_index_total != 0) {
-							//alert(1111111)根据索引计算序号值开始值
-							this.child_index = this.child_index - this.data_page;
-							//每一页中最后一条数据的序号值
-							this.child_index_total = this.child_index_total - this.data_page;
-							this.$emit('child', this.sub_url, this.child_index, page,this.sort)
-						} else {
-							this.child_index = this.child_index - this.data_page;
-							//最后一页的数据是16的几倍
-							let positive_integer = window.parseInt(this.project_data.records / this.data_page);
-							//检测是不是正整数
-							let num=/^[0-9]*[1-9][0-9]*$/.test(this.project_data.records / this.data_page)
-							//最后一页的数据的总条数如果是正整数那么mantissa的值就是0所以就是当为0时会直接减去定义好的每页显示的数据
-							let mantissa = this.project_data.records - positive_integer * this.data_page;
-							if(num==true){//当是正整数的时候会减去16否则永远都会减去0，也就是count值不会变化
-								if(positive_integer>page){
-									var num_z=positive_integer-page;
-									this.child_index_total = this.child_index_total - mantissa-this.data_page*num_z;
-								}else{
-									this.child_index_total = this.child_index_total - mantissa-this.data_page;
-								}
-							}else{
-								//当最后一页添加数据时大于当前页的显示条数时点击前一页要多减去当前页
-								if(positive_integer>page){
-									var num_f=positive_integer-page;
-									this.child_index_total = this.child_index_total - mantissa-this.data_page*num_f;
-								}else{
-									this.child_index_total = this.child_index_total - mantissa;
-								}
-							}
-							this.$emit('child_next', this.sub_url, this.child_index, page,this.sort);
-						}
-						this.child_index_page-=this.data_page
-					} else if (page <= 1) {
-						this.child_index_page=1;
-						this.box_data.tips=true;
-						this.current_state='已经是第一页了';
-						setTimeout(()=>{
-							this.box_data.tips=false;
-						},1000)
-					}
-					this.page=page;
-				}		
+				// if(this.input_box-1>1){
+				// 	// alert(1)
+				// 	this.is_previous_page=true;
+				// }
+				this.submit_input(this.input_box-1);
+				
+				// if (this.istrue.isfirst == true) {
+				// 	this.btn_check = false;
+				// 	this.btn_checkeds.forEach((item, index) => {
+				// 		this.btn_checkeds[index] = false
+				// 	});
+				// 	//当前的页数
+				// 	let page = this.project_data.page;
+				// 	let time = new Date().getTime();
+				// 	if (page > 1 && page != undefined && page != null) {
+				// 		page--;
+				// 		//总条数减去当前的条数如果是最后一条会等于0
+				// 		if (this.project_data_copy - this.child_index_total != 0) {
+				// 			//alert(1111111)根据索引计算序号值开始值
+				// 			this.child_index = this.child_index - this.data_page;
+				// 			//每一页中最后一条数据的序号值
+				// 			this.child_index_total = this.child_index_total - this.data_page;
+				// 			this.$emit('child', this.sub_url, this.child_index, page,this.sort)
+				// 		} else {
+				// 			this.child_index = this.child_index - this.data_page;
+				// 			//最后一页的数据是16的几倍
+				// 			let positive_integer = window.parseInt(this.project_data.records / this.data_page);
+				// 			//检测是不是正整数
+				// 			let num=/^[0-9]*[1-9][0-9]*$/.test(this.project_data.records / this.data_page)
+				// 			//最后一页的数据的总条数如果是正整数那么mantissa的值就是0所以就是当为0时会直接减去定义好的每页显示的数据
+				// 			let mantissa = this.project_data.records - positive_integer * this.data_page;
+				// 			if(num==true){//当是正整数的时候会减去16否则永远都会减去0，也就是count值不会变化
+				// 				if(positive_integer>page){
+				// 					var num_z=positive_integer-page;
+				// 					this.child_index_total = this.child_index_total - mantissa-this.data_page*num_z;
+				// 				}else{
+				// 					this.child_index_total = this.child_index_total - mantissa-this.data_page;
+				// 				}
+				// 			}else{
+				// 				//当最后一页添加数据时大于当前页的显示条数时点击前一页要多减去当前页
+				// 				if(positive_integer>page){
+				// 					var num_f=positive_integer-page;
+				// 					this.child_index_total = this.child_index_total - mantissa-this.data_page*num_f;
+				// 				}else{
+				// 					this.child_index_total = this.child_index_total - mantissa;
+				// 				}
+				// 			}
+				// 			this.$emit('child_next', this.sub_url, this.child_index, page,this.sort);
+				// 		}
+				// 		this.child_index_page-=this.data_page
+				// 	} else if (page <= 1) {
+				// 		this.child_index_page=1;
+				// 		this.box_data.tips=true;
+				// 		this.current_state='已经是第一页了';
+				// 		setTimeout(()=>{
+				// 			this.box_data.tips=false;
+				// 		},1000)
+				// 	}
+				// 	this.page=page;
+				// }		
 			},
 			//下一页
 			next_page() {
+				// if(this.input_box+1<parseInt(this.project_data.total)){
+				// 	// alert(1)
+				// 	this.is_next_page=true;
+				// }
+				this.submit_input(this.input_box+1)
 				// console.log(this.isnext)
 				//判断当异步函数执行完成在执行同步代码
-				if (this.istrue.isnext == true) {
-					this.btn_check = false;
-					this.btn_checkeds.forEach((item, index) => {
-						this.btn_checkeds[index] = false
-					});
-					let page = this.project_data.page;
-					let time = new Date().getTime();
-					let positive_integer = window.parseInt(this.project_data.total);
-					if (page < positive_integer && page != undefined && page != null) {
-						page++;
-						if (this.project_data.records - this.child_index_total > this.data_page) {
-							this.child_index = this.child_index + this.data_page;
-							this.child_index_total = this.child_index_total + this.data_page;
-							this.$emit('child_next', this.sub_url, this.child_index, page,this.sort)
-						} else {
-							this.child_index = this.child_index + this.data_page;
-							//最后一页的数据是16的几倍
-							let positive_integer = window.parseInt(this.project_data.records / this.data_page);
-							//最后一页的数据的总条数
-							let mantissa = this.project_data.records - positive_integer * this.data_page;
-							this.child_index_total = (positive_integer) * this.data_page + mantissa;
-							this.$emit('child_next', this.sub_url, this.child_index, page,this.sort);
-						}
-						this.child_index_page+=this.data_page
-					} else if (page >= positive_integer) {
-						// alert("已经是最后一页了")
-						this.box_data.tips=true;
-						this.current_state='已经是最后一页了';
-						setTimeout(()=>{
-							this.box_data.tips=false;
-						},1000)
-					}
-					this.page=page;
-				} 
+				// if (this.istrue.isnext == true) {
+				// 	this.btn_check = false;
+				// 	this.btn_checkeds.forEach((item, index) => {
+				// 		this.btn_checkeds[index] = false
+				// 	});
+				// 	let page = this.project_data.page;
+				// 	let time = new Date().getTime();
+				// 	let positive_integer = window.parseInt(this.project_data.total);
+				// 	if (page < positive_integer && page != undefined && page != null) {
+				// 		page++;
+				// 		if (this.project_data.records - this.child_index_total > this.data_page) {
+				// 			this.child_index = this.child_index + this.data_page;
+				// 			this.child_index_total = this.child_index_total + this.data_page;
+				// 			this.$emit('child_next', this.sub_url, this.child_index, page,this.sort)
+				// 		} else {
+				// 			this.child_index = this.child_index + this.data_page;
+				// 			//最后一页的数据是16的几倍
+				// 			let positive_integer = window.parseInt(this.project_data.records / this.data_page);
+				// 			//最后一页的数据的总条数
+				// 			let mantissa = this.project_data.records - positive_integer * this.data_page;
+				// 			this.child_index_total = (positive_integer) * this.data_page + mantissa;
+				// 			this.$emit('child_next', this.sub_url, this.child_index, page,this.sort);
+				// 		}
+				// 		this.child_index_page+=this.data_page
+				// 	} else if (page >= positive_integer) {
+				// 		// alert("已经是最后一页了")
+				// 		this.box_data.tips=true;
+				// 		this.current_state='已经是最后一页了';
+				// 		setTimeout(()=>{
+				// 			this.box_data.tips=false;
+				// 		},1000)
+				// 	}
+				// 	this.page=page;
+				// } 
 			},
 			//尾页
 			last_page() {
+				this.is_home_page=true;
+				this.is_previous_page=true;
+				this.is_previous_ellipsis=true;
+				this.submit_input(parseInt(this.project_data.total));
+				this.page_init.first=parseInt(this.project_data.total)-2;
+				this.page_init.second=parseInt(this.project_data.total)-1;
+				this.page_init.third=parseInt(this.project_data.total);	
 				//当返回数据时在请求
-					if (this.istrue.isend == true) {
-					//把按钮选中的时候取消
-					this.btn_check = false;
-					this.btn_checkeds.forEach((item, index) => {
-						this.btn_checkeds[index] = false
-					});
-					//最后一页的数据是16的几倍
-					let positive_integer = window.parseInt(this.project_data.records / this.data_page);
-					//检测是不是正整数
-					let num=/^[0-9]*[1-9][0-9]*$/.test(this.project_data.records / this.data_page)
-					//最后一页的数据的总条数
-					let mantissa = this.project_data.records - positive_integer * this.data_page;
-					//总页数
-					var pasin = window.parseInt(this.project_data.total);
+				// 	if (this.istrue.isend == true) {
+				// 	//把按钮选中的时候取消
+				// 	this.btn_check = false;
+				// 	this.btn_checkeds.forEach((item, index) => {
+				// 		this.btn_checkeds[index] = false
+				// 	});
+				// 	//最后一页的数据是16的几倍
+				// 	let positive_integer = window.parseInt(this.project_data.records / this.data_page);
+				// 	//检测是不是正整数
+				// 	let num=/^[0-9]*[1-9][0-9]*$/.test(this.project_data.records / this.data_page)
+				// 	//最后一页的数据的总条数
+				// 	let mantissa = this.project_data.records - positive_integer * this.data_page;
+				// 	//总页数
+				// 	var pasin = window.parseInt(this.project_data.total);
 					
-					//序号
-									// console.log(this.page,pasin)
-				if(this.page!=pasin){
-					this.page=pasin;
-					if(num==false){
-						this.child_index = (positive_integer) * this.data_page;//总页数减一乘以16   是第几条{{}}中的数据
-						this.child_index_page=this.project_data.records-mantissa+1;
-					}else{
-						this.child_index = (positive_integer) * this.data_page-this.data_page;
-						this.child_index_page=this.project_data.records-this.data_page+1;
-					}
+				// 	//序号
+				// 					// console.log(this.page,pasin)
+				// if(this.page!=pasin){
+				// 	this.page=pasin;
+				// 	if(num==false){
+				// 		this.child_index = (positive_integer) * this.data_page;//总页数减一乘以16   是第几条{{}}中的数据
+				// 		this.child_index_page=this.project_data.records-mantissa+1;
+				// 	}else{
+				// 		this.child_index = (positive_integer) * this.data_page-this.data_page;
+				// 		this.child_index_page=this.project_data.records-this.data_page+1;
+				// 	}
 					
-					//每页包含的项目条数
-					this.child_index_total = (positive_integer) * this.data_page + mantissa; //总页数减一乘以16+最后一页的条数   是到第几条{{}}中的数据
-					this.$emit('child_end', this.sub_url, this.child_index, pasin,this.sort)
-					}else{
-					this.box_data.tips=true;
-					this.current_state='已经是最后一页了';
-					setTimeout(()=>{
-						this.box_data.tips=false;
-					},1000)
-				}
-					}
+				// 	//每页包含的项目条数
+				// 	this.child_index_total = (positive_integer) * this.data_page + mantissa; //总页数减一乘以16+最后一页的条数   是到第几条{{}}中的数据
+				// 	this.$emit('child_end', this.sub_url, this.child_index, pasin,this.sort)
+				// 	}else{
+				// 	this.box_data.tips=true;
+				// 	this.current_state='已经是最后一页了';
+				// 	setTimeout(()=>{
+				// 		this.box_data.tips=false;
+				// 	},1000)
+				// }
+				// 	}
 
 			},
 		},

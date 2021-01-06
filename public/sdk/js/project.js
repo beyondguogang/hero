@@ -1,25 +1,25 @@
 let vm=new Vue({
     el: '#app',
     data: {
-            // a:'',
-            spring:'none',
-            isItemList:false,
-            isItemList1:false,
-            isItemList2:false,
-            msg1:'',
-            msg:'',
-            bor:'1px solid #5a6268',
-            bor1:'1px solid #5a6268',
-            hide:'none',
-            hide1:'none',
-            groupList:"",
-            a:"",
-            projectList:"",
-            nameList:"",
-            groupInfo:"",
-            isEdit:"0",
-            shows:false,  /*弹框显示隐藏*/
-            verification:'',/*弹框内容*/
+        item:'',//编辑或新建的名
+        spring:'none', //是否显示弹框
+        // isItemList:false,
+        // isItemList1:false,
+        // isItemList2:false,
+        // msg1:'',
+        // msg:'',
+        // bor:'1px solid #5a6268',
+        // bor1:'1px solid #5a6268',
+        // hide:'none',
+        // hide1:'none',
+        // groupList:"",
+        // a:"",
+        projectList:"",//项目列表
+        // nameList:"",
+        // groupInfo:"",
+        isEdit:"0",//编辑新建的标记
+        shows:false,  /*弹框显示隐藏*/
+        verification:'',/*弹框内容*/
         /*删除权限*/
         pointer_del:false,
         opacity_del:1,
@@ -29,31 +29,90 @@ let vm=new Vue({
         /*添加权限*/
         serverNewFlag:false,
         new_role:1,
-        userInfo:"",
-        show_tips_box:false,
+        userInfo:"",//用户信息请求接口需要传入
+        show_tips_box:false,//提示框
         current_state:'没有添加权限',
-        //是否显示数据
-        t_body:true
+        t_body:true, //是否显示数据
+        projectInfo:null, //请求列表数据
+        true_flag:true,//确认的标志
     },
-
     mounted() {
-        // if(sessionStorage.getItem('user')==null){
-        //     this.userInfo=sessionStorage.getItem('user_copy');
-        // }else{
-            this.userInfo=sessionStorage.getItem('userInfo');
-        // }
-        // this.getAuth();
+        //是否登录过期
+        this.login_expired();
+        // var userObj=JSON.parse(user);
+        //用户权限
+        this.getAuth('tbl_project');
+        // this.fld_username=userObj.fld_name;
+        //项目列表
         this.getProject();
-        //判断项目管理有没有增删改查权限
-        var project=this.getAuth("tbl_project");
-
+    
     },
     methods:{
+        /*    fn5:function(){
+        if (!this.isItemList2) {
+            this.isItemList2=true
+        }else{
+            this.isItemList2=false
+        }
+    },
+    inp:function(){
+        this.hide='none';
+        this.bor='1px solid #5a6268';
+        if(this.msg===''){
+            this.hide='inline-block';
+            this.bor='1px solid red';
+        }
+    },
+    inp2:function(){
+        this.hide1='none';
+        this.bor1='1px solid #5a6268';
+        if(this.msg1===''){
+            this.hide1='inline-block';
+            this.bor1='1px solid red';
+        }
+    },
+    Empty:function(){
+        if(this.msg===''&& this.msg1===''){
+            this.hide='inline-block';
+            this.bor='1px solid red';
+            this.hide1='inline-block';
+            this.bor1='1px solid red';
+        }else if(this.msg===''&& this.msg1!==''){
+            this.hide='inline-block';
+            this.bor='1px solid red';
+        }else if(this.msg!==''&&this.msg1===''){
+            this.hide1='inline-block';
+            this.bor1='1px solid red';
+        }
+    },*/
+        //是否是登陆过期
+        login_expired:function(){
+            var user,time,startTime;
+            user=sessionStorage.getItem('userInfo');
+            time=parseInt(new Date().getTime()/1000);
+            startTime=sessionStorage.getItem('startTime');
+            this.userInfo=user;
+        // }
+        if(user==""||user==null ||user==undefined ||user=='null'){
+            window.location.href="/login";
+            return false;
+        }
         
+        
+        var timeCha=(time-startTime)-(30*60);
+        if(timeCha>0){
+            sessionStorage.setItem('user',null);
+            window.location.href="/login";
+            return false;
+        }else{
+            startTime=sessionStorage.setItem('startTime',time);
+        }
+        },
+        //编辑新建的确认按钮
         add:function(){
+            this.true_flag=false;
             var name=this.$refs.projectname.value;
             var des=this.$refs.projectdes.value;
-            
             name=name.trim();
             des=des.trim();
            if(name===''){
@@ -71,9 +130,8 @@ let vm=new Vue({
                 },1000)
                 return false;
             } else if(this.isEdit==="0"){
-
                 axios
-                    .post(serverUrl+'/nacos/pAddOrUpdate',
+                    .post(serverUrl+'/sdk/pAddOrUpdate',
                         {
                             fld_name:name,
                             fld_des:des,
@@ -90,22 +148,23 @@ let vm=new Vue({
 
                             },1000)
                         
-                            this.spring='none'
+                            this.spring='none';
+                            this.true_flag=true;
                         }else{
                             setTimeout( ()=> {
                                 this.shows=false;
                             },1000)
                             this.getProject();
-                            this.spring='none'
+                            this.spring='none';
+                            this.true_flag=true;
                         }
                          
                         
 
                     })
             }else{
-
                 axios
-                    .post(serverUrl+'/nacos/pAddOrUpdate',
+                    .post(serverUrl+'/sdk/pAddOrUpdate',
                         {
                             fld_id:this.projectInfo.fld_id,
                             fld_name:name,
@@ -123,26 +182,28 @@ let vm=new Vue({
 
                             },1000)
                         
-                            this.spring='none'
+                            this.spring='none';
+                            this.true_flag=true;
                         }else{
                             setTimeout( ()=> {
                                 this.shows=false;
                             },1000)
                             this.getProject();
-                            this.spring='none'
+                            this.spring='none';
+                            this.true_flag=true;
+                            //  alert(1)
                         }
 
                     })
 
             }
         },
-
         //获取项目列表
         getProject:function(){
             axios
-            .post(serverUrl+'/nacos/projectList',{userInfo:this.userInfo})
+            .post(serverUrl+'/sdk/projectList',{userInfo:this.userInfo})
             .then(response => {
-               
+                // console.log(response)
                 if(response.data.error==-1){
                     this.show_tips_box=true;
                     this.current_state=response.data.message;
@@ -151,6 +212,7 @@ let vm=new Vue({
                     },1000)
                     return false;
                 }else{
+                    //  console.log(response.data)
                     this.projectList = response.data.projectList
                 }
 
@@ -158,50 +220,14 @@ let vm=new Vue({
             })
 
         },
-        fn5:function(){
-            if (!this.isItemList2) {
-                this.isItemList2=true
-            }else{
-                this.isItemList2=false
-            }
-
-        },
-        inp:function(){
-            this.hide='none';
-            this.bor='1px solid #5a6268';
-            if(this.msg===''){
-                this.hide='inline-block';
-                this.bor='1px solid red';
-            }
-        },
-        inp2:function(){
-            this.hide1='none';
-            this.bor1='1px solid #5a6268';
-            if(this.msg1===''){
-                this.hide1='inline-block';
-                this.bor1='1px solid red';
-            }
-        },
-        Empty:function(){
-            if(this.msg===''&& this.msg1===''){
-                this.hide='inline-block';
-                this.bor='1px solid red';
-                this.hide1='inline-block';
-                this.bor1='1px solid red';
-            }else if(this.msg===''&& this.msg1!==''){
-                this.hide='inline-block';
-                this.bor='1px solid red';
-            }else if(this.msg!==''&&this.msg1===''){
-                this.hide1='inline-block';
-                this.bor1='1px solid red';
-            }
-        },
-        addProjectShow:function(){
+        // 添加时的弹框
+        addProjectShow:function(){          
             if(this.serverNewFlag==true){
                  this.$refs.projectname.value='';
                 this.$refs.projectdes.value='';
                 this.isEdit="0";
                 this.spring='block';
+                this.item='新建项目';
             }else{
                 this.show_tips_box=true;
                 window.setTimeout(()=>{
@@ -210,13 +236,15 @@ let vm=new Vue({
             }
            
         },
+        //关闭弹框
         cross:function(){
             this.spring='none'
         },
+        //删除数据
         projectDel:function(e){
             var fld_id=e.target.getAttribute('fld_id');
             axios
-                .post(serverUrl+'/nacos/projectDel',
+                .post(serverUrl+'/sdk/projectDel',
                 {
                     fld_id:fld_id,
                     userInfo:this.userInfo
@@ -244,11 +272,12 @@ let vm=new Vue({
 
                 })
         },
+        //编辑项目
         projectEdit:function(e){
             this.isEdit="1";
             var fld_id=e.target.getAttribute('fld_id')
             axios
-            .post(serverUrl+'/nacos/projectfInfo',
+            .post(serverUrl+'/sdk/projectfInfo',
             {
                 fld_id:fld_id,
                 userInfo:this.userInfo
@@ -263,31 +292,30 @@ let vm=new Vue({
                     },1000)
                     return false;
                 }else{
+                    // console.log(this.projectInfo)
                     this.projectInfo=response.data.projectInfo;
+                    // console.log(this.projectInfo)
                     this.$refs.projectname.value=this.projectInfo.fld_name;
                     this.$refs.projectdes.value=this.projectInfo.fld_des;
-                    this.spring='block'
+                    this.item='编辑项目';
+                    this.spring='block';
                 }
                 
                 
 
             })
         },
-
-        /**
-         * 
-         * 获取表权限
-         */
+        // 获取表权限
         getAuth:function(table){
             axios
-            .post(serverUrl+'/nacos/getUserAuth',
+            .post(serverUrl+'/sdk/getUserAuth',
             {
                 TBName:table,
                 userInfo:this.userInfo
                 
             })
             .then(response => {
-                // console.log("response.data.rule",response.data.rule);   
+                //  console.log("response.data.rule",response.data.rule);   
                 
                     if(response.data.rule.Add){
                         this.serverNewFlag=true
