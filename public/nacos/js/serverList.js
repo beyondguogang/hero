@@ -56,7 +56,7 @@ mounted:function(){
     console.log(getUrlParam)
     var projectName=unescape(getUrlParam("project"));
     this.projectName=projectName;
-    this.project_id=projectId?projectId:2;
+    this.project_id=projectId?projectId:1;
     this.getServerList();
     //判断配置管理有没有增删改查权限
     var serverconf=this.getAuth("tbl_serverconf");

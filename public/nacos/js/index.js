@@ -3,126 +3,106 @@ let vm=new Vue({
     components: {
         
     },
-    data: {
+    data: {        
+        // reversal: '',
+        // reversal1: '',
+        // isActive: false,
+        // pro: '',
+        // temprojectid:"a",
+        // index:'',
+        // user:"",
+        // add:'',
+        //显示权限
         show_tips:null,
-        reversal: '',
-        reversal1: '',
-        isActive: false,
+        //显示子菜单
         isItemList: false,
         isItemList1: false,
         isItemList2: false,
+        //项目列表
         projectList: "",
         heo: true,
-        sty: '',
-        pro: '',
-        temprojectid:"a",
-        shows:0,
-        index:'',
-        user:"",
+        sty: '',      
+        //新建添加的标志
+        shows:0,      
+        //项目名
         fld_username:"",
+        //用户信息
         userInfo:"",
         current_state:'没有权限',
+        //提示框
         show_tips_box:false,
-        add:'',
     },
 
     mounted:function() {
-        let obj=window.location.href;
-        // if(obj.indexOf('#')!=-1){
-        //     var hash=unescape(obj.substring(obj.indexOf('#')+1));
-        //     //var name=unescape(obj.substring(obj.indexOf('=')+1));
-        //     var hash_val=hash.split('&');
-        //     var arr=[];
-        //     for(var i=0;i<hash_val.length; i++){
-        //         //console.log(hash_val[i])
-        //         var vald=hash_val[i].split('=');
-        //         //console.log(vald)
-        //         arr.push(vald[1]) ;
-        //     }
-           
-        // };
-        // console.log(sessionStorage.getItem('user_copy'))
-        // var params = (function oneValues() {
-        //     var query = location.search.substr(1)
-        //     query = query.split('&')
-        //     var params = {}
-        //     for (let i = 0; i < query.length; i++) {
-        //         let q = query[i].split('=')
-        //         if (q.length === 2) {
-        //             params[q[0]] = q[1]
-        //         }
-        //     }
-        //     return params  //返回?号后面的参数名与参数值的数组
-        // }());
-        // if(sessionStorage.getItem('user_copy')==null){
-        //     alert(1)
- 
-        // console.log(params)
-        // console.log(decodeURIComponent(params.num),decodeURIComponent(params.time),decodeURIComponent(params.add))
-        // // console.log(sessionStorage.getItem('userInfo'))
-        // //判断登陆是否过期
-        // // this.userInfo=sessionStorage.getItem('user');
-        
-        // console.log(sessionStorage.getItem('user'))
-        // alert(1)
-        
-        // var user=sessionStorage.getItem('user');
-        var user,time,startTime,add;
-        // if(sessionStorage.getItem('user')==null){
-        //     alert(2)
-        //     user=decodeURIComponent(params.num);
-        //     time=parseInt(new Date().getTime()/1000);
-        //     startTime=decodeURIComponent(params.time);
-        //     add=decodeURIComponent(params.add)
-        //     this.userInfo=user;
-        //     window.sessionStorage.setItem('user_add',add);
-        //     this.add=window.sessionStorage.getItem('user_add');
-        //     window.sessionStorage.setItem('user_copy',user)
-        // }else{
-            user=sessionStorage.getItem('userInfo');
-            time=parseInt(new Date().getTime()/1000);
-            startTime=sessionStorage.getItem('startTime');
-            this.userInfo=user;
-        // }
-
-        if(user==""||user==null ||user==undefined ||user=='null'){
-            window.location.href="/login";
-            return false;
-        }
-        
-        
-        var timeCha=(time-startTime)-(30*60);
-        if(timeCha>0){
-            sessionStorage.setItem('user',null);
-            window.location.href="/login";
-            return false;
-        }
-        var userObj=JSON.parse(user);
-        // alert(1212)
-        // }else{
-        //     if(params.add!=null){
-        //         console.log(decodeURIComponent(params.add))
-        //         this.add=decodeURIComponent(params.add);
-        //         window.sessionStorage.setItem('user_add',this.add);
-        //     }else{
-        //         this.add=window.sessionStorage.getItem('user_add');
-        //     }
-        //     this.userInfo=sessionStorage.getItem('user_copy');
-        //     var userObj=JSON.parse(this.userInfo);
-        // }
-        
-
-        
-        this.fld_username=userObj.fld_name;
+        //是否登录过期
+        this.login_expired();
+        //判断权限
         this.getAuth();
+        //获取数据列表
         this.getProject();
-// console.log(this.userInfo)
     },
     computed:{
         
     },
     methods: {
-        
+        /* // getProjectId: function (e) {
+            
+        //     this.temprojectid=e.toElement.attributes.projectId.value;
+        //     //console.log(this.temprojectid);
+
+        // },
+       group_fn: function () {
+            if (!this.isItemList2) {
+                this.isItemList2 = true;
+                this.isItemList = false;
+                this.isItemList1 = false
+            } else {
+                this.isItemList2 = false
+            }
+
+        },
+        change1: function () {
+            this.reversal1 = true
+        },
+        triangle: function () {
+            this.heo = '';
+            this.sty = true
+
+        },
+        //退出登陆
+        logout:function(){
+            sessionStorage.setItem('user',null);
+            window.location.href="./login.html";
+            return false;
+
+        },*/
+        //是否登录过期
+        login_expired:function(){
+            this.userInfo=sessionStorage.getItem('userInfo');
+            var user,time,startTime;
+                user=sessionStorage.getItem('userInfo');
+                time=parseInt(new Date().getTime()/1000);
+                startTime=sessionStorage.getItem('startTime');
+                this.userInfo=user;
+            // }
+            if(user==""||user==null ||user==undefined ||user=='null'){
+                window.location.href="/login";
+                return false;
+            }
+            
+            
+            var timeCha=(time-startTime)-(30*60);
+            if(timeCha>0){
+                sessionStorage.setItem('user',null);
+                window.location.href="/login";
+                return false;
+            }else{
+                startTime=sessionStorage.setItem('startTime',time);
+            };
+            var userObj=JSON.parse(user);
+            this.fld_username=userObj.fld_name;
+        },
+        //获取项目列表
         getProject: function () {
             axios
                 .post(serverUrl+'/nacos/projectList',{userInfo:this.userInfo})
@@ -135,13 +115,8 @@ let vm=new Vue({
                     }
                     
                 })
-        },
-        getProjectId: function (e) {
-            
-            this.temprojectid=e.toElement.attributes.projectId.value;
-            //console.log(this.temprojectid);
-
-        },
+        },       
+        //配置管理
         config_fn: function () {
             if (!this.isItemList) {
                 this.isItemList = true;
@@ -151,6 +126,7 @@ let vm=new Vue({
                 this.isItemList = false
             }
         },
+        //服务管理
         server_fn: function () {
             if (!this.isItemList1) {
                 this.isItemList1 = true;
@@ -160,16 +136,7 @@ let vm=new Vue({
                 this.isItemList1 = false
             }
         },
-        group_fn: function () {
-            if (!this.isItemList2) {
-                this.isItemList2 = true;
-                this.isItemList = false;
-                this.isItemList1 = false
-            } else {
-                this.isItemList2 = false
-            }
-
-        },
+        //点击返回不同的页面
         change: function (index,e) {
             var controller=e.target.attributes.controller.value;
             
@@ -207,32 +174,13 @@ let vm=new Vue({
             }
             this.shows=index;
         },
-        change1: function () {
-            this.reversal1 = true
-        },
-        triangle: function () {
-            this.heo = '';
-            this.sty = true
-
-        },
         back: function () {
             this.pro = true;
             let oldProcedure = this.$refs['procedureEdit'].getVal();
             oldProcedure='';
             // alert()
         },
-        //退出登陆
-        // logout:function(){
-        //     sessionStorage.setItem('user',null);
-        //     window.location.href="./login.html";
-        //     return false;
-
-        // },
-
-        /**
-         * 
-         * 获取表权限
-         */
+        // 获取表权限    
         getAuth:function(){
             axios
             .post(serverUrl+'/nacos/getUserAuth',

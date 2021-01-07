@@ -2,6 +2,7 @@ let vm=new Vue({
     el: '#app',
     data: {
             // a:'',
+            //项目弹框
             spring:'none',
             isItemList:false,
             isItemList1:false,
@@ -37,19 +38,77 @@ let vm=new Vue({
     },
 
     mounted() {
-        // if(sessionStorage.getItem('user')==null){
-        //     this.userInfo=sessionStorage.getItem('user_copy');
-        // }else{
-            this.userInfo=sessionStorage.getItem('userInfo');
-        // }
-        // this.getAuth();
+        //是否登录过期
+        this.login_expired()
+        //获取项目列表
         this.getProject();
         //判断项目管理有没有增删改查权限
-        var project=this.getAuth("tbl_project");
-
+        this.getAuth("tbl_project");
     },
     methods:{
-        
+       /* fn5:function(){
+            if (!this.isItemList2) {
+                this.isItemList2=true
+            }else{
+                this.isItemList2=false
+            }
+
+        },
+        inp:function(){
+            this.hide='none';
+            this.bor='1px solid #5a6268';
+            if(this.msg===''){
+                this.hide='inline-block';
+                this.bor='1px solid red';
+            }
+        },
+        inp2:function(){
+            this.hide1='none';
+            this.bor1='1px solid #5a6268';
+            if(this.msg1===''){
+                this.hide1='inline-block';
+                this.bor1='1px solid red';
+            }
+        },
+        Empty:function(){
+            if(this.msg===''&& this.msg1===''){
+                this.hide='inline-block';
+                this.bor='1px solid red';
+                this.hide1='inline-block';
+                this.bor1='1px solid red';
+            }else if(this.msg===''&& this.msg1!==''){
+                this.hide='inline-block';
+                this.bor='1px solid red';
+            }else if(this.msg!==''&&this.msg1===''){
+                this.hide1='inline-block';
+                this.bor1='1px solid red';
+            }
+        },*/
+        //是否登录过期
+        login_expired:function(){
+            this.userInfo=sessionStorage.getItem('userInfo');
+            var user,time,startTime;
+                user=sessionStorage.getItem('userInfo');
+                time=parseInt(new Date().getTime()/1000);
+                startTime=sessionStorage.getItem('startTime');
+                this.userInfo=user;
+            // }
+            if(user==""||user==null ||user==undefined ||user=='null'){
+                window.location.href="/login";
+                return false;
+            }
+            
+            
+            var timeCha=(time-startTime)-(30*60);
+            if(timeCha>0){
+                sessionStorage.setItem('user',null);
+                window.location.href="/login";
+                return false;
+            }else{
+                startTime=sessionStorage.setItem('startTime',time);
+            }
+        },
+        //添加新建确认
         add:function(){
             var name=this.$refs.projectname.value;
             var des=this.$refs.projectdes.value;
@@ -136,7 +195,6 @@ let vm=new Vue({
 
             }
         },
-
         //获取项目列表
         getProject:function(){
             axios
@@ -158,44 +216,8 @@ let vm=new Vue({
             })
 
         },
-        fn5:function(){
-            if (!this.isItemList2) {
-                this.isItemList2=true
-            }else{
-                this.isItemList2=false
-            }
-
-        },
-        inp:function(){
-            this.hide='none';
-            this.bor='1px solid #5a6268';
-            if(this.msg===''){
-                this.hide='inline-block';
-                this.bor='1px solid red';
-            }
-        },
-        inp2:function(){
-            this.hide1='none';
-            this.bor1='1px solid #5a6268';
-            if(this.msg1===''){
-                this.hide1='inline-block';
-                this.bor1='1px solid red';
-            }
-        },
-        Empty:function(){
-            if(this.msg===''&& this.msg1===''){
-                this.hide='inline-block';
-                this.bor='1px solid red';
-                this.hide1='inline-block';
-                this.bor1='1px solid red';
-            }else if(this.msg===''&& this.msg1!==''){
-                this.hide='inline-block';
-                this.bor='1px solid red';
-            }else if(this.msg!==''&&this.msg1===''){
-                this.hide1='inline-block';
-                this.bor1='1px solid red';
-            }
-        },
+        
+        //添加项目
         addProjectShow:function(){
             if(this.serverNewFlag==true){
                  this.$refs.projectname.value='';
@@ -210,9 +232,11 @@ let vm=new Vue({
             }
            
         },
+        //关闭弹框
         cross:function(){
             this.spring='none'
         },
+        //删除项目
         projectDel:function(e){
             var fld_id=e.target.getAttribute('fld_id');
             axios
@@ -244,6 +268,7 @@ let vm=new Vue({
 
                 })
         },
+        //编辑项目
         projectEdit:function(e){
             this.isEdit="1";
             var fld_id=e.target.getAttribute('fld_id')
@@ -273,11 +298,7 @@ let vm=new Vue({
 
             })
         },
-
-        /**
-         * 
-         * 获取表权限
-         */
+         // 获取表权限 
         getAuth:function(table){
             axios
             .post(serverUrl+'/nacos/getUserAuth',

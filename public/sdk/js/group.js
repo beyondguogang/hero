@@ -2,21 +2,26 @@ let vm=new Vue({
     el: '#app',
     data: {
             // a:'',
-            spring:'none',
-            isItemList:false,
-            isItemList1:false,
-            isItemList2:false,
-            msg1:'',
-            msg:'',
-            bor:'1px solid #5a6268',
-            bor1:'1px solid #5a6268',
-            hide:'none',
-            hide1:'none',
-            groupList:"",
-            a:"",
+            
+            // isItemList:false,
+            // isItemList1:false,
+            // isItemList2:false,
+            // msg1:'',
+            // msg:'',
+            // bor:'1px solid #5a6268',
+            // bor1:'1px solid #5a6268',
+            // hide:'none',
+            // hide1:'none',
+            // groupList:"",
+            // a:"",
+            // nameList:"",
+            //获取项目列表
             projectList:"",
-            nameList:"",
+            //是否显示弹框
+            spring:'none',
+            //项目信息
             groupInfo:"",
+            //编辑添加标志
             isEdit:"0",
             shows:false,  /*弹框显示隐藏*/
             verification:'',/*弹框内容*/
@@ -39,28 +44,86 @@ let vm=new Vue({
     },
 
     mounted() {
-        //监听页面的加载事件
-        // if(sessionStorage.getItem('user')==null){
-        //     this.userInfo=sessionStorage.getItem('user_copy');
-        // }else{
-            this.userInfo=sessionStorage.getItem('userInfo');
-        // }
-        this.getGroup();
+        //是否登录过期
+        this.login_expired();
+        //获取项目列表
         this.getProject();
         //判断分组管理有没有增删改查权限
-        var group=this.getAuth("tbl_group");
-
+        this.getAuth("tbl_group");
     },
     methods:{
-        //获取分组列表
-        getGroup:function(){
-            axios
-                // .post(serverUrl+'/nacos/groupList',{userInfo:this.userInfo})
-                // .then(response => (this.groupList = response.data.groupList))
-                axios.post(serverUrl+'/sdk/projectList',{userInfo:this.userInfo}).then((res)=>{
-                    this.project_management=res.data.projectList;
-                })
+    /*           fn5:function(){
+            if (!this.isItemList2) {
+                this.isItemList2=true
+            }else{
+                this.isItemList2=false
+            }
+
         },
+        inp:function(){
+            this.hide='none';
+            this.bor='1px solid #5a6268';
+            if(this.msg===''){
+                this.hide='inline-block';
+                this.bor='1px solid red';
+            }
+        },
+        inp2:function(){
+            this.hide1='none';
+            this.bor1='1px solid #5a6268';
+            if(this.msg1===''){
+                this.hide1='inline-block';
+                this.bor1='1px solid red';
+            }
+        },
+        Empty:function(){
+            if(this.msg===''&& this.msg1===''){
+                this.hide='inline-block';
+                this.bor='1px solid red';
+                this.hide1='inline-block';
+                this.bor1='1px solid red';
+            }else if(this.msg===''&& this.msg1!==''){
+                this.hide='inline-block';
+                this.bor='1px solid red';
+            }else if(this.msg!==''&&this.msg1===''){
+                this.hide1='inline-block';
+                this.bor1='1px solid red';
+            }
+        },*/
+        //获取分组列表
+        // getGroup:function(){
+        //     axios
+        //         // .post(serverUrl+'/nacos/groupList',{userInfo:this.userInfo})
+        //         // .then(response => (this.groupList = response.data.groupList))
+        //         axios.post(serverUrl+'/sdk/projectList',{userInfo:this.userInfo}).then((res)=>{
+        //             this.project_management=res.data.projectList;
+        //         })
+        // },
+        //是否登录过期
+        login_expired:function(){
+        this.userInfo=sessionStorage.getItem('userInfo');
+        var user,time,startTime;
+            user=sessionStorage.getItem('userInfo');
+            time=parseInt(new Date().getTime()/1000);
+            startTime=sessionStorage.getItem('startTime');
+            this.userInfo=user;
+        // }
+        if(user==""||user==null ||user==undefined ||user=='null'){
+            window.location.href="/login";
+            return false;
+        }
+        
+        
+        var timeCha=(time-startTime)-(30*60);
+        if(timeCha>0){
+            sessionStorage.setItem('user',null);
+            window.location.href="/login";
+            return false;
+        }else{
+            startTime=sessionStorage.setItem('startTime',time);
+        }
+        },
+        //添加项目
         add:function(){
             var name=this.$refs.groupname.value;
             var des=this.$refs.groupdes.value;
@@ -156,7 +219,6 @@ let vm=new Vue({
 
             }
         },
-
         //获取项目列表
         getProject:function(){
             axios
@@ -175,44 +237,7 @@ let vm=new Vue({
             })
 
         },
-        fn5:function(){
-            if (!this.isItemList2) {
-                this.isItemList2=true
-            }else{
-                this.isItemList2=false
-            }
-
-        },
-        inp:function(){
-            this.hide='none';
-            this.bor='1px solid #5a6268';
-            if(this.msg===''){
-                this.hide='inline-block';
-                this.bor='1px solid red';
-            }
-        },
-        inp2:function(){
-            this.hide1='none';
-            this.bor1='1px solid #5a6268';
-            if(this.msg1===''){
-                this.hide1='inline-block';
-                this.bor1='1px solid red';
-            }
-        },
-        Empty:function(){
-            if(this.msg===''&& this.msg1===''){
-                this.hide='inline-block';
-                this.bor='1px solid red';
-                this.hide1='inline-block';
-                this.bor1='1px solid red';
-            }else if(this.msg===''&& this.msg1!==''){
-                this.hide='inline-block';
-                this.bor='1px solid red';
-            }else if(this.msg!==''&&this.msg1===''){
-                this.hide1='inline-block';
-                this.bor1='1px solid red';
-            }
-        },
+        //新建分组
         addGroupShow:function(){
             if(this.serverNewFlag==true){
                 this.$refs.groupname.value='';
@@ -226,6 +251,7 @@ let vm=new Vue({
                 },1000)
             }
         },
+        //关闭弹框
         cross:function(){
             // this.shows=true;
             // this.verification='删除成功';
@@ -234,6 +260,7 @@ let vm=new Vue({
             // },1000)
             this.spring='none'
         },
+        //删除分组列表
         groupDel:function(e){
             var fld_id=e.target.getAttribute('fld_id');
             axios
@@ -265,6 +292,7 @@ let vm=new Vue({
 
                 })
         },
+        //编辑项目
         groupEdit:function(e){
             this.isEdit="1";
             var fld_id=e.target.getAttribute('fld_id')
@@ -299,10 +327,7 @@ let vm=new Vue({
 
             })
         },
-        /**
-         * 
-         * 获取表权限
-         */
+        //获取表权限
         getAuth:function(table){
             axios
             .post(serverUrl+'/nacos/getUserAuth',

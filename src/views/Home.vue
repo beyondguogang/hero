@@ -117,6 +117,7 @@
 		},
 		data() {
 			return {
+				project_index:'',
 				address:'',
 				login_time:'',
 				// user:'',
@@ -243,19 +244,21 @@
 				console.log(res)
 				this.project_list = res.data;
 				var select=window.sessionStorage.getItem('btn_selected');
+				// this.btn_selected=this.project_list[0].Name;
 				//根据保存的项目为空时会自动请求第一个项目默认显示
 				if(select==''){
-					this.menu_list(this.project_list[0].Name);
+					// alert(0)
+					this.menu_list(this.project_list[0]);
 					this.btn_selected=this.project_list[0];
-				}
-			});
-			//刷新时根据之前保存的时区显示时间
+				};
+				//刷新时根据之前保存的时区显示时间
 			if(window.sessionStorage.getItem('time_zone')!=null){
 				this.sle_zone=window.sessionStorage.getItem('time_zone');
 			};
 			//当重新加载时请求反序的数据
             window.sessionStorage.setItem('sord','desc');
 			if (this.$route.params.project != undefined) {
+				// alert(1)
 				this.surl = "/" + this.$route.params.project + '/' + this.$route.params.db + '/' + this.$route.params.table;
 				this.index = Number(this.$route.params.index);
 				this.change_index = Number(this.$route.params.change_index);
@@ -263,9 +266,12 @@
 				// console.log(this.$route.params.pr+this.surl+'/'+this.index+'/'+this.change_index)
 				this.address=encodeURIComponent(this.$route.params.pr+this.surl+'/'+this.change_index+'/'+this.index)
 				//刷新时执行头部菜单中的函数并传入路由参数
-				this.menu_list(this.btn_selected,this.surl, this.index, this.change_index);
-				this.getRow(this.surl, this.index, this.change_index,this.$route.params.pr);
+				this.menu_list(this.project_list[select],this.surl, this.index, this.change_index);
+				this.getRow(this.surl, this.index, this.change_index,this.project_list[select]);
 			}
+
+			});
+			
 		},
 		methods: {
 			//登录过期
@@ -544,6 +550,7 @@
 						} else {
 							this.is_sty = index;
 						}
+						// console.log(pr)
 						this.btn_selected=pr;
 						this.anate=false
 					})
@@ -1151,8 +1158,18 @@
 			},
 			//左边菜单栏s
 			menu_list(name,url, index, change_index) {
-				console.log(name)
-				this.menu_show=true;
+				// console.log(name)
+				// this.btn_selected=name;
+				this.project_list.forEach((item,index)=>{
+					if(item.Name==name.Name){
+						this.project_index=index;
+					}
+				})
+				if(name.url!=''){
+					// console.log(this.url+name.url)
+					 window.location.href=this.url+name.url;return;
+				}
+					this.menu_show=true;
 				this.active='col-lg-11 offset-lg-1';
 				this.project_name = name.Name;
 					this.flag = false;
@@ -1186,18 +1203,11 @@
 						this.box_data.mail=true;
 						this.btn_selected=name;
 					}
-					// else if(url=="/wysdk/Other/Windex"){
-					// 	window.location.href=this.url+'/sdk/index.html'
-					// }
-					 console.log(name.url)
-					// 	if(name.url!=undefined){
-					// 		// console.log(this.project_list.url)
-					// 		alert(1)
-					// 	window.location.href=this.url+name.url
-					// }
 					this.anate=false;
 				});
 				// }
+				// }
+				
 			},
 			//控制菜单栏的显示隐藏
 			change(index) {
@@ -1211,7 +1221,8 @@
 			},
 			//点击样式
 			sty_list(sub, index){
-				window.sessionStorage.setItem('btn_selected',this.btn_selected);
+				console.log(this.btn_selected)
+				window.sessionStorage.setItem('btn_selected',this.project_index);
 				// if(this.response.PAGE_TEMPLATE=="page_grid"||this.$route.params.project == undefined){
 					// if(this.response.PAGE_TEMPLATE=="page_grid"){
 						window.location.href = this.url + "/home/" + this.project_name + sub.url + '/' + this.change_index + '/' + index;	
