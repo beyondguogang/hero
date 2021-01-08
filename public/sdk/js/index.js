@@ -47,13 +47,13 @@ let vm=new Vue({
         
     },
     methods: {
-       /* getProjectId: function (e) {
+       /*  getProjectId: function (e) {
             
             this.temprojectid=e.toElement.attributes.projectId.value;
             //console.log(this.temprojectid);
 
         },
-        change1: function () {
+       change1: function () {
             this.reversal1 = true
         },
         triangle: function () {

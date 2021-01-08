@@ -1,26 +1,28 @@
 let vm=new Vue({
     el: '#app',
     data: {
-            // a:'',
-            //项目弹框
-            spring:'none',
-            isItemList:false,
-            isItemList1:false,
-            isItemList2:false,
-            msg1:'',
-            msg:'',
-            bor:'1px solid #5a6268',
-            bor1:'1px solid #5a6268',
-            hide:'none',
-            hide1:'none',
-            groupList:"",
-            a:"",
-            projectList:"",
-            nameList:"",
-            groupInfo:"",
-            isEdit:"0",
-            shows:false,  /*弹框显示隐藏*/
-            verification:'',/*弹框内容*/
+        // a:'',            
+        // isItemList:false,
+        // isItemList1:false,
+        // isItemList2:false,
+        // msg1:'',
+        // msg:'',
+        // bor:'1px solid #5a6268',
+        // bor1:'1px solid #5a6268',
+        // hide:'none',
+        // hide1:'none',
+        // groupList:"",
+        // a:"",
+        // nameList:"",
+        // groupInfo:"",
+        //项目弹框
+        spring:'none',
+        //项目列表数据
+        projectList:"",          
+        //编辑新建标志
+        isEdit:"0",
+        shows:false,  /*弹框显示隐藏*/
+        verification:'',/*弹框内容*/
         /*删除权限*/
         pointer_del:false,
         opacity_del:1,

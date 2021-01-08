@@ -35,13 +35,21 @@
 	  name:'login',
 	  data () {
 	    return {
+			//提示框组件
 			tips:false,
+			//提示框内容
 			current_state:'',
+			//用户名
 			username:'',
+			//密码
 			password:'',
+			//输入框的边框变化
 			blue_use:false,
+			//输入框的边框变化
 			blue_pas:false,
+			//焦点变化
 			us:false,
+			//焦点变化
 			ps:false,
 	    }
 	  },

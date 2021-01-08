@@ -5,6 +5,7 @@
 
 
 function getUrlParam(variable){
+    // console.log(window.location.href)
     var query = window.location.search.substring(1);
     var vars = query.split("&");
     for (var i=0;i<vars.length;i++) {

@@ -138,23 +138,27 @@ let vm=new Vue({
         },
         //点击返回不同的页面
         change: function (index,e) {
+            //获取每个子菜单的标志
             var controller=e.target.attributes.controller.value;
-            
+            //根据标志判断要显示的页面
             if(controller=="slc"){
+                //获取项目的projectid
                 var projectId=e.target.attributes.projectid.value;
-                
+                //根据不同的id获取不同的元素内容
                 var projectName=$("#pid_"+projectId).html();
-                
+                //根据不同的参数显示不同内容的嵌套页面
                 $("#iframe").attr("src","serverList.html?projectId="+projectId+"&project="+projectName+index);
-
+                //给地址添加不同的参数以让其有历史记录
                 window.location.href=window.location.pathname+"#type="+escape('配置')+'&name='+escape(projectName)+'&id='+projectId+'&count='+index;
             }else if(controller=="glc"){
                 $("#iframe").attr("src","group.html");
                 window.location.href=window.location.pathname+"#type="+escape('分组'+'&count='+index);
-            }else if(controller=="nlc"){
-                $("#iframe").attr("src","namespace.html");
-                window.location.href=window.location.pathname+"#type="+escape('命名空间'+'&count='+index);
-            }else if(controller=="prlc"){
+            }
+            // else if(controller=="nlc"){
+            //     $("#iframe").attr("src","namespace.html");
+            //     window.location.href=window.location.pathname+"#type="+escape('命名空间'+'&count='+index);
+            // }
+            else if(controller=="prlc"){
                 $("#iframe").attr("src","project.html");
                 window.location.href=window.location.pathname+"#type="+escape('项目管理'+'&count='+index);
             }else if(controller=="sflc"){
@@ -164,14 +168,15 @@ let vm=new Vue({
 
                 $("#iframe").attr("src","serverFindList.html?projectId="+projectId+"&project="+projectName);
                 window.location.href=window.location.pathname+"#type="+escape('服务')+'&name='+escape(projectName)+'&id='+projectId+'&count='+index;
-            }else if(controller=="ulc"){
-                $("#iframe").attr("src","user-admin.html");
-                window.location.href=window.location.pathname+"#type="+escape('用户管理'+'&count='+index);
-
-            }else if(controller=="plc"){
-                $("#iframe").attr("src","role-admin.html");
-                window.location.href=window.location.pathname+"#type="+escape('角色管理'+'&count='+index);
             }
+            // else if(controller=="ulc"){
+            //     $("#iframe").attr("src","user-admin.html");
+            //     window.location.href=window.location.pathname+"#type="+escape('用户管理'+'&count='+index);
+
+            // }else if(controller=="plc"){
+            //     $("#iframe").attr("src","role-admin.html");
+            //     window.location.href=window.location.pathname+"#type="+escape('角色管理'+'&count='+index);
+            // }
             this.shows=index;
         },
         back: function () {

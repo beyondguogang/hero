@@ -80,6 +80,7 @@
 					<page v-if="box_data.sel" ></page>
 					<send-mail v-if="box_data.mail"></send-mail>
 					<nacos v-if="box_data.nacos"></nacos>
+					<!-- 提示组件 -->
 					<tips v-if="sel_tips" :current_state="current_state"></tips>
 					<!-- <user-pas></user-pas> -->
 					<!-- <router-view></router-view> -->
@@ -93,8 +94,9 @@
 	</div>
 </template>
 <script>
-	//表格数据组件
+	//表格数据组件admin
 	import contentAdmin from '@/components/content_admin.vue';
+	//表格数据组件warship
 	import contentWarship from '@/components/content_warship.vue';
 	//角色查询组件
 	import page from '@/components/page.vue';
@@ -102,6 +104,7 @@
 	import sendMail from '@/components/send_mail.vue';
 	//nacos组件
 	import nacos from '@/components/nacos';
+	//弹框提示组件
 	import tips from "../box/tips";
 	// import userPas from '@/components/user_psd.vue'
 	export default {
@@ -112,20 +115,27 @@
 			page,
 			sendMail,
 			nacos,
+			//提示组件
 			tips
 			// userPas
 		},
 		data() {
 			return {
-				project_index:'',
-				address:'',
-				login_time:'',
+				// address:'',
+				// login_time:'',
 				// user:'',
-				ht:'http://10.0.17.119:8082/index.html',
+				// ht:'http://10.0.17.119:8082/index.html',
+				// flag_head:null,
+				// name: "shop",
+				// list: 'list_',
+				// active: false,
+				// menu: "menu",
+				//项目下拉框的索引
+				project_index:'',
+				//是否显示提示组件
 				sel_tips:false,
 				//当前的状态
-				current_state:'',
-				// flag_head:null,
+				current_state:'',				
 				//菜单显示隐藏时的布局
 				active:'col-lg-12',
 				//菜单的显示和隐藏
@@ -164,11 +174,7 @@
 				//项目的选择框数据
 				btn_selected:'',
 				//加载状态
-				anate:false,
-				name: "shop",
-				list: 'list_',
-				active: false,
-				menu: "menu",
+				anate:false,				
 				//头部请求的数据
 				project_list: '',
 				//头部数据项目返回的名字
@@ -198,7 +204,9 @@
 				list_index: 0,
 				//菜单显示隐藏的索引值
 				change_index: 0,
+				//显示shop组件admin
 				flag: false,
+				//显示shop组件warship
 				flag_warship:false,
 				//上下翻页时数据请求完成执行代码
 				istrue: {
@@ -225,8 +233,11 @@
 					mail:false,
 					nacos:false
 				},
+				//获取url中的参数
 				surl:null,
+				//获取url中的index参数
 				index:null,
+				//获取url中的子菜单的index
 				change_index:null,
 				//正反序的状态
 				sord:'desc',
@@ -240,8 +251,13 @@
 		computed: {},
 		mounted() {
 			//头部左边状态自动请求头部数据1607504568
-			this.axios.get(this.api + '/Login/ProjList').then(res => {
-				console.log(res)
+			this.getHeadData();
+		},
+		methods: {
+			//头部左边状态自动请求头部数据和加载本地保存的数据sessionStorage
+			getHeadData(){
+				this.axios.get(this.api + '/Login/ProjList').then(res => {
+				// console.log(res)
 				this.project_list = res.data;
 				var select=window.sessionStorage.getItem('btn_selected');
 				// this.btn_selected=this.project_list[0].Name;
@@ -252,28 +268,26 @@
 					this.btn_selected=this.project_list[0];
 				};
 				//刷新时根据之前保存的时区显示时间
-			if(window.sessionStorage.getItem('time_zone')!=null){
-				this.sle_zone=window.sessionStorage.getItem('time_zone');
-			};
-			//当重新加载时请求反序的数据
-            window.sessionStorage.setItem('sord','desc');
-			if (this.$route.params.project != undefined) {
-				// alert(1)
-				this.surl = "/" + this.$route.params.project + '/' + this.$route.params.db + '/' + this.$route.params.table;
-				this.index = Number(this.$route.params.index);
-				this.change_index = Number(this.$route.params.change_index);
-				// console.log(this.$route.params.pr)
-				// console.log(this.$route.params.pr+this.surl+'/'+this.index+'/'+this.change_index)
-				this.address=encodeURIComponent(this.$route.params.pr+this.surl+'/'+this.change_index+'/'+this.index)
-				//刷新时执行头部菜单中的函数并传入路由参数
-				this.menu_list(this.project_list[select],this.surl, this.index, this.change_index);
-				this.getRow(this.surl, this.index, this.change_index,this.project_list[select]);
-			}
-
-			});
-			
-		},
-		methods: {
+				if(window.sessionStorage.getItem('time_zone')!=null){
+					this.sle_zone=window.sessionStorage.getItem('time_zone');
+				};
+				//当重新加载时请求反序的数据
+            	window.sessionStorage.setItem('sord','desc');
+				if (this.$route.params.project != undefined) {
+					// alert(1)
+					this.surl = "/" + this.$route.params.project + '/' + this.$route.params.db + '/' + this.$route.params.table;
+					this.index = Number(this.$route.params.index);
+					this.change_index = Number(this.$route.params.change_index);
+					// console.log(this.$route.params.pr)
+					// console.log(this.$route.params.pr+this.surl+'/'+this.index+'/'+this.change_index)
+					// this.address=encodeURIComponent(this.$route.params.pr+this.surl+'/'+this.change_index+'/'+this.index)
+					//刷新时执行头部菜单中的函数并传入路由参数
+					this.menu_list(this.project_list[select],this.surl, this.index, this.change_index);
+					this.getRow(this.surl, this.index, this.change_index,this.project_list[select]);
+				}
+	
+				});
+			},
 			//登录过期
 			login_expired(){
 				if(window.sessionStorage.getItem('userInfo')=='null'){
@@ -285,7 +299,7 @@
 				this.userInfo = userInfo;
 				this.username = userInfo.fld_name;
 				let startTime = window.sessionStorage.getItem('startTime');
-				this.login_time=encodeURIComponent(window.sessionStorage.getItem('startTime'));
+				// this.login_time=encodeURIComponent(window.sessionStorage.getItem('startTime'));
 				// console.log(window.sessionStorage.getItem('startTime').toString())
 				// console.log(parseInt(startTime/1000))
 				let time = parseInt(new Date().getTime() / 1000);

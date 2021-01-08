@@ -48,6 +48,8 @@ let vm=new Vue({
       this.getProject();
       //判断分组管理有没有增删改查权限
       this.getAuth("tbl_group");
+      //获取分组列表
+      this.getGroup()
     },
     methods:{
           /* fn5:function(){

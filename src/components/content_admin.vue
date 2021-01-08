@@ -210,6 +210,7 @@
 			return {
 				//不同组件的标题
 				head_title:'',
+				//计算点击元素距离左上边框的距离
 				clientX:null,
 				clientY:null,
 				//是否禁止点击正反序的三角
@@ -230,11 +231,13 @@
 				// fontSize:775,
 				//数据列表颜色控制
 				dynamic:{},
+				//编辑新建时输入框中的值
 				rule_data:null,
 				//查询的显示框
 				query_show:false,
 				//是否输入页数
 				input_page: false,
+				//用户信息
 				userInfo: null,
 				//child_index:this.sub_index,
 				//默认的序号
@@ -243,6 +246,7 @@
 				child_index_total: 16,
 				//默认新建时遍历的多少条数据
 				num: 0,
+				//新建时根据每一项数据渲染不同的输入框或选择框
 				len: [],
 				//输入框数据
 				msg: [],
@@ -267,7 +271,9 @@
 				},
 				//排序的正反三角
 				sort: false,
+				//正序
 				isup: 'itup',
+				//倒序
 				isdown: 'itdown',
 				//保存的禁止点击
 				preservation: true,
@@ -329,7 +335,7 @@
 				project_box:'',
 				//页数
 				page:1,
-				//弹框数据
+				//组件弹框数据
 				box_data:{
 					project_engineering:false,
 					tank_channel:false,
@@ -379,45 +385,12 @@
 			   tips,
 		},
 		mounted() {
+			//数据为空时的显示
+			this.count_data();
 			//根据屏幕的高度计算数据的显示条数
-			// if(window.screen.height>1080){
-			// 	this.data_page=20;
-			// 	this.child_index_total=20;
-			// 	this.fontSize=900;
-			// }else{
-			// 	this.data_page=17;
-			// 	this.child_index_total=17;
-			this.data_page=parseInt(window.screen.height/60);
-			this.child_index_total=this.data_page
-			// }
-			let userInfo = window.sessionStorage.getItem('userInfo');
-			this.userInfo = userInfo;
-			if (this.project_data.page == undefined) {
-				this.project_data.page = 1;
-			}
-			if (JSON.toString(this.rows) == "[]") {
-				this.rows = [{
-					name: "name"
-				}];
-			}
-			if (this.response != null) {
-				//没有添加的时候
-				if (this.response.JQ_GRID_ADD == undefined) {
-					this.option.new_add = false
-				}
-				//没有删除的时候
-				if (this.response.JQ_GRID_DEL == undefined) {
-					this.option.del = false
-				}
-				//没有更新的时候
-				if (this.response.JQ_GRID_UPDATE == undefined) {
-					this.option.updata = false
-				}
-				//没有保存的时候
-				if (this.response.JQ_GRID_UPDATE == undefined && this.response.JQ_GRID_ADD == undefined) {
-					this.option.updata_add = false
-				}
-			};
+			this.count_page();
+			//判断底部操作按钮的显示隐藏
+			this.operation_isshow();
 		},
 		computed: {
 			//计算当总数据不足16条时有多少条显示到多少条
@@ -462,6 +435,47 @@
 			no_data:Boolean,
 		},
 		methods: {
+			//判断底部操作按钮的显示隐藏
+			operation_isshow(){
+				if (this.response != null) {
+				//没有添加的时候
+				if (this.response.JQ_GRID_ADD == undefined) {
+					this.option.new_add = false
+				}
+				//没有删除的时候
+				if (this.response.JQ_GRID_DEL == undefined) {
+					this.option.del = false
+				}
+				//没有更新的时候
+				if (this.response.JQ_GRID_UPDATE == undefined) {
+					this.option.updata = false
+				}
+				//没有保存的时候
+				if (this.response.JQ_GRID_UPDATE == undefined && this.response.JQ_GRID_ADD == undefined) {
+					this.option.updata_add = false
+				}
+				};
+			},
+			//数据为空时的显示
+			count_data(){
+				this.userInfo = window.sessionStorage.getItem('userInfo');
+				//如果页数返回undefined怎默认第一页
+				if (this.project_data.page == undefined) {
+					this.project_data.page = 1;
+				}
+				//如果数据返回为空时
+				if (JSON.toString(this.rows) == "[]") {
+					this.rows = [{
+						name: "name"
+					}];
+				}
+			},
+			//根据屏幕的高度计算显示的页数
+			count_page(){
+				//根据屏幕的高度计算显示的页数
+				this.data_page=parseInt(window.screen.height/60);
+				this.child_index_total=this.data_page
+			},
 			//请求所有弹框的数据根据字段显示是否有查询的三个点
 			serch_fn(){
 				let time=new Date().getTime(); 
@@ -846,6 +860,7 @@
 			serch(index1,index,key) {
 				// alert(0)
 				// console.log(event)
+				//计算点击元素距离左上边框的距离
 				this.clientX=event.clientX;
 				this.clientY=event.clientY;
 				this.box_data.project_engineering==false;
