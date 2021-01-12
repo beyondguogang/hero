@@ -17,8 +17,8 @@
 								    <!-- <option disabled value="">请选择</option> -->
 									<option v-for="(item,index) in project_condition" :key="index" :value="item">{{item}}</option>
 								</select>
-								<i @click="accumulation">+</i>
-							  <div style="display:inline-block;width:500px;z-index:1000" v-for="(item,index) in add_num" :key="index">
+								<i @click="accumulation" :style="{'vertical-align':align}">+</i>
+							  <div style="display:inline-block;width:500px;z-index:1000" :style="{'vertical-align':align}" v-for="(item,index) in add_num" :key="index">
 							  <select class="body-sle" v-model="project_slected[item]">
 								  <!-- <option disabled value="">请选择</option> -->
 								  <option v-for="(item,index) in head_data" :key="index" :value="item">{{item}}</option>
@@ -27,14 +27,14 @@
 								  <!-- <option disabled value="">请选择</option> -->
 								  <option v-for="(item,index) in query_scope" :key="index" :value="item" >{{item}}</option>
 							  </select>
-							  <input type="text" class="body-input" placeholder="输入条件值" v-model="condition[item]">
-							  <i class="body-i" @click="Query_remove(item)" :key="index">-</i>
+							  <input type="text" :style="{'vertical-align':align}" class="body-input" placeholder="输入条件值" v-model="condition[item]">
+							  <i class="body-i" :style="{'vertical-align':align}" @click="Query_remove(item)" :key="index">-</i>
 							</div>
   					    </div>
 						  
 							  
 						</div>
-						<button @click="lookup" style="outline: none;margin-left:145px;background:#fff;color:#000;border:1px solid #808080;cursor: pointer">查询</button>
+						<button @click="lookup" style="width:45px; outline: none;margin-left:145px;background:#fff;color:#000;border:1px solid #808080;cursor: pointer">查询</button>
 						<button @click="refresh" style="outline: none;cursor: pointer">刷新</button>
 				</div>
 				<div class="col-lg-12  col-md-12 table-responsive" style="overflow: auto ;" @scroll="table_cont" >
@@ -97,10 +97,10 @@
 									</template>
 									<!-- 如果点击了编辑就渲染编辑后的数据 -->
 									<template v-if="!edit_list[index]">
-										<input v-if="(fields[index_list].type=='textarea')" :readonly="!disabled_true[index]" type="text" v-model="rows[index][key]">
-										<input v-if="(fields[index_list].type=='text'&&fields[index_list].Name!=response.PRIMARY)" :readonly="!disabled_true[index]" type="text" v-model="rows[index][key]">
-										<input v-if="(fields[index_list].type=='password')" :readonly="!disabled_true[index]" type="text" v-model="rows[index][key]">
-										<input v-if="(fields[index_list].type=='date_time')" :readonly="!disabled_true[index]" type="text" v-model="rows[index][key]">
+										<input v-if="(fields[index_list].type=='textarea')" :unselectable="!disabled_true[index]?'on':'off'" :readonly="!disabled_true[index]" type="text" v-model="rows[index][key]">
+										<input v-if="(fields[index_list].type=='text'&&fields[index_list].Name!=response.PRIMARY)" :unselectable="!disabled_true[index]?'on':'off'" :readonly="!disabled_true[index]" type="text" v-model="rows[index][key]">
+										<input v-if="(fields[index_list].type=='password')" :unselectable="!disabled_true[index]?'on':'off'" :readonly="!disabled_true[index]" type="text" v-model="rows[index][key]">
+										<input v-if="(fields[index_list].type=='date_time')" :unselectable="!disabled_true[index]?'on':'off'" :readonly="!disabled_true[index]" type="text" v-model="rows[index][key]">
                                         <span v-if="(fields[index_list].type=='text'&&fields[index_list].Name==response.PRIMARY)">{{project}}</span>
 										<span v-if="fields[index_list].Action!=undefined" class="serch_box" @click="serch(index,index_list,key)"
 									 ><i class="fa fa-ellipsis-h fa-1x "></i></span>
@@ -243,6 +243,8 @@
 		name: 'shop',
 		data() {
 			return {
+				//兼容ie的样式
+				align:'top',
 				//第一个按钮是否显示
 				first_flag:true,
 				//第二个按钮是否显示
@@ -447,50 +449,16 @@
 		},
 		created(){},
 		mounted() {
+			//获取用户信息
+			this.conten_data();
+			//分页的显示模式
 			this.first_page();
+			//查询的接口
 			this.query();
-			// this.lookup();
-            // this.if_updata();
-            // this.else_updata()
-			//根据屏幕的高度计算数据的显示条数
-			// if(window.screen.height>1080){
-			// 	this.data_page=19;
-			// 	this.child_index_total=19;
-			// 	this.fontSize=900;
-			// }else{
-			// 	this.data_page=17;
-			// 	this.child_index_total=17;
-			this.data_page=parseInt(window.screen.height/65)
-			this.child_index_total=this.data_page
-			// }
-			let userInfo = window.sessionStorage.getItem('userInfo');
-			this.userInfo = userInfo;
-			if (this.project_data.page == undefined) {
-				this.project_data.page = 1;
-			}
-			if (JSON.toString(this.rows) == "[]") {
-				this.rows = [{
-					name: "name"
-				}];
-			}
-			if (this.response != null) {
-				//没有添加的时候
-				if (this.response.JQ_GRID_ADD == undefined) {
-					this.option.new_add = false
-				}
-				//没有删除的时候
-				if (this.response.JQ_GRID_DEL == undefined) {
-					this.option.del = false
-				}
-				//没有更新的时候
-				if (this.response.JQ_GRID_UPDATE == undefined) {
-					this.option.updata = false
-				}
-				//没有保存的时候
-				if (this.response.JQ_GRID_UPDATE == undefined && this.response.JQ_GRID_ADD == undefined) {
-					this.option.updata_add = false
-				}
-			};
+			//计算显示条数
+			this.data_num();
+			//判断是不是ie浏览器
+			this.isIE();
 		},
 		computed: {
 			//计算当总数据不足16条时有多少条显示到多少条
@@ -534,21 +502,57 @@
 			no_data:Boolean,
 		},
 		methods: {
+			//判断是不是ie浏览器
+			isIE() {
+  				if (!!window.ActiveXObject || "ActiveXObject" in window){
+					  this.align='bottom'
+				  }
+  			},
+			//获取用户信息
+			conten_data(){
+				let userInfo = window.sessionStorage.getItem('userInfo');
+				this.userInfo = userInfo;
+				//当页数的值为undefined时默认显示第一页
+				if (this.project_data.page == undefined) {
+					this.project_data.page = 1;
+				}
+				//当数据为空时给rows赋值一个对象
+				if (JSON.toString(this.rows) == "[]") {
+					this.rows = [{
+						name: "name"
+					}];
+				}
+			},
+			//根据屏幕的高端判断显示的数据条数
+			data_num(){
+				this.data_page=parseInt(window.screen.height/65);
+				this.child_index_total=this.data_page
+			},
+			//判断底部按钮的显示隐藏
+			operation_isshow(){
+				if (this.response != null) {
+				//没有添加的时候
+				if (this.response.JQ_GRID_ADD == undefined) {
+					this.option.new_add = false
+				}
+				//没有删除的时候
+				if (this.response.JQ_GRID_DEL == undefined) {
+					this.option.del = false
+				}
+				//没有更新的时候
+				if (this.response.JQ_GRID_UPDATE == undefined) {
+					this.option.updata = false
+				}
+				//没有保存的时候
+				if (this.response.JQ_GRID_UPDATE == undefined && this.response.JQ_GRID_ADD == undefined) {
+					this.option.updata_add = false
+				}
+				};
+			},
 			//导出
 			data_export(){
 				this.axios.post(this.api+'/bin/Warship/Launcher/tbl_server/to_excel',{userInfo: this.userInfo}).then((res)=>{
-					console.log(res)
-					// let blob = new Blob([res], {
-    				//     type: "application/vnd.ms-excel"
-					// });
-					//  let objectUrl = URL.createObjectURL(blob);
-
-    				// let a = document.createElement("a");
-					// a.href = objectUrl;
-					//  a.download = "客户";
-					this.axios.get(this.api+"/Export/tbl_server_1609386036291_13663.xlsx").then((res)=>{
-						console.log(res)
-					})
+					window.location.href=this.api+res.data.url+'?type=excel'
 				})
 				
 			},
@@ -1082,18 +1086,25 @@
 				// }
 
 				// console.log(this.btn_checkeds)
+				//判断选中数组是否有值
 				if(this.btn_checkeds.length>0){
 					// this.edit_list[i] =true;
 					// this.flag_up=false;
+					//如果有值那么总复选框也选中
 					this.btn_check=true;
+					//列表选中标志
 					this.list_some=true;
+					//当选中后撤销的按钮可以点击然后取消选中
 					this.revoke = false;
+					//取消撤销禁用的样式
 					 this.btn_revoke = false;
 					//  console.log(this.btn_checkeds)
 				}else{
 					// console.log(this.btn_checkeds)
+					//如果没有值那么总复选框就不选中
 					this.btn_check=false;
-				}
+				};
+					//数据列表的颜色控制当复选框变化后如果dynamic的索引值为false给dynamic赋值item属性然后模板对比item值
 				if(!this.dynamic[i]){
 					this.dynamic[i]=item;
 				}else{
@@ -1120,27 +1131,32 @@
 			},
 			//点击动态的数据项后边的三点请求不同的数据
 			serch(index1,index,key) {
-				// alert(0)
-				// console.log(event)
+				//判断时间组件的位置
 				this.clientX=event.clientX;
 				this.clientY=event.clientY;
+				//当两个组件相同数据不同时先把前一个组件关闭
 				this.box_data.project_engineering==false;
+				//每条数据的索引
 				this.box_index.index1=index1;
+				//每条数据中对象的索引
 				this.box_index.index=index;
+				//每条数据中的对象中的key
 				this.box_index.box_key=key;
-				// console.log(this.edit_list)
+				console.log(this.rule_data)
 				//当是编辑的时候拿出输入框中的值，当是新建的时候拿出新建输入框中的值
 				if(this.rows[index1]!=undefined){
+					// alert(0)
 					if(this.rows[index1][key]!=undefined){
+						// alert(3)
 					this.rule_data=this.rows[index1][key];
 					}else{
-						// alert(1)
-					// this.rule_data=this.msg[this.num-1+'-'+index]
-					//如果时新建时会新建输入框中的值
+						
+					//如果是新建时会新建输入框中的值
 					this.rule_data=this.msg[index1+'-'+index]
+					// alert(2)
 					}
 				}else{
-					
+					// alert(1)					
 					this.rule_data=this.msg[this.num-1+'-'+index]
 				}
 				
@@ -1295,6 +1311,7 @@
 					}
 				}
 				this.disabled_true={};
+				// console.log(this.disabled_true)
 			},
 			//撤销
 			bt_revoke() {
@@ -1326,6 +1343,7 @@
 				// 
 				//当编辑的时候撤销编辑
 				if (this.list_some == true||this.btn_checkeds.length>0) {
+					alert(1)
 						//取消选中项中的值
 						if (this.btn_checkeds.length>0) {
 							this.btn_checkeds.forEach((item,i)=>{
@@ -1345,7 +1363,9 @@
 							this.btn_check = false;
 						}
 						//编辑时候撤销重新刷新数据
-						this.$emit('parent_refresh', this.sub_url, this.sort,this.project_data.page);
+						// this.$emit('parent_refresh', this.sub_url, this.sort,this.project_data.page);
+						// this.refresh()
+						this.disabled_true={};
 				}
 				this.tr_flag=true;
 				//把之前保存的选中数清除
@@ -1633,6 +1653,7 @@
 						if (this.btn_checkeds.length>0) {
 							
 							this.btn_checkeds.forEach((item,index)=>{
+								//每条数据选中根据选中项索引添加为true值
 								this.disabled_true[item]=true;
                                 // console.log(item)
 								//当点击编辑时edit_list中的索引数据为true
@@ -2062,12 +2083,13 @@
     text-decoration: none;
     background-color: #fff;
 	border: 1px solid #ddd;
-	font-size: 10px;
+	font-size: 12px;
 	cursor: pointer;
 }
 .box_size{
 	width: 20px;
 	height: 20px;
+	-moz-transform:scale(1.5,1.5)
 }
 #tbody input{
     border: none!important;
@@ -2096,6 +2118,7 @@ td{
 }
 button, input{
 	outline: none;
+	width: 175px;
 }
 .number{
 	width: 45px;

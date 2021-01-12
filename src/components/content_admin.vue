@@ -162,31 +162,32 @@
 				</div>
 			</div>
 			<!-- <div style="background:red;position:relative"> -->
-			
+		<template>
 			<!-- 项目工程组件 -->
-		<ppr v-if="box_data.project_engineering" :rule_data="rule_data" :ppr_action="ppr_action" :ppr_action_param="ppr_action_param" :box_fun="box_fun" @close_project="close_project" @input_data="input_data">{{head_title}}</ppr>
-		<!-- 坦克活动数据中的对应渠道组件 -->
-		<pro v-if="box_data.tank_channel" :rule_data="rule_data" :ppr_action="ppr_action" :ppr_action_param="ppr_action_param" :box_fun="box_fun" @close_project="close_project" @channel_input_data="channel_input_data" ></pro>
-		<!-- 管理员密码组件 -->
-		<user-pas v-if="box_data.user" :rule_data="rule_data" @pas_confirm="pas_confirm" @close_project="close_project"></user-pas>
-		<!-- 时间的组件 -->
-		<prr v-if="box_data.time" :rule_data="rule_data" :clientY="clientY" :clientX="clientX" @close_project="close_project" @time_data="time_data"></prr>
-		<!-- 编辑框的组件 -->
-		<edit v-if="box_data.edit" :rule_data="rule_data" @edit_confirm="edit_confirm" @close_project="close_project"></edit>
-		<!-- 封停角色 用户ID -->
-		<select-service v-if="box_data.sel" :rule_data="rule_data" @close_project="close_project" ></select-service>
-		<!-- 系统邮件 条件组件 -->
-		<mail-conditions v-if="box_data.mail" @input_data="input_data" :rule_data="rule_data" @close_project="close_project"></mail-conditions>
-		<!--邮件物品 编辑物品  -->
-		<edit-items v-if="box_data.items" :rule_data="rule_data" :selecte_data="selecte_data" @sbmit_data="sbmit_data" @sel_goods="sel_goods"  @close_edit="close_edit"></edit-items>
-		 <!-- 选择物品的组件 -->
-		<select-items v-if="box_data.sel_shows" :box_fun="box_fun" :rule_data="rule_data"  @close_select="close_select" @selecte_btn="selecte_btn"></select-items>
-		<!-- 权限组件 -->
-		<jurisdiction v-if="box_data.jurisdiction" :rule_data="rule_data" :ppr_action="ppr_action" :ppr_action_param="ppr_action_param" @close_project="close_project" @input_data="input_data"></jurisdiction>
-		<!-- 权限数组 -->
-		<auth-role-edit v-if="box_data.role_edit" :rule_data="rule_data"  @close_project="close_project" @auth_data="auth_data"></auth-role-edit>
-		<!-- 提示组件 -->
-		<tips v-if="box_data.tips" :current_state="current_state"></tips>	
+			<ppr v-if="box_data.project_engineering" :rule_data="rule_data" :ppr_action="ppr_action" :ppr_action_param="ppr_action_param" :box_fun="box_fun" @close_project="close_project" @input_data="input_data">{{head_title}}</ppr>
+			<!-- 坦克活动数据中的对应渠道组件 -->
+			<pro v-if="box_data.tank_channel" :rule_data="rule_data" :ppr_action="ppr_action" :ppr_action_param="ppr_action_param" :box_fun="box_fun" @close_project="close_project" @channel_input_data="channel_input_data" ></pro>
+			<!-- 管理员密码组件 -->
+			<user-pas v-if="box_data.user" :rule_data="rule_data" @pas_confirm="pas_confirm" @close_project="close_project"></user-pas>
+			<!-- 时间的组件 -->
+			<prr v-if="box_data.time" :rule_data="rule_data" :clientY="clientY" :clientX="clientX" @close_project="close_project" @time_data="time_data"></prr>
+			<!-- 编辑框的组件 -->
+			<edit v-if="box_data.edit" :rule_data="rule_data" @edit_confirm="edit_confirm" @close_project="close_project"></edit>
+			<!-- 封停角色 用户ID -->
+			<select-service v-if="box_data.sel" :rule_data="rule_data" @close_project="close_project" ></select-service>
+			<!-- 系统邮件 条件组件 -->
+			<mail-conditions v-if="box_data.mail" @input_data="input_data" :rule_data="rule_data" @close_project="close_project"></mail-conditions>
+			<!--邮件物品 编辑物品  -->
+			<edit-items v-if="box_data.items" :rule_data="rule_data" :selecte_data="selecte_data" @sbmit_data="sbmit_data" @sel_goods="sel_goods"  @close_edit="close_edit"></edit-items>
+			 <!-- 选择物品的组件 -->
+			<select-items v-if="box_data.sel_shows" :box_fun="box_fun" :rule_data="rule_data"  @close_select="close_select" @selecte_btn="selecte_btn"></select-items>
+			<!-- 权限组件 -->
+			<jurisdiction v-if="box_data.jurisdiction" :rule_data="rule_data" :ppr_action="ppr_action" :ppr_action_param="ppr_action_param" @close_project="close_project" @input_data="input_data"></jurisdiction>
+			<!-- 权限数组 -->
+			<auth-role-edit v-if="box_data.role_edit" :rule_data="rule_data"  @close_project="close_project" @auth_data="auth_data"></auth-role-edit>
+			<!-- 提示组件 -->
+			<tips v-if="box_data.tips" :current_state="current_state"></tips>	
+		</template>
 			</div>	
 		
 	<!-- </div>    -->
@@ -863,62 +864,44 @@
 				//计算点击元素距离左上边框的距离
 				this.clientX=event.clientX;
 				this.clientY=event.clientY;
+				//当访问同一个组件的时候先关闭组件因为数据不同
 				this.box_data.project_engineering==false;
+				//每条数据的索引
 				this.box_index.index1=index1;
+				//数据对象中的索引
 				this.box_index.index=index;
+				//数据对象中的key
 				this.box_index.box_key=key;
 				// console.log(this.edit_list)
 				//当是编辑的时候拿出输入框中的值，当是新建的时候拿出新建输入框中的值
 				if(this.rows[index1]!=undefined){
+					//如果不为空把该值赋值给rule_data
 					if(this.rows[index1][key]!=undefined){
 					this.rule_data=this.rows[index1][key];
 					}else{
-						// alert(1)
-					// this.rule_data=this.msg[this.num-1+'-'+index]
 					//如果时新建时会新建输入框中的值
 					this.rule_data=this.msg[index1+'-'+index]
 					}
-				}else{
-					
+				}else{//如果没有数据则赋值为空
 					this.rule_data=this.msg[this.num-1+'-'+index]
-				}
-				
-				// console.log(this.rows[index1][key])
-				// console.log(this.msg[this.num-1+'-'+index])
+				};
 				//当渲染同一个组件时刷新组件因为组件的数据不同
 				for(var i in this.box_data){
 					if(this.box_data[i]==true){
 						this.box_data[i]=false
 					}
-				}
-				//当点击查询时看
-				// let time=new Date().getTime();
-    			//请求的是编辑action的数据
-    			// this.axios.post(this.api+'/bin/Admin/Admin/EditAction/jqgrid_oper/load',{
-    			//   _search: false,
-				//   nd: time,
-				//   rows: 50,
-				//   page: 1,
-				//   sidx: this.response.PRIMARY,
-				//   sord: 'desc',
-				//   userInfo:this.userInfo
-    			// }).then(res=>{
+				};
 				  //判断当点击三个点时是哪个数据头，根据不同的数据头进行不同的接口请求
 				let item=this.fields[index];
 				this.box_res.forEach((item_in,index)=>{
 					if(item_in.fld_action_name==item.Action){
+						//弹框的函数数据
 						this.box_fun=JSON.parse(item_in.fld_function)	
 					}
 				})
 				this.ppr_action=item.Action;
 				this.ppr_action_param=item.ActionParam;
-				
-				// console.log(this.box_data.project_engineering)
-				console.log(item.Action)
-				// if(this.box_data.project_engineering==true){
-				// 	this.box_data.project_engineering==false
-				// }
-				// alert(1)
+				// console.log(this.ppr_action,this.ppr_action_param)
 				switch(item.Action){
 						//判断头部三个点字段的值根据值请求不同的接口
 						case "selecttion_typevalue":
@@ -928,12 +911,6 @@
 							this.head_title='--选择--'
 							break;
 						case "selecttion_appliction":
-							// alert(0)
-							// if(this.box_data.project_engineering==true){
-							// 	this.box_data.project_engineering=false
-							// }else{
-								
-							// }
 							setTimeout(()=>{this.box_data.project_engineering=true;},(0))
 							this.head_title='--选择应用--'
 							this.box_data.edit=false;
@@ -1763,6 +1740,7 @@ td{
 }
 button, input{
 	outline: none;
+	/* width: 175px; */
 }
 .number{
 	width: 45px;

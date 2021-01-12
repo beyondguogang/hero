@@ -20,9 +20,9 @@ Vue.prototype.qs=qs
 Vue.prototype.md=md
 Vue.prototype.api='http://10.0.17.42:3000'
 // Vue.prototype.api='http://10.0.18.14:3000'
-Vue.prototype.url='http://127.0.0.1:8080'
+// Vue.prototype.url='http://127.0.0.1:8080'
 // Vue.prototype.url='http://10.0.18.14:8080'
-// Vue.prototype.url='http://10.0.17.119:8080'
+Vue.prototype.url='http://10.0.17.119:8080'
 //Vue.prototype.bootstrap = bootstrap
 // Vue.prototype.bootstrapjs = bootstrapjs
 new Vue({

@@ -253,7 +253,7 @@
 			//头部左边状态自动请求头部数据1607504568
 			this.getHeadData();
 		},
-		methods: {
+		methods: {                        
 			//头部左边状态自动请求头部数据和加载本地保存的数据sessionStorage
 			getHeadData(){
 				this.axios.get(this.api + '/Login/ProjList').then(res => {
@@ -352,8 +352,8 @@
 			},
 			//计算时区时间
 			datetime2zone_x(_date_time, _zone) {
-				// console.log(_date_time.getTime(),_zone)
-				// console.log(typeof _date_time)
+				console.log(_date_time,_zone)
+				console.log(typeof _date_time)
 				const UTC_ZONE = {
 				    "UTC-0000": -0 * 3600 * 1000,
 				    "UTC-0100": -1 * 3600 * 1000,
@@ -401,11 +401,15 @@
 			        if (_date_time == "null"){
 						return "N/A";
 					}
-			            
+			            console.log(_date_time)
 			        if (_date_time.indexOf("UTC") < 0){
 						// alert(1)
-					 _date_time += " UTC+0000";
-			        temp_date = new Date(_date_time);
+						// console.log(111111111111111111)
+					_date_time += " UTC+0000";
+					//  console.log(_date_time)
+					_date_time = _date_time.replace(/\-/g,'/')
+					temp_date = new Date(_date_time);
+					console.log(_date_time)
 					}
 					 
 				}else{
@@ -419,7 +423,8 @@
 			            return _value;
 			    }
 			    // console.log(temp_date);
-			    var temp = new Date(temp_date.getTime() + office);
+				var temp = new Date(temp_date.getTime() + office);
+				console.log(temp)
 			    var date_str = temp.getUTCFullYear()
 			        + "-"
 			        + to_2_str(temp.getUTCMonth() + 1)
@@ -432,6 +437,7 @@
 			        + ":"
 			        + to_2_str(temp.getUTCSeconds())
 					+ " " + _zone;
+					// console.log(date_str)
 			    return date_str;
 			},
 			//nacos
@@ -496,7 +502,7 @@
 				// alert(0)
 				this.menu_show=false;
 				this.active='col-lg-12';
-				console.log(url)
+				// console.log(url)
 				// &&url!="/tank/nacos/serverconfList"
 				// &&url!="/warship/nacos/serverFindList"&&url!="/tank/nacos/groupList"&&url!="/warship/nacos/groupList"
 				if(url!='/Tank/Other/QueryRoles'&&url!="/Tank/Other/SendMail"&&url!="/wysdk/Other/Windex"){
@@ -508,7 +514,7 @@
 				}).then(res => {
 					
 					this.response = res.data;
-					console.log(this.response)
+					// console.log(this.response)
 					// this.response.FIELDS.forEach(item=>{console.log(item.type)})
 					this.fields = res.data.FIELDS;
 					//根据表模板的字段显示不同的页面，做定制表的页面
@@ -534,13 +540,16 @@
 						headers: {
 								'Content-Type': 'application/x-www-form-urlencoded'}
 					}).then(res => {
-						console.log(res)
+						// console.log(res)
 						this.project_data = res.data;
 							if(res.data.rows!=undefined){
 								this.fields.map((ite,index,arr)=>{
 									if(ite.FieldType=="datetime"){
+										// console.log(ite)
 										 res.data.rows.forEach((item,index)=>{
+											//  console.log(this.sle_zone)
 											item[ite.Name]=this.datetime2zone_x(item[ite.Name],this.sle_zone);
+											// console.log(item[ite.Name])
 										})
 									}
 								});
