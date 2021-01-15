@@ -241,6 +241,8 @@
 				change_index:null,
 				//正反序的状态
 				sord:'desc',
+				//选择项目的副本
+				copy_select:null,
 			}
 			
 		},
@@ -250,23 +252,36 @@
 		},
 		computed: {},
 		mounted() {
+
 			//头部左边状态自动请求头部数据1607504568
 			this.getHeadData();
+			console.log(this.$route.params.project)
 		},
 		methods: {                        
 			//头部左边状态自动请求头部数据和加载本地保存的数据sessionStorage
 			getHeadData(){
 				this.axios.get(this.api + '/Login/ProjList').then(res => {
 				// console.log(res)
+				//获取项目列表
 				this.project_list = res.data;
 				var select=window.sessionStorage.getItem('btn_selected');
+				console.log(select)
+				this.copy_select=select;
 				// this.btn_selected=this.project_list[0].Name;
 				//根据保存的项目为空时会自动请求第一个项目默认显示
 				if(select==''){
 					// alert(0)
 					this.menu_list(this.project_list[0]);
 					this.btn_selected=this.project_list[0];
-				};
+				}else if(select!=''&&this.$route.params.project == undefined){
+					alert(0)
+					let params_url=window.sessionStorage.getItem('url');
+					console.log(params_url)
+					params_url=params_url.split(',');
+					console.log(params_url)
+					this.menu_list(params_url[0]);
+					this.getRow(params_url[1],Number(params_url[2]),Number(params_url[3]),params_url[0]);
+				}
 				//刷新时根据之前保存的时区显示时间
 				if(window.sessionStorage.getItem('time_zone')!=null){
 					this.sle_zone=window.sessionStorage.getItem('time_zone');
@@ -274,15 +289,16 @@
 				//当重新加载时请求反序的数据
             	window.sessionStorage.setItem('sord','desc');
 				if (this.$route.params.project != undefined) {
-					// alert(1)
+					alert(2)
 					this.surl = "/" + this.$route.params.project + '/' + this.$route.params.db + '/' + this.$route.params.table;
 					this.index = Number(this.$route.params.index);
 					this.change_index = Number(this.$route.params.change_index);
 					// console.log(this.$route.params.pr)
 					// console.log(this.$route.params.pr+this.surl+'/'+this.index+'/'+this.change_index)
 					// this.address=encodeURIComponent(this.$route.params.pr+this.surl+'/'+this.change_index+'/'+this.index)
-					//刷新时执行头部菜单中的函数并传入路由参数
+					//刷新时执行头部菜单中的函数并传入路由参数 项目对象 后台路由 菜单索引 子菜单索引
 					this.menu_list(this.project_list[select],this.surl, this.index, this.change_index);
+					//获取数据时执行的函数 后台路由 菜单索引 子菜单索引 项目对象
 					this.getRow(this.surl, this.index, this.change_index,this.project_list[select]);
 				}
 	
@@ -306,7 +322,9 @@
 				// console.log(parseInt(time/1000))
 				if (userInfo.fld_name == '' || userInfo.fld_name == undefined || userInfo.fld_name == null || userInfo.fld_name ==
 					'null') {
-					window.sessionStorage.setItem('btn_selected','');
+					window.sessionStorage.setItem('btn_selected',this.project_index);
+					//未完
+					window.sessionStorage.setItem('url',this.project_list[this.copy_select]+','+this.surl+','+this.index+','+this.change_index);
 					this.$router.replace({
 						path: "/login"
 					})
@@ -314,7 +332,8 @@
 				};
 				let time_control = (time - startTime) - (30 * 60);
 				if (time_control > 0) {
-					window.sessionStorage.setItem('btn_selected','');
+					window.sessionStorage.setItem('btn_selected',this.project_index);
+					window.sessionStorage.setItem('url',this.project_list[this.copy_select]+','+this.surl+','+this.index+','+this.change_index);
 					this.$router.replace({
 						path: "/login"
 					})
@@ -352,8 +371,8 @@
 			},
 			//计算时区时间
 			datetime2zone_x(_date_time, _zone) {
-				console.log(_date_time,_zone)
-				console.log(typeof _date_time)
+				// console.log(_date_time,_zone)
+				// console.log(typeof _date_time)
 				const UTC_ZONE = {
 				    "UTC-0000": -0 * 3600 * 1000,
 				    "UTC-0100": -1 * 3600 * 1000,
@@ -401,7 +420,7 @@
 			        if (_date_time == "null"){
 						return "N/A";
 					}
-			            console.log(_date_time)
+			            // console.log(_date_time)
 			        if (_date_time.indexOf("UTC") < 0){
 						// alert(1)
 						// console.log(111111111111111111)
@@ -409,7 +428,7 @@
 					//  console.log(_date_time)
 					_date_time = _date_time.replace(/\-/g,'/')
 					temp_date = new Date(_date_time);
-					console.log(_date_time)
+					// console.log(_date_time)
 					}
 					 
 				}else{
@@ -424,7 +443,7 @@
 			    }
 			    // console.log(temp_date);
 				var temp = new Date(temp_date.getTime() + office);
-				console.log(temp)
+				// console.log(temp)
 			    var date_str = temp.getUTCFullYear()
 			        + "-"
 			        + to_2_str(temp.getUTCMonth() + 1)
@@ -505,17 +524,19 @@
 				// console.log(url)
 				// &&url!="/tank/nacos/serverconfList"
 				// &&url!="/warship/nacos/serverFindList"&&url!="/tank/nacos/groupList"&&url!="/warship/nacos/groupList"
-				if(url!='/Tank/Other/QueryRoles'&&url!="/Tank/Other/SendMail"&&url!="/wysdk/Other/Windex"){
-					
+				//当url对应的不是页面的时候直接请求不同的接口使用相同的组件
+				if(url!='/Tank/Other/QueryRoles'&&url!="/Tank/Other/SendMail"){					
 					let time = new Date().getTime();
 					this.anate=true;
-						this.axios.post(this.api + '/bin' + url + '/columns', {
+					//请求数据列表
+					this.axios.post(this.api + '/bin' + url + '/columns', {
 					userInfo: this.userInfo
 				}).then(res => {
-					
+					//将数据赋值给response
 					this.response = res.data;
 					// console.log(this.response)
 					// this.response.FIELDS.forEach(item=>{console.log(item.type)})
+					//获取项目的表头数据 项目表格中的标题
 					this.fields = res.data.FIELDS;
 					//根据表模板的字段显示不同的页面，做定制表的页面
 						if(this.response.PAGE_TEMPLATE=="page_grid"){
@@ -537,53 +558,63 @@
 						parameter.userInfo=JSON.stringify(this.userInfo);
 						if(res.data.JQ_GRID_LOAD!=undefined){
 							this.axios.post(this.api + res.data.JQ_GRID_LOAD,this.qs.stringify(parameter), {
-						headers: {
-								'Content-Type': 'application/x-www-form-urlencoded'}
-					}).then(res => {
-						// console.log(res)
-						this.project_data = res.data;
-							if(res.data.rows!=undefined){
-								this.fields.map((ite,index,arr)=>{
-									if(ite.FieldType=="datetime"){
-										// console.log(ite)
-										 res.data.rows.forEach((item,index)=>{
-											//  console.log(this.sle_zone)
-											item[ite.Name]=this.datetime2zone_x(item[ite.Name],this.sle_zone);
-											// console.log(item[ite.Name])
-										})
+							headers: {
+									'Content-Type': 'application/x-www-form-urlencoded'}
+							}).then(res => {
+								// console.log(res)
+								this.project_data = res.data;
+									if(res.data.rows!=undefined){
+										//求情数据后把类型为时间的加上时区信息
+										this.fields.map((ite,index,arr)=>{
+											if(ite.FieldType=="datetime"||ite.FieldType=='timestamp'){
+												// console.log(ite)
+												 	res.data.rows.forEach((item,index)=>{
+													//  console.log(this.sle_zone)
+													//控制时区函数
+													item[ite.Name]=this.datetime2zone_x(item[ite.Name],this.sle_zone);
+													// console.log(item[ite.Name])
+												})
+											}
+										});
+									this.rows = res.data.rows;
+									}else{
+										this.sel_tips=true;
+										this.current_state='没有数据';
+										setTimeout(()=>{
+											this.sel_tips=false;
+										},2000)
 									}
-								});
-							this.rows = res.data.rows;
+								//显示shop组件
+								// this.flag_head=true;
+								if(this.response.PAGE_TEMPLATE=="page_grid"){
+									this.flag = true;
+								}else if(this.response.PAGE_TEMPLATE=="page_grid_nacos"){
+									this.flag = true;
+								}else if(this.response.PAGE_TEMPLATE=="base_page"){
+									this.flag_warship = true;
+								}
+								this.sub_url = url;
+								this.sub_index = index;
+								// let len = window.history.length;
+								//改变小三角样式的函数
+								this.change(change_index);
+								//子菜单样式
+								if (this.is_sty === index) {
+									this.is_sty = '';
+								} else {
+									this.is_sty = index;
+								}
+								// console.log(pr)
+								//项目选择框的数据对象
+								this.btn_selected=pr;
+								this.anate=false
+							})}else{
+								this.sel_tips=true;
+								this.current_state='没有权限';
+								setTimeout(()=>{
+									this.sel_tips=false;
+								},2000)
 							}
-						//显示shop组件
-						// this.flag_head=true;
-						if(this.response.PAGE_TEMPLATE=="page_grid"){
-							this.flag = true;
-						}else if(this.response.PAGE_TEMPLATE=="page_grid_nacos"){
-							this.flag = true;
-						}else if(this.response.PAGE_TEMPLATE=="base_page"){
-							this.flag_warship = true;
-						}
-						this.sub_url = url;
-						this.sub_index = index;
-						let len = window.history.length;
-						this.change(change_index);
-						if (this.is_sty === index) {
-							this.is_sty = '';
-						} else {
-							this.is_sty = index;
-						}
-						// console.log(pr)
-						this.btn_selected=pr;
-						this.anate=false
-					})
-						}else{
-							this.sel_tips=true;
-							this.current_state='没有权限';
-						setTimeout(()=>{
-							this.sel_tips=false;
-						},2000)
-						}
 						// else{
 						// this.flag_head=false;
 						// this.flag = true;
@@ -1179,29 +1210,39 @@
 				}
 				this.page=page;
 			},
-			//左边菜单栏s
+			//左边菜单栏name:项目对象 url:后台路由 index:菜单索引 chang_index:子菜单索引
 			menu_list(name,url, index, change_index) {
-				// console.log(name)
-				// this.btn_selected=name;
+				//选中某一项把项目索引赋值给project_index后续使用
 				this.project_list.forEach((item,index)=>{
 					if(item.Name==name.Name){
 						this.project_index=index;
 					}
-				})
-				if(name.url!=''){
+				});
+				console.log(name)
+				//如果有url字段那么执行外部链接
+				if(name.url!=undefined){
+					console.log(name.url)
+					alert(1)
 					// console.log(this.url+name.url)
 					 window.location.href=this.url+name.url;return;
-				}
+				};
+					//显示左侧菜单
 					this.menu_show=true;
-				this.active='col-lg-11 offset-lg-1';
-				this.project_name = name.Name;
+					//控制菜单的显示宽度
+					this.active='col-lg-11 offset-lg-1';
+					//项目的项目名
+					this.project_name = name.Name;
+					//项目数据列表的显示标志
 					this.flag = false;
+					//请求接口时的动画
 					this.anate=true;
+					//请求项目菜单
 					this.axios.get(this.api + '/Login/Menu?Project=' + name.Name).then(res => {
-						console.log(res)
+						// console.log(res)
 					this.menu_data = res.data;
 					this.is_icon = '';
-					if(url=='/Tank/Other/QueryRoles'){
+					//如果项目菜单中的子菜单是页面不是数据表执行别的组件
+					if(url=='/Tank/Other/QueryRoles'){//查询角色页面
 						this.sub_url = url;
 						this.sub_index = index;
 						let len = window.history.length;
@@ -1213,7 +1254,7 @@
 						}
 						this.box_data.sel=true;
 						this.btn_selected=name;
-					}else if(url=="/Tank/Other/SendMail"){
+					}else if(url=="/Tank/Other/SendMail"){//发送邮件页面
 						this.sub_url = url;
 						this.sub_index = index;
 						let len = window.history.length;
@@ -1244,7 +1285,8 @@
 			},
 			//点击样式
 			sty_list(sub, index){
-				console.log(this.btn_selected)
+				console.log(this.project_index)
+				//每次切换项目就把btn_selected设置为最新的值
 				window.sessionStorage.setItem('btn_selected',this.project_index);
 				// if(this.response.PAGE_TEMPLATE=="page_grid"||this.$route.params.project == undefined){
 					// if(this.response.PAGE_TEMPLATE=="page_grid"){
@@ -1263,8 +1305,13 @@
 			},
 			//退出登录
 			out() { 
-				window.sessionStorage.setItem('btn_selected','');
+				// window.sessionStorage.setItem('btn_selected','');
+				window.sessionStorage.setItem('btn_selected',this.project_index);
+				window.sessionStorage.setItem('url',this.project_list[this.copy_select].Name+','+this.surl+','+this.index+','+this.change_index);
 				window.sessionStorage.setItem('userInfo','null');
+				console.log(this.copy_select)
+				console.log(this.project_list[0])
+				console.log(window.sessionStorage.getItem('url'))
 				this.$router.replace({
 					path: "/login"
 				})

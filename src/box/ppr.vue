@@ -67,32 +67,6 @@ export default {
     }
   },
   mounted(){
-    // console.log(this.rule_data)
-        //当编辑的时候选择框选中之前选各种的那项
-      //  console.log(this.rule_data)
-        // switch (this.ppr_action){
-        //   //当点击列表时选择列表项中的哪一项作为输入框的值
-        //   case "selecttion_typevalue":
-        //     // this.value='--选择--';
-        //     this.count=0;
-        //     break;
-        //   case "selecttion_appliction":
-        //     // this.value='--选择应用--';
-        //     this.count=1;
-        //     break;
-        //   case "selecttion_typeid":
-        //     // this.value='--选择应用类型--';
-        //     this.count=1;
-        //     break;
-        //   case "SelectClientPacketTank":
-        //     // this.value='--选择发行包--';
-        //     break;
-        //   case "SelectServerGroupTank":
-        //     // this.value='--选择服务器分组--';
-        //     break;
-        //   case 'SelectMailTemplate':
-        //     // this.value='--选择邮件模板--'
-        // }
         //自动请求根据action的数据接口返回需要的页面数据
         this.axios.get(this.api+this.box_fun.ACTION_COLUMNS_URL).then((res1)=>{
           // alert(0)

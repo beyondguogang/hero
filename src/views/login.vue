@@ -95,11 +95,20 @@
 	   			this.axios.post(this.api+'/Login/check_login',{username:username,password:password})
 					  .then(res =>{
 						  if(res.data.error==0){
-							   console.log(res.data.message)
+							//    console.log(res.data.message)
+							if(res.data.fld_name!=''){
 							  this.$router.replace("/home");
 							  let time=parseInt(new Date().getTime()/1000);
 							  window.sessionStorage.setItem('userInfo',JSON.stringify(res.data.message));
 							  window.sessionStorage.setItem('startTime',time)
+							}else{
+								this.tips=true;
+							  	this.current_state='用户名不能为空';
+							  	setTimeout(()=>{
+									this.tips=false;
+								},1000)
+							}
+							  
 						  }else{
 							  this.tips=true;
 							  this.current_state=res.data.message;

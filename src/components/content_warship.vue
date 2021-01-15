@@ -102,7 +102,7 @@
 										<input v-if="(fields[index_list].type=='password')" :unselectable="!disabled_true[index]?'on':'off'" :readonly="!disabled_true[index]" type="text" v-model="rows[index][key]">
 										<input v-if="(fields[index_list].type=='date_time')" :unselectable="!disabled_true[index]?'on':'off'" :readonly="!disabled_true[index]" type="text" v-model="rows[index][key]">
                                         <span v-if="(fields[index_list].type=='text'&&fields[index_list].Name==response.PRIMARY)">{{project}}</span>
-										<span v-if="fields[index_list].Action!=undefined" class="serch_box" @click="serch(index,index_list,key)"
+										<span v-if="fields[index_list].Action!=undefined && disabled_true[index]" class="serch_box" @click="serch(index,index_list,key)"
 									 ><i class="fa fa-ellipsis-h fa-1x "></i></span>
 									</template>
 								</td>
@@ -220,7 +220,7 @@
 		<!-- 权限数组 -->
 		<auth-role-edit v-if="box_data.role_edit" :rule_data="rule_data"  @close_project="close_project" @auth_data="auth_data"></auth-role-edit>
 		<!-- 提示组件 -->
-		<tips v-if="box_data.tips" :current_state="current_state"></tips>	
+		<tips v-if="box_data.tips" :current_state="current_state"></tips>     
 	</template>
 			</div>	
 		
@@ -449,6 +449,7 @@
 		},
 		created(){},
 		mounted() {
+			
 			//获取用户信息
 			this.conten_data();
 			//分页的显示模式
@@ -459,6 +460,8 @@
 			this.data_num();
 			//判断是不是ie浏览器
 			this.isIE();
+			// console.log(this.rows)
+			// console.log(this.fields)
 		},
 		computed: {
 			//计算当总数据不足16条时有多少条显示到多少条
@@ -614,7 +617,11 @@
 				  sord: 'desc',
 				  userInfo:this.userInfo
     			}).then(res=>{
-					// console.log(res.data)
+					// var a=[];
+					// res.data.rows.forEach((item)=>{
+					// 	a.push(item.fld_function)
+					// })
+					// console.log(a)
 					res.data.rows.forEach((item,index)=>{
 						//  if(!(item.fld_action_name=="edit_date")&&!(item.fld_action_name=="edit_date_time")&&!(item.fld_function=="")){
 							if(!(item.fld_action_name=="edit_date")&&!(item.fld_function=="")){
@@ -843,14 +850,14 @@
 				//当点击添加的加号时给数组添加不同的项以便给input添加不同的v-model
 				this.search_data+=1;
 				this.add_num.push(this.search_data);
-				console.log(this.search_data)
-				console.log(this.add_num)
+				// console.log(this.search_data)
+				// console.log(this.add_num)
 				// this.add_num+=1;
 				//每添加一项都会在选择框中添加第一项数据
 				this.project_slected.push(this.head_data[0]);
 				this.type_slected.push(this.query_scope[0]);
 				this.condition.push('')
-				console.log(this.condition)
+				// console.log(this.condition)
 			},
 			//关闭查询弹窗
 			// close_win(){
@@ -861,7 +868,7 @@
 				// alert(0)
 				// this.query_show=true;
 				// this.search_data+=1;
-				console.log(this.search_data)
+				// console.log(this.search_data)
 				// this.add_num.push(this.search_data);
 				this.project_box=this.project_condition[0];
 				this.fields.forEach((item,index) =>{
@@ -875,7 +882,7 @@
 				this.project_slected.push(this.head_data[0]);
 				this.type_slected.push(this.query_scope[0]);
 				// this.condition.push('')
-				console.log(this.condition)
+				// console.log(this.condition)
 			},
 			//关闭输入框
 			close() {
@@ -1100,9 +1107,15 @@
 					 this.btn_revoke = false;
 					//  console.log(this.btn_checkeds)
 				}else{
+					
+					this.btn_check=false;
+					this.list_some=false;
+					this.revoke = true;
+ 					this.btn_revoke = true;
+				
 					// console.log(this.btn_checkeds)
 					//如果没有值那么总复选框就不选中
-					this.btn_check=false;
+					// this.btn_check=false;
 				};
 					//数据列表的颜色控制当复选框变化后如果dynamic的索引值为false给dynamic赋值item属性然后模板对比item值
 				if(!this.dynamic[i]){
@@ -1120,6 +1133,7 @@
 							this.dynamic[i]=item;
 					})
 				}else{
+					this.list_some=false;
 					this.rows.forEach((item,i)=>{
 						this.dynamic[i]='';
 						this.btn_checkeds=this.btn_checkeds.filter((item,index)=>{
@@ -1142,7 +1156,7 @@
 				this.box_index.index=index;
 				//每条数据中的对象中的key
 				this.box_index.box_key=key;
-				console.log(this.rule_data)
+				// console.log(this.rule_data)
 				//当是编辑的时候拿出输入框中的值，当是新建的时候拿出新建输入框中的值
 				if(this.rows[index1]!=undefined){
 					// alert(0)
@@ -1200,7 +1214,7 @@
 						//判断头部三个点字段的值根据值请求不同的接口
 						case "selecttion_typevalue":
 								 //action中所有的数据项
-							// this.box_data.project_engineering=true;
+							// this.box_data.project_engineering=false;
 							setTimeout(()=>{this.box_data.project_engineering=true;},(0))
 							this.head_title='--选择--'
 							break;
@@ -1241,7 +1255,7 @@
 							// this.box_data.project_engineering=true;
 							break;
 						case "edit_date_time":
-							// alert(2)
+							// alert(21)
 							//当点击了时间的三点后先把组件设置为false也就是不显示组件，当同步执行完后再设置为true
 							this.box_data.time=false;
 							setTimeout(()=>{this.box_data.time=true;},(0))
@@ -1263,7 +1277,10 @@
 							this.head_title='--选择发行包--';
 							break;
 						case "SelectGiftPackageTank":
-							this.box_data.project_engineering=true;
+							// this.box_data.project_engineering=true;
+							// this.box_data.project_engineering=false;
+							setTimeout(()=>{this.box_data.project_engineering=true;},(0))
+							this.head_title='--选择礼包--';
 							break;
 						case "QueryRoleTank":
 							this.box_data.sel=true;
@@ -1288,6 +1305,32 @@
 							break;
 						case "ACTION_COLUMNS_URL":
 							this.box_data.project_engineering=true;
+							break;
+						case "select_gift_batch_warship":
+							this.box_data.project_engineering=true;
+							this.head_title='--选择礼包生成批次--';
+							break;
+						case "select_gift_package_warship":
+							//2
+							alert(2)
+							break;
+						case "select_package_channel_more":
+							alert(3)
+							break;
+						case "ItemArrayEditor_warship":
+							alert(4)
+							break;
+						case "serverChoose_warship":
+							//4
+							alert(5)
+							break;
+						case "packageChoose":
+							//2
+							alert(6)
+							break;
+						case "serverChooseOne_warship":
+							alert(7)
+							break;
 						}
 						
 				// })
@@ -1627,6 +1670,7 @@
                 // console.log(0)
 				//当列表项选中的时候再进行编辑
 				if (this.list_some == true) {
+					//点击编辑时触发其他页面的函数这样当点击三个点的时候就可以根据字段判断是那个页面函数的数据
 					this.serch_fn();
 					this.sort_flag=false;
 					//保存的禁止点击
@@ -1721,6 +1765,7 @@
 				this.btn_revoke = false;
 				this.btn_del = true;
 				this.btn_edit = true;
+				//点击编辑时触发其他页面的函数这样当点击三个点的时候就可以根据字段判断是那个页面函数的数据
 				this.serch_fn();
 				this.fields.forEach((item, index) => {
 					// console.log(item)
@@ -1774,8 +1819,9 @@
 						}
 					};
 					//新建时时间字段显示空
-					if(item.Name=='fld_create_time'||item.Name=='fld_modif_time'||item.Name=='fld_starttime'||item.Name=='fld_expiretime'
-					||item.Name=='fld_unlock_time'||item.Name=='fld_login_time'){
+					// if(item.Name=='fld_create_time'||item.Name=='fld_modif_time'||item.Name=='fld_starttime'||item.Name=='fld_expiretime'
+					// ||item.Name=='fld_unlock_time'||item.Name=='fld_login_time'||item.Name=='fld_StopTime'||item.Name=='fld_StartTime'){
+						if(item.FieldType=='datetime'||item.FieldType=='timestamp'){
 						this.msg[this.num-1+'-'+index]='N/A';
 					};
 					if (item.Action!=undefined) {//当新建时看看头部数据有没有action字段如果有就显示点击标识

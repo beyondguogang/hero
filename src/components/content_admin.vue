@@ -62,7 +62,9 @@
 										<input v-if="(fields[index_list].type=='text'&&fields[index_list].Name!=response.PRIMARY)" type="text" v-model="rows[index][key]">
 										<input v-if="(fields[index_list].type=='password')" type="text" v-model="rows[index][key]">
 										<input v-if="(fields[index_list].type=='date_time')" type="text" v-model="rows[index][key]">
+										<!-- 如果表头的数据字段中的的name与clumns中的主键字段相同就不能更改 -->
 										<span v-if="(fields[index_list].type=='text'&&fields[index_list].Name==response.PRIMARY)">{{project}}</span>
+										<!-- 是否显示其他页面的按钮 -->
 										<span v-if="fields[index_list].Action!=undefined" class="serch_box" @click="serch(index,index_list,key)"
 									 ><i class="fa fa-ellipsis-h fa-1x "></i></span>
 									</template>
@@ -392,6 +394,7 @@
 			this.count_page();
 			//判断底部操作按钮的显示隐藏
 			this.operation_isshow();
+			console.log(this.list_some)
 		},
 		computed: {
 			//计算当总数据不足16条时有多少条显示到多少条
@@ -829,7 +832,12 @@
 					this.list_some=true;
 					this.revoke = false;
  					this.btn_revoke = false;
-				};
+				}else{
+					this.btn_check=false;
+					this.list_some=false;
+					this.revoke = true;
+ 					this.btn_revoke = true;
+				}
 				if(this.btn_checkeds.length==0){
 					this.btn_check=false;
 				};
@@ -839,6 +847,7 @@
 				}else{
 					this.dynamic[i]='';
 				}
+				console.log(this.btn_checkeds)
 			},
 			//总按钮是否选中
 			btn_check_cli() {
@@ -849,6 +858,7 @@
 							this.dynamic[i]=item;
 					})
 				}else{
+					this.list_some=false;
 					this.rows.forEach((item,i)=>{
 						this.dynamic[i]='';
 						this.btn_checkeds=this.btn_checkeds.filter((item,index)=>{
@@ -891,6 +901,7 @@
 						this.box_data[i]=false
 					}
 				};
+				
 				  //判断当点击三个点时是哪个数据头，根据不同的数据头进行不同的接口请求
 				let item=this.fields[index];
 				this.box_res.forEach((item_in,index)=>{
@@ -898,6 +909,7 @@
 						//弹框的函数数据
 						this.box_fun=JSON.parse(item_in.fld_function)	
 					}
+					console.log(item.Action)
 				})
 				this.ppr_action=item.Action;
 				this.ppr_action_param=item.ActionParam;
@@ -963,7 +975,9 @@
 							this.head_title='--选择发行包--';
 							break;
 						case "SelectGiftPackageTank":
-							this.box_data.project_engineering=true;
+							// this.box_data.project_engineering=true;
+							setTimeout(()=>{this.box_data.project_engineering=true;},(0))
+							this.head_title='--选择礼包--';
 							break;
 						case "QueryRoleTank":
 							this.box_data.sel=true;
@@ -1337,8 +1351,8 @@
 					this.btn_del = true;
 					this.btn_edit = true;
 					this.btn_build = true;
-				//当点击某一条数据时让复选框选中，点击编辑的时候禁止每一项的点击事件
-				this.tr_flag=false;
+					//当点击某一条数据时让复选框选中，点击编辑的时候禁止每一项的点击事件
+					this.tr_flag=false;
 						//当选中其中一项
 						//当选中数组中的值大于0时遍历数组
 						if (this.btn_checkeds.length>0) {

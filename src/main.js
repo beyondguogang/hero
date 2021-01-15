@@ -13,6 +13,7 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap/dist/js/bootstrap.min.js"
 // import "bootstrap/scss/_pagination.scss"
 import "font-awesome/css/font-awesome.css"
+// import "layui-laydate/dist/theme/default/laydate.css";
 Vue.config.productionTip = false
 Vue.prototype.jquery = jquery
 Vue.prototype.axios = axios
