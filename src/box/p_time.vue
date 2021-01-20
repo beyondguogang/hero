@@ -24,7 +24,7 @@ export default {
           clientY:Number
       },
    mounted() {
-    //    alert(0)
+       alert('prr')
     //使用：执行一个laydate实例
         //获取输入框时间去掉时区字符
         this.date= this.date.replace(/UTC\+\d+/g,'');

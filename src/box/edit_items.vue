@@ -69,6 +69,7 @@ export default {
  
   },
   mounted () { 
+    alert('editItems')
     if(this.rule_data!=null){
       this.editBoxData()
     }

@@ -11,12 +11,12 @@
 	            <form class="form">
 	                <div>
 						<div class="login-use">用户名</div>
-	                    <span class="line"><input @blur="use_blur" @keyup.enter="submit" @click="input_use" :class="{blue:blue_use}" v-model="username"  type="text" autocomplete required="required" placeholder="请输入用户名"  ></span>
+	                    <span class="line"><input @focus="use_blur" @keyup.enter="submit" @click="input_use" :class="{blue:blue_use}" v-model="username"  type="text" autocomplete required="required" placeholder="请输入用户名"  ></span>
 	                </div>
 	                <div class="warning-use" v-show="us" >用户名不能为空</div>
 	                <div class="login-war">
 						<div class="login-pas">密码</div>
-						<span class="password"><input @blur="pas_blur" @keyup.enter="submit" @click="input_pas" :class="{blue:blue_pas}" v-model="password"  type="password" autocomplete required="required" placeholder="请输入密码"  ></span>
+						<span class="password"><input @focus="pas_blur" @keyup.enter="submit" @click="input_pas" :class="{blue:blue_pas}" v-model="password"  type="password" autocomplete required="required" placeholder="请输入密码"  ></span>
 					</div>
 	                <div class="warning-pas" v-show="ps" >密码不能为空</div>
 	                <div  class="btn-b"><button @click="submit" type="button" autofocus="autofocus" style="outline: none;"> <span>提交</span></button></div>
@@ -53,49 +53,70 @@
 			ps:false,
 	    }
 	  },
-	  computed:{},
-	  created(){},
+	  computed:{
+	  },
+	  created(){
+
+	  },
+	  mounted(){
+		  
+	  },
 	  components: {
 	     tips,
 	  },
 	  methods: {
 		  //输入用户名框的边框变化
 		  input_use(){
+			  //输入框边框的样式
 			  this.blue_use=true;
 			  this.blue_pas='';
+			  //提示语
 			  this.us=false;
 		  },
 		  //输入用户密码的边框变化
 		  input_pas(){
+			  //输入框边框的样式
 			  this.blue_pas=true;
 			  this.blue_use='';
+			  //提示语
 			  this.ps=false;
 		  },
 		  //输入用户名的焦点状态
-		  use_blur(){
-			 this.blue_use='' ;
+		  use_blur(){	
+			  //获取焦点的样式
+			 this.blue_use=true ;
+			 this.blue_pas='';
+			 //提示语
 			 this.us=false;
 		  },
 		  //输入密码框的焦点状态
 		  pas_blur(){
-			 this.blue_pas='';
+			  //获取焦点的样式
+			 this.blue_pas=true;
+			 this.blue_use='';
+			 //提示语
 			 this.ps=false;
 		  },
 		  //提交表单进行用户验证
 	      submit(){
+			  //把输入框中的数据去除首尾空格
 			 let username=this.username.trim();
 			 let password=this.password.trim();
+			 //当用户名为空时显示提示语
 			 if(username==''){
 				 this.us=true;
 			 }
+			 //当密码框为空时显示提示语
 			 if(password==''){
 				 this.ps=true;
 			 }
+			 //请求登录接口
 			 if(username!=''&&password!=''){
 	   			this.axios.post(this.api+'/Login/check_login',{username:username,password:password})
 					  .then(res =>{
+						  //读取成功的字段
 						  if(res.data.error==0){
-							//    console.log(res.data.message)
+							  //判断fld_name
 							if(res.data.fld_name!=''){
 							  this.$router.replace("/home");
 							  let time=parseInt(new Date().getTime()/1000);
@@ -109,7 +130,7 @@
 								},1000)
 							}
 							  
-						  }else{
+						  }else{//如果失败显示提示框
 							  this.tips=true;
 							  this.current_state=res.data.message;
 							  setTimeout(()=>{

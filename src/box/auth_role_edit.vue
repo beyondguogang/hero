@@ -175,7 +175,7 @@ export default {
     this.get_data();
   },
   mounted () {
-    
+    alert('authRoleEdit')
   },
   methods: {
     //提交选中项

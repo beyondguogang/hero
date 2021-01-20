@@ -7,6 +7,9 @@
 </template>
 <script>
 export default {
+	mounted(){
+		alert('tips')
+	},
   name: 'About',
   props:{
     current_state:String,

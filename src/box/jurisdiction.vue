@@ -53,7 +53,7 @@ export default {
     }
   },
   mounted(){
-    // alert(1)
+    alert('jurisdiction')
     console.log(Boolean(this.rule_data))
     if(Boolean(this.btn_data)){
       

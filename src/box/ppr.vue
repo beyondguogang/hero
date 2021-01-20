@@ -67,6 +67,7 @@ export default {
     }
   },
   mounted(){
+    alert('ppr')
         //自动请求根据action的数据接口返回需要的页面数据
         this.axios.get(this.api+this.box_fun.ACTION_COLUMNS_URL).then((res1)=>{
           // alert(0)

@@ -87,6 +87,7 @@ export default {
     ppr_action_param:String,
   },
   mounted () {
+    alert('selectService')
     this.axios.get(this.api+'/AnyQuery/Tank/Launcher/tbl_group').then((res)=>{
         this.res_data=res.data;
     })

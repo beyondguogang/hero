@@ -69,6 +69,7 @@ export default {
     box_fun:Object,
   },
   mounted () {  
+    alert('selectItems')
      this.axios.get(this.api+this.box_fun.ACTION_DATA_URL+'/summary').then((res)=>{
          this.res_data=res.data;
          //副本

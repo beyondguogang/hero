@@ -32,10 +32,6 @@
 										<option v-for="(item,index) in UTC_ZONE" :key="index" :value="item">{{item}}</option>
 									</select>
 								</span>
-								<!-- <span><a :href="ht+'?num='+user+'&time='+login_time+'&add='+address">nacos</a></span> -->
-								<!-- <span><a :href="url+'/nacos/index.html'">nacos</a></span> -->
-								<!-- <span><a :href="url+'/sdk/index.html'">wysdk</a></span> -->
-								<!-- <span><a :href="url+'/index1.html'">sdk</a></span> -->
 								<span>
 								<span>欢迎<b class="user_icon">{{username}}</b></span>
 								<!-- <span @click="change_psd">修改密码</span> -->
@@ -82,8 +78,6 @@
 					<nacos v-if="box_data.nacos"></nacos>
 					<!-- 提示组件 -->
 					<tips v-if="sel_tips" :current_state="current_state"></tips>
-					<!-- <user-pas></user-pas> -->
-					<!-- <router-view></router-view> -->
 				</div>
 		
 			</div>
@@ -121,15 +115,6 @@
 		},
 		data() {
 			return {
-				// address:'',
-				// login_time:'',
-				// user:'',
-				// ht:'http://10.0.17.119:8082/index.html',
-				// flag_head:null,
-				// name: "shop",
-				// list: 'list_',
-				// active: false,
-				// menu: "menu",
 				//项目下拉框的索引
 				project_index:'',
 				//是否显示提示组件
@@ -247,112 +232,128 @@
 			
 		},
 		created() {
-			//判断是否登录过期
-			this.login_expired()
+			var a= new Date(1496376000000)+'UTC+0800';
+			console.log(a)
+			
 		},
 		computed: {},
 		mounted() {
-
 			//头部左边状态自动请求头部数据1607504568
 			this.getHeadData();
-			console.log(this.$route.params.project)
 		},
 		methods: {                        
 			//头部左边状态自动请求头部数据和加载本地保存的数据sessionStorage
 			getHeadData(){
 				this.axios.get(this.api + '/Login/ProjList').then(res => {
-				// console.log(res)
 				//获取项目列表
 				this.project_list = res.data;
 				var select=window.sessionStorage.getItem('btn_selected');
-				console.log(select)
 				this.copy_select=select;
-				// this.btn_selected=this.project_list[0].Name;
 				//根据保存的项目为空时会自动请求第一个项目默认显示
-				if(select==''){
-					// alert(0)
-					this.menu_list(this.project_list[0]);
-					this.btn_selected=this.project_list[0];
-				}else if(select!=''&&this.$route.params.project == undefined){
-					alert(0)
+				if(select!=''&&this.$route.params.project == undefined){
+					//获取参数地址中的参数
 					let params_url=window.sessionStorage.getItem('url');
-					console.log(params_url)
-					params_url=params_url.split(',');
-					console.log(params_url)
-					this.menu_list(params_url[0]);
-					this.getRow(params_url[1],Number(params_url[2]),Number(params_url[3]),params_url[0]);
+					//如果本地保存的数据中有值
+					if(params_url){
+						//把参数根据’，‘分割成数组
+						params_url=params_url.split(',');
+						//根据参数加载对应的页面
+						window.location.href = this.url + "/home/" + params_url[0] + params_url[1] + '/' + Number(params_url[3]) + '/' + Number(params_url[2]);
+					}else{
+						//如果参数为空那么直接加载第一个菜单
+						this.menu_list(this.project_list[0]);
+						this.btn_selected=this.project_list[0];
+					}
+					
 				}
 				//刷新时根据之前保存的时区显示时间
 				if(window.sessionStorage.getItem('time_zone')!=null){
 					this.sle_zone=window.sessionStorage.getItem('time_zone');
 				};
 				//当重新加载时请求反序的数据
-            	window.sessionStorage.setItem('sord','desc');
+				window.sessionStorage.setItem('sord','desc');
+				//如果url参数不为undefined加载对应路由的数据
 				if (this.$route.params.project != undefined) {
-					alert(2)
 					this.surl = "/" + this.$route.params.project + '/' + this.$route.params.db + '/' + this.$route.params.table;
 					this.index = Number(this.$route.params.index);
 					this.change_index = Number(this.$route.params.change_index);
-					// console.log(this.$route.params.pr)
-					// console.log(this.$route.params.pr+this.surl+'/'+this.index+'/'+this.change_index)
-					// this.address=encodeURIComponent(this.$route.params.pr+this.surl+'/'+this.change_index+'/'+this.index)
 					//刷新时执行头部菜单中的函数并传入路由参数 项目对象 后台路由 菜单索引 子菜单索引
 					this.menu_list(this.project_list[select],this.surl, this.index, this.change_index);
 					//获取数据时执行的函数 后台路由 菜单索引 子菜单索引 项目对象
 					this.getRow(this.surl, this.index, this.change_index,this.project_list[select]);
 				}
-	
+				//判断是否登录过期
+				this.login_expired()
 				});
 			},
 			//登录过期
 			login_expired(){
-				if(window.sessionStorage.getItem('userInfo')=='null'){
-				this.$router.replace({
-					path: "/login"
+				// alert(0)
+				//如果userInfo为null那么返回登录页
+				if(window.sessionStorage.getItem('userInfo')==null||window.sessionStorage.getItem('userInfo')=='null'){
+					// alert(1)
+					this.$router.replace({
+						path: "/login"
 				})
-				}else{
-				let userInfo = JSON.parse(window.sessionStorage.getItem('userInfo'));
-				this.userInfo = userInfo;
-				this.username = userInfo.fld_name;
-				let startTime = window.sessionStorage.getItem('startTime');
-				// this.login_time=encodeURIComponent(window.sessionStorage.getItem('startTime'));
-				// console.log(window.sessionStorage.getItem('startTime').toString())
-				// console.log(parseInt(startTime/1000))
-				let time = parseInt(new Date().getTime() / 1000);
-				// console.log(parseInt(time/1000))
+				}else{	
+					//把保存的用户信息转换成对象
+					let userInfo = JSON.parse(window.sessionStorage.getItem('userInfo'));
+					//保存到data对象中
+					this.userInfo = userInfo;
+					//获取用户名
+					this.username = userInfo.fld_name;
+					//获取据1970年的时间毫秒数以判断登录过期时间
+					let startTime = window.sessionStorage.getItem('startTime');
+					//获取登陆前据1970年的时间毫秒数
+					let time = parseInt(new Date().getTime() / 1000);
 				if (userInfo.fld_name == '' || userInfo.fld_name == undefined || userInfo.fld_name == null || userInfo.fld_name ==
 					'null') {
+					//保存选择项索引
 					window.sessionStorage.setItem('btn_selected',this.project_index);
-					//未完
-					window.sessionStorage.setItem('url',this.project_list[this.copy_select]+','+this.surl+','+this.index+','+this.change_index);
+					//保存退出前的地址
+					window.sessionStorage.setItem('url',this.project_list[this.copy_select].Name+','+this.surl+','+this.index+','+this.change_index);
+					//保存userInfo
+					window.sessionStorage.setItem('userInfo','null');
+					//返回登录页
 					this.$router.replace({
 						path: "/login"
 					})
 					return false;
 				};
+				//设置超时时间30分钟
 				let time_control = (time - startTime) - (30 * 60);
+				//登录时间超时返回登录页
 				if (time_control > 0) {
+					// alert(2)
+					// console.log(this.copy_select)
+					// console.log(this.project_list)
+					//保存选择项索引
 					window.sessionStorage.setItem('btn_selected',this.project_index);
-					window.sessionStorage.setItem('url',this.project_list[this.copy_select]+','+this.surl+','+this.index+','+this.change_index);
+					//保存退出前的地址
+					window.sessionStorage.setItem('url',this.project_list[this.copy_select].Name+','+this.surl+','+this.index+','+this.change_index);
+					//保存userInfo
+					window.sessionStorage.setItem('userInfo','null');
+					//返回登录页
 					this.$router.replace({
 						path: "/login"
 					})
 					return false;
 				}else{
+					//当一直操做时时间也跟着更新避免30分钟后退出登录
 					startTime = window.sessionStorage.setItem('startTime',time);
 				}
 				}
 			},
-			//表格占比
+			//头部菜单的显示隐藏图标 表格占比
 			icon_mune(){
 				if(!this.menu_show){
 					this.menu_show=true;
-					// this.active='col-lg-11 offset-lg-1';
+					// 显示时的空间占比
 					this.active='true-percentage'
 				}else{
 					this.menu_show=false;
+					//隐藏时的空间占比
 					this.active='col-lg-12';
-					// this.active='false-percentage'
 				}
 				
 			},
@@ -362,17 +363,18 @@
 			sle_time(){
 				//选择时区时根据本地保存时区和正反序列字段重新加载数据
 				window.sessionStorage.setItem('time_zone',this.sle_zone);
+					//如果保存的正反序不为null那么获取
 					if(window.sessionStorage.getItem('sord')!=null){
 						this.sord=window.sessionStorage.getItem('sord');
 						};
+					//如果路由参数不为undefined根据正反序字段刷新数据
 					if (this.$route.params.project != undefined) {
 						this.parent_refresh('',this.sord,this.page)
 						}
 			},
 			//计算时区时间
 			datetime2zone_x(_date_time, _zone) {
-				// console.log(_date_time,_zone)
-				// console.log(typeof _date_time)
+				//定义utc时区字段
 				const UTC_ZONE = {
 				    "UTC-0000": -0 * 3600 * 1000,
 				    "UTC-0100": -1 * 3600 * 1000,
@@ -401,49 +403,48 @@
 				    "UTC+1100": 11 * 3600 * 1000,
 				    "UTC+1200": 12 * 3600 * 1000
 				};
+				//如果参数返回false返回的显示字段
 			    if (!_date_time){
 					return "N/A";
 					}
-					//时区毫秒数
+				//时区毫秒数
 			    var office = UTC_ZONE[_zone];
 			    var temp_date = null;
 			    if (typeof _date_time == "string") {
-					// alert(12)
+					//如果参数是最初时间
 			        if (_date_time == "1970-01-01 00:00:00"){
 						 return "N/A";
 					}
-			           
+			        //如果参数是0000 
 					if (_date_time == "0000-00-00 00:00:00"){
 						 return "N/A";
 					}
-			           
+			        //如果参数是null  
 			        if (_date_time == "null"){
 						return "N/A";
 					}
-			            // console.log(_date_time)
+			        //如果字符串没有utc字符
 			        if (_date_time.indexOf("UTC") < 0){
-						// alert(1)
-						// console.log(111111111111111111)
-					_date_time += " UTC+0000";
-					//  console.log(_date_time)
-					_date_time = _date_time.replace(/\-/g,'/')
-					temp_date = new Date(_date_time);
-					// console.log(_date_time)
+						_date_time += " UTC+0000";
+						//将’-‘替换成’/‘兼容ie浏览器
+						_date_time = _date_time.replace(/\-/g,'/')
+						//将字符串转换成时间对象
+						temp_date = new Date(_date_time);
 					}
 					 
-				}else{
+				}else{//如果不是字符串
 						temp_date = _date_time;
 					}
-
+				//返回正确格式的时间字符
 			    function to_2_str(_value) {
 			        if (_value < 10)
 			            return "0" + _value;
 			        else
 			            return _value;
-			    }
-			    // console.log(temp_date);
+			    };
+				//获取时区的毫秒数
 				var temp = new Date(temp_date.getTime() + office);
-				// console.log(temp)
+				//获取带时区的时间
 			    var date_str = temp.getUTCFullYear()
 			        + "-"
 			        + to_2_str(temp.getUTCMonth() + 1)
@@ -456,7 +457,6 @@
 			        + ":"
 			        + to_2_str(temp.getUTCSeconds())
 					+ " " + _zone;
-					// console.log(date_str)
 			    return date_str;
 			},
 			//nacos
@@ -469,7 +469,9 @@
 			},*/
 			//查询数据
 			query(url, index,project,sort){	
+				//加载时的状态
 				this.anate=true;
+				//接口需要的数据
 				this.query_project=project;
 				let time = new Date().getTime();
 					let parameter={
@@ -486,16 +488,15 @@
 						}
 						parameter.userInfo=JSON.stringify(this.userInfo)
 					this.axios.post(this.api + this.response.JQ_GRID_LOAD, this.qs.stringify(parameter),{
+						//默认的请求的数据是application/json，此处需要设置请求类型
 							headers: {
 								'Content-Type': 'application/x-www-form-urlencoded'}
 							}).then(res => {
-								console.log(res)
 						this.project_data = res.data;
-						// this.rows = res.data.rows;
 						//更新时区
 						if(res.data.rows!=undefined){
 								this.fields.map((ite,index,arr)=>{
-									if(ite.FieldType=="datetime"){
+									if(ite.FieldType=="datetime"||ite.FieldType=="timestamp"){
 										 res.data.rows.forEach((item,index)=>{
 											item[ite.Name]=this.datetime2zone_x(item[ite.Name],this.sle_zone);
 										})
@@ -504,10 +505,10 @@
 							this.rows = res.data.rows;
 							this.sord=sort;
 							};
-						// this.sle_time();
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
 						//有查询请求时设置一个标志位用于请求下一页数据传递不同的接口
 						this.isquery=true;
+						//查询数据是否为空
 						if(res.data.rows.length==0){
 							 	this.no_data=false;
 						 }else{
@@ -518,27 +519,25 @@
 			},
 			//获取数据
 			getRow(url, index, change_index,pr) {
-				// alert(0)
+				//当加载数据后左侧菜单隐藏
 				this.menu_show=false;
+				//设置页面铺满全屏
 				this.active='col-lg-12';
-				// console.log(url)
-				// &&url!="/tank/nacos/serverconfList"
-				// &&url!="/warship/nacos/serverFindList"&&url!="/tank/nacos/groupList"&&url!="/warship/nacos/groupList"
 				//当url对应的不是页面的时候直接请求不同的接口使用相同的组件
 				if(url!='/Tank/Other/QueryRoles'&&url!="/Tank/Other/SendMail"){					
 					let time = new Date().getTime();
+					//加载时的状态
 					this.anate=true;
-					//请求数据列表
+					//请求数据列表表头及相关的接口信息（增删改查）
 					this.axios.post(this.api + '/bin' + url + '/columns', {
+					//用户信息
 					userInfo: this.userInfo
 				}).then(res => {
 					//将数据赋值给response
 					this.response = res.data;
-					// console.log(this.response)
-					// this.response.FIELDS.forEach(item=>{console.log(item.type)})
 					//获取项目的表头数据 项目表格中的标题
 					this.fields = res.data.FIELDS;
-					//根据表模板的字段显示不同的页面，做定制表的页面
+					//根据表模板的字段显示不同的页面，做定制表的页面 动态获取页面显示的条数
 						if(this.response.PAGE_TEMPLATE=="page_grid"){
 							this.data_page=parseInt(window.screen.height/60);
 						}else if(this.response.PAGE_TEMPLATE=="page_grid_nacos"){
@@ -556,46 +555,43 @@
 						sord: 'desc',
 						}
 						parameter.userInfo=JSON.stringify(this.userInfo);
+						//如果加载接口不为undefined执行数据接口
 						if(res.data.JQ_GRID_LOAD!=undefined){
 							this.axios.post(this.api + res.data.JQ_GRID_LOAD,this.qs.stringify(parameter), {
 							headers: {
 									'Content-Type': 'application/x-www-form-urlencoded'}
 							}).then(res => {
-								// console.log(res)
 								this.project_data = res.data;
+								    //判断有没有数据
 									if(res.data.rows!=undefined){
-										//求情数据后把类型为时间的加上时区信息
+										//请求数据后把类型为时间的加上时区信息
 										this.fields.map((ite,index,arr)=>{
 											if(ite.FieldType=="datetime"||ite.FieldType=='timestamp'){
-												// console.log(ite)
 												 	res.data.rows.forEach((item,index)=>{
-													//  console.log(this.sle_zone)
 													//控制时区函数
 													item[ite.Name]=this.datetime2zone_x(item[ite.Name],this.sle_zone);
-													// console.log(item[ite.Name])
 												})
 											}
 										});
 									this.rows = res.data.rows;
-									}else{
+									}else{//如果没有数据
 										this.sel_tips=true;
 										this.current_state='没有数据';
 										setTimeout(()=>{
 											this.sel_tips=false;
 										},2000)
-									}
-								//显示shop组件
-								// this.flag_head=true;
+									};
+								//显示shop组件 根据表模板字段显示不同的定制页面 表模板设置为哪个字段就显示相应的页面
 								if(this.response.PAGE_TEMPLATE=="page_grid"){
 									this.flag = true;
 								}else if(this.response.PAGE_TEMPLATE=="page_grid_nacos"){
 									this.flag = true;
 								}else if(this.response.PAGE_TEMPLATE=="base_page"){
 									this.flag_warship = true;
-								}
+								};
+								//保存地址及索引用于传递给子组件
 								this.sub_url = url;
 								this.sub_index = index;
-								// let len = window.history.length;
 								//改变小三角样式的函数
 								this.change(change_index);
 								//子菜单样式
@@ -604,34 +600,17 @@
 								} else {
 									this.is_sty = index;
 								}
-								// console.log(pr)
 								//项目选择框的数据对象
 								this.btn_selected=pr;
+								//加载完成的后加载状态消失
 								this.anate=false
-							})}else{
+							})}else{//没有显示权限
 								this.sel_tips=true;
 								this.current_state='没有权限';
 								setTimeout(()=>{
 									this.sel_tips=false;
 								},2000)
 							}
-						// else{
-						// this.flag_head=false;
-						// this.flag = true;
-						// this.sub_url = url;
-						// this.sub_index = index;
-						// let len = window.history.length;
-						// this.change(change_index);
-						// if (this.is_sty === index) {
-						// 	this.is_sty = '';
-						// } else {
-						// 	this.is_sty = index;
-						// }
-						// this.btn_selected=pr;
-						// this.anate=false
-						// }
-					
-
 				});
 				}
 			},
@@ -639,8 +618,9 @@
 			lookup(url, index, page,sort) {
 				//根据是否查询了数据请求不同的接口
 				if(this.isquery==true){
-					// alert(2)
+					//加载状态
 					this.anate=true;
+					//加载标志本次加载完成在执行下一次的接口请求
 					this.istrue.isnext = false;
 				let time = new Date().getTime();
 					let parameter={
@@ -661,7 +641,6 @@
 								'Content-Type': 'application/x-www-form-urlencoded'}
 							}).then(res => {
 						this.project_data = res.data;
-						// this.rows = res.data.rows;
 						//更新时区
 						if(res.data.rows!=undefined){
 								this.fields.map((ite,index,arr)=>{
@@ -673,22 +652,26 @@
 								});
 							this.rows = res.data.rows;
 							};
-						// this.sle_time();
+						//加载完成标志
 						this.istrue.isnext = true;
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
 						//有查询请求时设置一个标志位用于请求下一页数据传递不同的接口
 						this.isquery=true;
+						//如果没有数据
 						if(res.data.rows.length==0){
 							 	this.no_data=false;
 						 }else{
 							 this.no_data=true;
-						 }
+						 };
+						 //数据的正反序
 						 this.sord=sort;
+						 //加载完成状态隐藏
 						 this.anate=false;
 					})
-				}else{
-					// alert(1)
+				}else{//没有查询数据的请求接口
+					//加载状态
 					this.anate=true;
+					//加载完成的标志
 					this.istrue.isnext = false;
 				let time = new Date().getTime();
 					this.axios.post(this.api + this.response.JQ_GRID_LOAD, {
@@ -701,7 +684,6 @@
 						userInfo: this.userInfo
 					}).then(res => {
 						this.project_data = res.data;
-						// this.rows = res.data.rows;
 						//更新时区
 						if(res.data.rows!=undefined){
 								this.fields.map((ite,index,arr)=>{
@@ -713,20 +695,30 @@
 								});
 							this.rows = res.data.rows;
 							};
-						// this.sle_time();
+						//加载完成的标志
 						this.istrue.isnext = true;
+						//如果没有数据
+						if(res.data.rows.length==0){
+							 	this.no_data=false;
+						 }else{
+							 this.no_data=true;
+						 };
+						//加载状态完成后隐藏
 						this.anate=false;
+						//数据的正反序
 						this.sord=sort;
 					})
-				}
+				};
+				//获取当前页
 				this.page=page;
 			},
 			//子组件刷新数据
 			parent_refresh(url,sort,page) {
-				
+				//根据是否加载了查询接口请求不同的接口
 				if(this.isquery==true){
-					// alert(2)
+					//加载状态
 					this.anate=true;
+					//加载完成的标志
 					this.istrue.isrefresh = false;
 					let time = new Date().getTime();
 					let parameter={
@@ -746,9 +738,7 @@
 							headers: {
 								'Content-Type': 'application/x-www-form-urlencoded'}
 							}).then(res => {
-						// console.log(res.data)
 						this.project_data = res.data;
-						// this.rows = res.data.rows;
 						//更新时区
 						if(res.data.rows!=undefined){
 								this.fields.map((ite,index,arr)=>{
@@ -758,24 +748,29 @@
 										})
 									}
 								});
-							this.rows = res.data.rows;
-							
+							this.rows = res.data.rows;							
 							};
-						// this.sle_time();
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
 						this.istrue.isrefresh = true;
 						//有查询请求时设置一个标志位用于请求下一页数据传递不同的接口
 						this.isquery=true;
+						//加载状态完成后消失
 						this.anate=false;
+						//如果没有数据
+						if(res.data.rows.length==0){
+							 	this.no_data=false;
+						 }else{
+							 this.no_data=true;
+						 };
+						//数据的正反序
 						this.sord=sort;
-						// window.sessionStorage.setItem('sord',sort);
 							})
-				}else{
-					// alert(3)
+				}else{//没有查询时的加载接口
+					//加载状态
 					this.anate=true;
+					//加载完成的标志
 					this.istrue.isrefresh = false;
-				let time = new Date().getTime();
-				// console.log(this.response)
+					let time = new Date().getTime();
 					this.axios.post(this.api + this.response.JQ_GRID_LOAD, {
 						_search: false,
 						nd: time,
@@ -785,8 +780,8 @@
 						sord: sort,
 						userInfo: this.userInfo
 					}).then(res => {
-						// console.log(res)
 						this.project_data = res.data;
+						//跟新时间的时区信息
 						if(res.data.rows!=undefined){
 								this.fields.map((ite,index,arr)=>{
 									if(ite.FieldType=="datetime"){
@@ -796,18 +791,29 @@
 									}
 								});
 							this.rows = res.data.rows;
-							// console.log(this.rows)
 							};
+						//加载完成的标志
 						this.istrue.isrefresh = true;
+						//加载状态
 						this.anate=false;
+						//如果没有数据
+						if(res.data.rows.length==0){
+							 	this.no_data=false;
+						 }else{
+							 this.no_data=true;
+						 };
+						//数据正反序列
 						this.sord=sort;
 					})
 				}	
 			},
 			//子组件调用父组件方法刷新数据正倒序
 			parent_data_sort(url, sort) {
+				//当调用查询接口后请求的接口
 					if(this.isquery==true){
+					//加载的状态
 					this.anate=true;
+					//加载完成的标志
 					this.istrue.isorder = false;
 					let time = new Date().getTime();
 					let parameter={
@@ -844,14 +850,23 @@
 						this.istrue.isorder = true;
 						//有查询请求时设置一个标志位用于请求下一页数据传递不同的接口
 						this.isquery=true;
+						//如果没有数据
+						if(res.data.rows.length==0){
+							 	this.no_data=false;
+						 }else{
+							 this.no_data=true;
+						 };
+						//加载状态
 						this.anate=false;
 						//当点击正反序的时候从第一页开始
 						this.page=1;
 						//在本地存储当前的正反序字段
 						window.sessionStorage.setItem('sord',sort);
 							})
-				}else{
+				}else{//没有调用查询接口请求的数据
+					//加载状态
 					this.anate=true;
+					//加载完成标志
 					this.istrue.isorder = false;
 				let time = new Date().getTime();
 					this.axios.post(this.api + this.response.JQ_GRID_LOAD, {
@@ -875,9 +890,19 @@
 								});
 							this.rows = res.data.rows;
 							};
+						//加载完成标志
 						this.istrue.isorder = true;
+						//加载动态
 						this.anate=false;
+						//如果没有数据
+						if(res.data.rows.length==0){
+							 	this.no_data=false;
+						 }else{
+							 this.no_data=true;
+						 };
+						//当点击正反序列的时后从第一页开始显示
 						this.page=1;
+						//保存正反序列的字段
 						window.sessionStorage.setItem('sord',sort);
 					})
 				}
@@ -886,7 +911,9 @@
 			child_home(url, index, page,sort) {
 				//判断是否是请求的查询接口如果是那么走查询接口如果不是走原始的数据接口
 				if(this.isquery==true){	
-					this.anate=true;		
+					//加载状态
+					this.anate=true;	
+					//加载完成的标志	
 					this.istrue.isstart = false;
 				let time = new Date().getTime();
 				let parameter={
@@ -907,7 +934,6 @@
 								'Content-Type': 'application/x-www-form-urlencoded'}
 							}).then(res => {
 						this.project_data = res.data;
-						// this.rows = res.data.rows;
 						//更新时区
 						if(res.data.rows!=undefined){
 								this.fields.map((ite,index,arr)=>{
@@ -919,18 +945,23 @@
 								});
 							this.rows = res.data.rows;
 							};
-						// this.sle_time();
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
 						this.istrue.isstart = true;
 						//有查询请求时设置一个标志位用于请求下一页数据传递不同的接口
 						this.isquery=true;
-						if(res.data.rows.length!=0){
-							 	this.no_data=true;
-						 }
+						//如果没有数据
+						if(res.data.rows.length==0){
+							 	this.no_data=false;
+						 }else{
+							 this.no_data=true;
+						 };
+						 //加载状态
 						 this.anate=false;
 					})
-				}else{
+				}else{//没有查询时的请求接口
+					//加载状态
 					this.anate=true;
+					//加载完成的标志
 					this.istrue.isstart = false;
 				let time = new Date().getTime();
 					this.axios.post(this.api + this.response.JQ_GRID_LOAD, {
@@ -943,7 +974,6 @@
 						userInfo: this.userInfo
 					}).then(res => {
 						this.project_data = res.data;
-						// this.rows = res.data.rows;
 						//更新时区
 						if(res.data.rows!=undefined){
 								this.fields.map((ite,index,arr)=>{
@@ -955,16 +985,26 @@
 								});
 							this.rows = res.data.rows;
 							};
-						// this.sle_time();
+						//加载完成的标志
 						this.istrue.isstart = true;
+						//如果没有数据
+						if(res.data.rows.length==0){
+							 	this.no_data=false;
+						 }else{
+							 this.no_data=true;
+						 };
+						//加载状态
 						this.anate=false;
 					})
 				}
 			},
 			//子组件执行父组件方法上一页
 			child(url, index, page,sort) {
+				//有查询的加载接口
 				if(this.isquery==true){
+					//加载状态
 					this.anate=true;
+					//加载完成的标志
 					this.istrue.isfirst = false;
 				let time = new Date().getTime();
 				let parameter={
@@ -985,7 +1025,6 @@
 								'Content-Type': 'application/x-www-form-urlencoded'}
 							}).then(res => {
 						this.project_data = res.data;
-						// this.rows = res.data.rows;
 						//更新时区
 						if(res.data.rows!=undefined){
 								this.fields.map((ite,index,arr)=>{
@@ -997,20 +1036,23 @@
 								});
 							this.rows = res.data.rows;
 							};
-						// this.sle_time();
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
 						this.istrue.isfirst = true;
 						//有查询请求时设置一个标志位用于请求下一页数据传递不同的接口
 						this.isquery=true;
+						//如果没有数据
 						 if(res.data.rows.length==0){
 							 	this.no_data=false;
 						 }else{
 							 this.no_data=true;
 						 }
+						 //加载的状态
 						 this.anate=false;
 					})
-				}else{
+				}else{//没有查询的请求接口
+				    //加载状态
 					this.anate=true;
+					//加载完成的标志
 					this.istrue.isfirst = false;
 				let time = new Date().getTime();
 					this.axios.post(this.api + this.response.JQ_GRID_LOAD, {
@@ -1023,7 +1065,6 @@
 						userInfo: this.userInfo
 					}).then(res => {
 				    	this.project_data = res.data;
-						// this.rows = res.data.rows;
 						//更新时区
 						if(res.data.rows!=undefined){
 								this.fields.map((ite,index,arr)=>{
@@ -1035,18 +1076,28 @@
 								});
 							this.rows = res.data.rows;
 							};
-						// this.sle_time();
+						//加载完成的标志
 						this.istrue.isfirst = true;
+						//如果没有数据
+						if(res.data.rows.length==0){
+							 	this.no_data=false;
+						 }else{
+							 this.no_data=true;
+						 };
+						 //加载状态
 						this.anate=false;
 					})
-
 				}
+				//当前的页数
 				this.page=page;
 			},
 			//子组件执行父组件方法下一页
 			child_next(url, index, page,sort) {
+				//有查询时的请求接口
 				if(this.isquery==true){
+					//加载的状态
 					this.anate=true;
+					//加载完成的标志
 					this.istrue.isnext = false;
 				let time = new Date().getTime();
 				let parameter={
@@ -1067,7 +1118,6 @@
 								'Content-Type': 'application/x-www-form-urlencoded'}
 							}).then(res => {
 						this.project_data = res.data;
-						// this.rows = res.data.rows;
 						//更新时区
 						if(res.data.rows!=undefined){
 								this.fields.map((ite,index,arr)=>{
@@ -1079,21 +1129,23 @@
 								});
 							this.rows = res.data.rows;
 							}
-						// this.sle_time();
-						// this.time_fn()
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
 						this.istrue.isnext = true;
 						//有查询请求时设置一个标志位用于请求下一页数据传递不同的接口
 						this.isquery=true;
+						//如果没有数据
 						 if(res.data.rows.length==0){
 							 	this.no_data=false;
 						 }else{
 							 this.no_data=true;
 						 }
+						 //加载状态
 						 this.anate=false;
 					})
-				}else{
+				}else{//没有查询时的请求接口
+					//加载状态
 					this.anate=true;
+					//加载完成的标志
 					this.istrue.isnext = false;
 				let time = new Date().getTime();
 					this.list_index = index;
@@ -1106,9 +1158,7 @@
 						sord: sort,
 						userInfo: this.userInfo
 					}).then(res => {
-							// console.log(res.data.rows)
 						this.project_data = res.data;
-						// this.rows = res.data.rows;
 						//更新时区
 						if(res.data.rows!=undefined){
 								this.fields.map((ite,index,arr)=>{
@@ -1120,18 +1170,26 @@
 								});
 							this.rows = res.data.rows;
 							};
-						// this.sle_time();
-						// this.time_fn()
+						//加载完成的标志
 						this.istrue.isnext = true;
+						//如果没有数据
+						if(res.data.rows.length==0){
+							 	this.no_data=false;
+						 }else{
+							 this.no_data=true;
+						 };
+						 //加载状态
 						this.anate=false;
 					})
 				}
+				//当前的页数
 				this.page=page;
 			},
 			//尾页加载
 			child_end(url, index, page,sort) {
 				//如果是查询完成的列表则执行
 				if(this.isquery==true){
+					//加载的状态
 					this.anate=true;
 					//当执行时不能点击尾页的标志
 					this.istrue.isend = false;
@@ -1154,7 +1212,6 @@
 								'Content-Type': 'application/x-www-form-urlencoded'}
 							}).then(res => {
 						this.project_data = res.data;
-						// this.rows = res.data.rows;
 						//更新时区
 						if(res.data.rows!=undefined){
 								this.fields.map((ite,index,arr)=>{
@@ -1166,14 +1223,17 @@
 								});
 							this.rows = res.data.rows;
 							}
-						// this.sle_time();
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
 						this.istrue.isend = true;
 						//有查询请求时设置一个标志位用于请求下一页数据传递不同的接口
 						this.isquery=true;
+						//如果没有数据
 						if(res.data.rows.length==0){
 							 	this.no_data=false;
-						 }
+						 }else{
+							 this.no_data=true;
+						 };
+						 //加载状态
 						 this.anate=false;
 					})
 				}else{//如果不是点击了查询则是所有的数据
@@ -1191,7 +1251,6 @@
 						userInfo: this.userInfo
 					}).then(res => {
 						this.project_data = res.data;
-						// this.rows = res.data.rows;
 						//更新时区
 						if(res.data.rows!=undefined){
 								this.fields.map((ite,index,arr)=>{
@@ -1203,11 +1262,19 @@
 								});
 							this.rows = res.data.rows;
 							}
-						// this.sle_time();
+						//加载完成的标志
 						this.istrue.isend = true;
+						//如果没有数据
+						if(res.data.rows.length==0){
+							 	this.no_data=false;
+						 }else{
+							 this.no_data=true;
+						 };
+						 //加载状态
 						this.anate=false;
 					})
 				}
+				//当前页数
 				this.page=page;
 			},
 			//左边菜单栏name:项目对象 url:后台路由 index:菜单索引 chang_index:子菜单索引
@@ -1218,12 +1285,8 @@
 						this.project_index=index;
 					}
 				});
-				console.log(name)
 				//如果有url字段那么执行外部链接
-				if(name.url!=undefined){
-					console.log(name.url)
-					alert(1)
-					// console.log(this.url+name.url)
+				if(name.url!=''){
 					 window.location.href=this.url+name.url;return;
 				};
 					//显示左侧菜单
@@ -1238,7 +1301,6 @@
 					this.anate=true;
 					//请求项目菜单
 					this.axios.get(this.api + '/Login/Menu?Project=' + name.Name).then(res => {
-						// console.log(res)
 					this.menu_data = res.data;
 					this.is_icon = '';
 					//如果项目菜单中的子菜单是页面不是数据表执行别的组件
@@ -1252,7 +1314,9 @@
 						} else {
 							this.is_sty = index;
 						}
+						//查询角色组件显示
 						this.box_data.sel=true;
+						//获取项目对象
 						this.btn_selected=name;
 					}else if(url=="/Tank/Other/SendMail"){//发送邮件页面
 						this.sub_url = url;
@@ -1264,54 +1328,44 @@
 						} else {
 							this.is_sty = index;
 						}
+						//发送邮件组件显示
 						this.box_data.mail=true;
+						//获取项目对象
 						this.btn_selected=name;
 					}
+					//加载状态
 					this.anate=false;
 				});
-				// }
-				// }
-				
 			},
 			//控制菜单栏的显示隐藏
 			change(index) {
+				//获取菜单的索引
 				this.change_index = index;
+				//子菜单的样式选项为空
 				this.is_sty = '';
+				//控制小三角的样式
 				if (this.is_icon === index) {
 					this.is_icon = '';
 				} else {
 					this.is_icon = index
 				}
 			},
-			//点击样式
+			//点击项目菜单
 			sty_list(sub, index){
-				console.log(this.project_index)
-				//每次切换项目就把btn_selected设置为最新的值
+				//每次切换项目就把btn_selected设置为最新的值)
 				window.sessionStorage.setItem('btn_selected',this.project_index);
-				// if(this.response.PAGE_TEMPLATE=="page_grid"||this.$route.params.project == undefined){
-					// if(this.response.PAGE_TEMPLATE=="page_grid"){
-						window.location.href = this.url + "/home/" + this.project_name + sub.url + '/' + this.change_index + '/' + index;	
-					// }
-					
-				// }
-				// if(this.response.PAGE_TEMPLATE=="page_grid"){
-				// 	alert(1)
-				// }
-				// if(this.$route.params.project == undefined){
-				// 	alert(2)
-				// }
-				// 
-				// this.$router.push('/'+this.project_name + sub.url + '/' + this.change_index + '/' + index)	
+				//加载不同的表数据
+				window.location.href = this.url + "/home/" + this.project_name + sub.url + '/' + this.change_index + '/' + index;	
 			},
 			//退出登录
 			out() { 
-				// window.sessionStorage.setItem('btn_selected','');
+				//保存选择项的索引
 				window.sessionStorage.setItem('btn_selected',this.project_index);
+				//保存推出前的地址
 				window.sessionStorage.setItem('url',this.project_list[this.copy_select].Name+','+this.surl+','+this.index+','+this.change_index);
+				//保存userInfo
 				window.sessionStorage.setItem('userInfo','null');
-				console.log(this.copy_select)
-				console.log(this.project_list[0])
-				console.log(window.sessionStorage.getItem('url'))
+				//返回登录页面
 				this.$router.replace({
 					path: "/login"
 				})
@@ -1367,18 +1421,18 @@
 		height: 30px;
 	}
     .copyright{
-	height: 30px;
-	line-height: 30px;
-	background-color: #969191;
-	color: #fff;
-	text-align: center;
-	margin-bottom: 0px;
-	position: fixed;
-    margin-left: 15px;
-    bottom: 0;
-    width: 100%;
-	z-index: 2;
-}
+		height: 30px;
+		line-height: 30px;
+		background-color: #969191;
+		color: #fff;
+		text-align: center;
+		margin-bottom: 0px;
+		position: fixed;
+    	margin-left: 15px;
+    	bottom: 0;
+    	width: 100%;
+		z-index: 2;
+	}
     .left-menu{
 		color:#fff ;
 	}
@@ -1405,7 +1459,7 @@
 	.home{
 		overflow: hidden;
 	}
-     .data{
+    .data{
 		 /* margin-top: 20px; */
 		 /* width: 100%; */
 		 padding-left: 20px;
@@ -1422,26 +1476,21 @@
 	a {
 		color: black;
 	}
-
 	a:hover {
 		text-decoration: none
 	}
-
 	.header {
 		position: fixed;
 		z-index: 1000;
 		width: 100%;
 	}
-
 	.container-fluid {
 		padding-left: 0;
 		padding-right: 0;
 	}
-
 	.project_list {
 		cursor: pointer;
 	}
-
 	.list-anchor {
 		display: inline-block;
 		height: 40px;
@@ -1451,7 +1500,6 @@
 		white-space: nowrap;
         text-overflow: ellipsis;
 	}
-
 	.menu {
 		/* width: 10%; */
 		z-index: 1;
@@ -1464,15 +1512,12 @@
 		width: 160px;
 		padding-right: 0;
 	}
-
 	.icon {
 		transform: rotate(90deg);
 	}
-
 	.navbar-header {
 		color: #ffffff;
 	}
-
 	.navbar-rigth {
 		margin-right: 10px;
 		color: #ffffff;
@@ -1484,7 +1529,6 @@
 	.active {
 		display: block;
 	}
-
 	.menu-titel {
 		width: 100%;
 		text-align: left;
@@ -1495,30 +1539,24 @@
 		height: 40px;
 		line-height: 40px;
 	}
-
 	.menu-titel:hover {
 		background: ghostwhite;
 	}
-
 	.menu-list {
 		margin-left: -40px;
 		/* margin-right: -15px; */
 	}
-
 	.menu-list li {
 		font-size: 13px;
 		cursor: pointer;
 		padding-left: 52px;
 	}
-
 	.menu-list li:hover {
 		background-color: ghostwhite;
 	}
-
 	.sty_list {
 		background-color: ghostwhite;
 	}
-
 	.menu-list-one {
 		margin-bottom: 10px;
 		font-size: 40px;
@@ -1526,47 +1564,36 @@
 		color: #666;
 		font-size: 30px;
 	}
-
 	ul li {
 		list-style: none;
 	}
-
 	.logo {
 		width: 117px;
 	}
-
 	select {
 		outline: none;
-
 	}
-
 	.out {
 		cursor: pointer;
 	}
-
 	nav {
 		padding: 0;
 		background: gray;
 	}
-
 	span {
 		margin-left: 20px;
 	}
-
 	.menu::-webkit-scrollbar {
 		width: 4px;
 	}
-
 	.menu::-webkit-scrollbar-thumb {
 		border-radius: 10px;
 		-webkit-box-shadow: inset 0 0 5px rgba(173, 172, 172, 0.2);
 		background: rgba(173, 172, 172, 0.2);
 	}
-
 	.menu::-webkit-scrollbar-track {
 		-webkit-box-shadow: inset 0 0 5px rgba(173, 172, 172, 0.2);
 		border-radius: 0;
 		background: rgba(173, 172, 172, 0.1);
-
 	}
 </style>

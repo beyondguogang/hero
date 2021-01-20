@@ -1,20 +1,22 @@
 <template>
 	<div class="hello" @click="close">
 			<div class="row no-gutters shop">
-				<div class="col-lg-12  col-md-12 table-responsive" style="overflow: auto ;" @scroll="table_cont" >
+				<!-- 设置一个动态的高度溢出时自动显示滚动条 -->
+				<div class="col-lg-12  col-md-12 table-responsive" :style="{overflow: 'auto',height:offset_height+'px'}" @scroll="table_cont" >
 						<!-- :style="{maxHeight:fontSize+'px'}" -->
-					<table class="table table-bordered text-nowrap " style="" >
+					<table class="table text-nowrap " style="" >
 						<!-- 表格头部 -->
-						<thead class="thead" :style="{transform:'translateY('+tans_late+'px)'}">
-							<tr>
-								<td v-show="fields" class="fixed" ></td>
-								<td v-show="fields" class="fixed" ><input type="checkbox" v-model="btn_check" @change="tr_flag && btn_check_cli()"></td>
-								<td class="thb" v-for="(head,index) in fields" :key="index" >{{head.Comment}} 
+						<!-- 将表头固定 translateY的优先层级最高当高度超出时出现滚动条滚动时表头一直计算滚动的高度所以内容数据一直往上滚动而表头固定-->
+						<thead class="thead" >
+							<tr >
+								<th v-show="fields" class="fixed" :style="{transform:'translateY('+tans_late+'px)'}"></th>
+								<th v-show="fields" class="fixed" :style="{transform:'translateY('+tans_late+'px)'}"><input type="checkbox" v-model="btn_check" @change="tr_flag && btn_check_cli()"></th>
+								<th class="thb" v-for="(head,index) in fields" :key="index" :style="{transform:'translateY('+tans_late+'px)'}">{{head.Comment}} 
 									<span v-show="head.Name==response.PRIMARY" @click="sort_flag && data_sort()" style="display: inline-block;vertical-align: -3px;">
 										<i class="fa-up" :class="[isup]"></i>
 										<i class="fa-down" :class="[isdown]"></i>
 									</span>
-								</td>
+								</th>
 							</tr>
 						</thead>
 						
@@ -165,27 +167,32 @@
 			</div>
 			<!-- <div style="background:red;position:relative"> -->
 		<template>
-			<!-- 项目工程组件 -->
+			<!-- 项目工程组件 (Admin本地数据库[项目工程] 菜单编辑[类型] 其他页面[项目工程] 编辑Action[项目工程] 操作表字段[编辑控件 编辑操作] 数据类型[项目工程] 数据类型值[项目工程 类型id]) 
+			                 (Tank 活动商店[重置周期] 活动数据[活动类型 活动状态] 活动奖励[重置周期] 活动任务[重置周期] 客户端可见服务器管理[客户端名] 客户端资源升级[客户端名]
+							 客户端代码升级[客户端名] 兑换码生成[礼包id 生成状态] 邮件模板[删除类型] 系统邮件[邮件模板id] 房间服务器[服务器所属分组] 测试设备[类型]
+							 渠道商品定义[渠道的名字 官方id 货币类型] 商品定义[商品类型])-->
 			<ppr v-if="box_data.project_engineering" :rule_data="rule_data" :ppr_action="ppr_action" :ppr_action_param="ppr_action_param" :box_fun="box_fun" @close_project="close_project" @input_data="input_data">{{head_title}}</ppr>
-			<!-- 坦克活动数据中的对应渠道组件 -->
+			<!-- 坦克活动数据中的对应渠道组件  (Tank 活动数据[对应渠道 生效分区] 游戏内公告[生效分区] 客户端可见服务器管理[可以看见的服务器分组 测试设备可见的服务器分组]
+			系统邮件[生效分区])-->
 			<pro v-if="box_data.tank_channel" :rule_data="rule_data" :ppr_action="ppr_action" :ppr_action_param="ppr_action_param" :box_fun="box_fun" @close_project="close_project" @channel_input_data="channel_input_data" ></pro>
-			<!-- 管理员密码组件 -->
+			<!-- 管理员密码组件 (Admin 用户[管理员密码])-->
 			<user-pas v-if="box_data.user" :rule_data="rule_data" @pas_confirm="pas_confirm" @close_project="close_project"></user-pas>
-			<!-- 时间的组件 -->
+			<!-- 时间的组件 (Tank 活动数据[活动开始时间 活动结束时间 活动展示开始时间 活动展示结束时间] 首页公告[组后修改时间] 游戏内公告[最后修改时间 公告展示开始时间 公告展示结束时间]
+			系统公告[公告发送时间] 兑换码生成[生效时间 过期时间] 封停账号[解锁时间] 系统邮件[到期时间])-->
 			<prr v-if="box_data.time" :rule_data="rule_data" :clientY="clientY" :clientX="clientX" @close_project="close_project" @time_data="time_data"></prr>
-			<!-- 编辑框的组件 -->
+			<!-- 编辑框的组件 (Admin编辑Action[模板参数] Tank首页公告[测试公告 正式公告] 巅峰挑战任务[任务描述] 礼包[邮件内容] 邮件模板[邮件标题 邮件内容])-->
 			<edit v-if="box_data.edit" :rule_data="rule_data" @edit_confirm="edit_confirm" @close_project="close_project"></edit>
-			<!-- 封停角色 用户ID -->
+			<!-- 封停角色 用户ID (Tank封停角色[用户id] 封停账号[用户id])-->
 			<select-service v-if="box_data.sel" :rule_data="rule_data" @close_project="close_project" ></select-service>
-			<!-- 系统邮件 条件组件 -->
+			<!-- 系统邮件 条件组件 (Tank系统邮件[条件])-->
 			<mail-conditions v-if="box_data.mail" @input_data="input_data" :rule_data="rule_data" @close_project="close_project"></mail-conditions>
-			<!--邮件物品 编辑物品  -->
+			<!--邮件物品 编辑物品  (Tank礼包[物品数据] 邮件模板[邮件物品])-->
 			<edit-items v-if="box_data.items" :rule_data="rule_data" :selecte_data="selecte_data" @sbmit_data="sbmit_data" @sel_goods="sel_goods"  @close_edit="close_edit"></edit-items>
-			 <!-- 选择物品的组件 -->
+			 <!-- 选择物品的组件 (Tank巅峰挑战任务[奖励物品])-->
 			<select-items v-if="box_data.sel_shows" :box_fun="box_fun" :rule_data="rule_data"  @close_select="close_select" @selecte_btn="selecte_btn"></select-items>
-			<!-- 权限组件 -->
+			<!-- 权限组件 (Admin 用户[权限])-->
 			<jurisdiction v-if="box_data.jurisdiction" :rule_data="rule_data" :ppr_action="ppr_action" :ppr_action_param="ppr_action_param" @close_project="close_project" @input_data="input_data"></jurisdiction>
-			<!-- 权限数组 -->
+			<!-- 权限数组 (Admin 角色[权限数组])-->
 			<auth-role-edit v-if="box_data.role_edit" :rule_data="rule_data"  @close_project="close_project" @auth_data="auth_data"></auth-role-edit>
 			<!-- 提示组件 -->
 			<tips v-if="box_data.tips" :current_state="current_state"></tips>	
@@ -370,7 +377,9 @@
 				//弹框数据
 				box_res:[],
 				//权限数组中的数据
-				sort:'desc'
+				sort:'desc',
+				//获取数据框的高度
+				offset_height:null,
 			}
 		},
 		components:{
@@ -394,7 +403,6 @@
 			this.count_page();
 			//判断底部操作按钮的显示隐藏
 			this.operation_isshow();
-			console.log(this.list_some)
 		},
 		computed: {
 			//计算当总数据不足16条时有多少条显示到多少条
@@ -441,23 +449,24 @@
 		methods: {
 			//判断底部操作按钮的显示隐藏
 			operation_isshow(){
+				//判断是否有columns接口数据
 				if (this.response != null) {
-				//没有添加的时候
-				if (this.response.JQ_GRID_ADD == undefined) {
-					this.option.new_add = false
-				}
-				//没有删除的时候
-				if (this.response.JQ_GRID_DEL == undefined) {
-					this.option.del = false
-				}
-				//没有更新的时候
-				if (this.response.JQ_GRID_UPDATE == undefined) {
-					this.option.updata = false
-				}
-				//没有保存的时候
-				if (this.response.JQ_GRID_UPDATE == undefined && this.response.JQ_GRID_ADD == undefined) {
-					this.option.updata_add = false
-				}
+					//没有添加的时候
+					if (this.response.JQ_GRID_ADD == undefined) {
+						this.option.new_add = false
+					}
+					//没有删除的时候
+					if (this.response.JQ_GRID_DEL == undefined) {
+						this.option.del = false
+					}
+					//没有更新的时候
+					if (this.response.JQ_GRID_UPDATE == undefined) {
+						this.option.updata = false
+					}
+					//没有保存的时候
+					if (this.response.JQ_GRID_UPDATE == undefined && this.response.JQ_GRID_ADD == undefined) {
+						this.option.updata_add = false
+					}
 				};
 			},
 			//数据为空时的显示
@@ -476,6 +485,8 @@
 			},
 			//根据屏幕的高度计算显示的页数
 			count_page(){
+				console.log(document.body.offsetHeight)
+				this.offset_height=window.screen.height-300
 				//根据屏幕的高度计算显示的页数
 				this.data_page=parseInt(window.screen.height/60);
 				this.child_index_total=this.data_page
@@ -492,9 +503,8 @@
 				  sord: 'desc',
 				  userInfo:this.userInfo
     			}).then(res=>{
-					// console.log(res.data)
+					//获取接口数据过滤出时间的字段
 					res.data.rows.forEach((item,index)=>{
-						//  if(!(item.fld_action_name=="edit_date")&&!(item.fld_action_name=="edit_date_time")&&!(item.fld_function=="")){
 							if(!(item.fld_action_name=="edit_date")&&!(item.fld_function=="")){
 						  this.box_res.push(item);
 						}
@@ -504,12 +514,12 @@
 			},
 			//固定表头
 			table_cont(e){
-				// alert(1)
-				this.tans_late=e.target.scrollTop;
-				// console.log(e.target.scrollTop)
+					//获取滚动条距离盒子的高度
+					this.tans_late=e.target.scrollTop;
 				},
 			//将选中的数据放在输入框中
 			sbmit_data(data){
+				//当是新建时把弹框中的数据填进输入框
 				if(this.len.length>0){
 					this.msg[this.box_index.index1+'-'+this.box_index.index]=data;
 				}
@@ -517,6 +527,7 @@
 				if(this.edit_list.length>0){
 					this.rows[this.box_index.index1][this.box_index.box_key]=data;
 				}
+				//关闭弹框
 				this.close_edit();
 			},
 			//选择的数据列表，显示在别的组件
@@ -655,6 +666,7 @@
 				this.page=1;
 				//获取选框中的值并赋值请求参数
 				let request_parameters={};
+				//获取选择的条件
 				request_parameters.groupOp=this.project_box;
 				//选泽的是哪一项
 				if(request_parameters.groupOp=='满足所有条件'){
@@ -681,13 +693,15 @@
 							request_parameters.rules[index].op=this.query_code[i]
 						}
 					})
-					console.log(this.condition)
+					// console.log(this.condition)
 						request_parameters.rules[index].data=this.condition[index];
 				})
-				console.log(request_parameters)
+				// console.log(request_parameters)
+				//将对象转换成json数据
 				let project=JSON.stringify(request_parameters);
 				// console.log(this.project)
 				this.query_data=project;
+				//通过父组件执行
 				this.$emit('query',this.sub_url, this.child_index,project,this.sort);
 				//让选项数据初始化一条
 				this.add_num=[];
@@ -1731,14 +1745,31 @@
     vertical-align: super;
     padding-bottom: 2px;
 } */
+.hello{
+	margin-top: -2px;
+}
+.thb{
+	color:#095ee8
+}
 #tbody input{
     border: none;
     height: 25px;
 }
-.table tr td{
+.table tr th{
+	background-color: #ebecf0;
+	    transform: translateY(0px);
+		text-align: center;
+}
+.table tr td,th{
 	padding-left: 10px!important;
 	padding-right: 10px!important;
-	vertical-align:middle
+	vertical-align:middle;
+	box-shadow: inset 1px 0 0 0 #dee2e6;	
+}
+
+	
+.table-bordered td{
+	/* border:none; */
 }
 td{
 	padding: 0;
@@ -1977,8 +2008,9 @@ button, input{
 		color: #007bff;
 	}
 
-	table {
+	.table {
 		font-size: 12px;
+		border: 1px solid #dee2e6
 		/* float: right; */
 		/* overflow: auto; */
 		/* max-height: 753px; */

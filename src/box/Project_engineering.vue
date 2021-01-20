@@ -66,6 +66,7 @@ export default {
     }
   },
   mounted(){
+    alert('pro')
     // console.log(this.check_data)
    
         switch (this.ppr_action){

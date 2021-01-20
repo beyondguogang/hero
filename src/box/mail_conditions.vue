@@ -120,6 +120,7 @@ export default {
     rule_data:String
   },
   mounted () {
+    alert('mailConditions')
     if(this.rule_data!=undefined){
       var obj=JSON.parse(this.btn_data);
       if(obj.MinVersion!=''){

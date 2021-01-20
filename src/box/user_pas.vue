@@ -43,7 +43,7 @@ export default {
     }
   },
   mounted () {
-      
+      alert('user_pas')
   },
   methods: {
     //   确认按钮

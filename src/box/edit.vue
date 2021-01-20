@@ -30,6 +30,7 @@ export default {
     rule_data:String,
   },
   mounted () {
+    alert('edit')
       this.edit()
   },
   methods: {
