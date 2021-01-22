@@ -232,8 +232,8 @@
 			
 		},
 		created() {
-			var a= new Date(1496376000000)+'UTC+0800';
-			console.log(a)
+			// var a= new Date(1496376000000)+'UTC+0800';
+			// console.log(a)
 			
 		},
 		computed: {},
@@ -247,7 +247,9 @@
 				this.axios.get(this.api + '/Login/ProjList').then(res => {
 				//获取项目列表
 				this.project_list = res.data;
+				//获取项目索引
 				var select=window.sessionStorage.getItem('btn_selected');
+				//项目索引副本
 				this.copy_select=select;
 				//根据保存的项目为空时会自动请求第一个项目默认显示
 				if(select!=''&&this.$route.params.project == undefined){
@@ -311,13 +313,15 @@
 					//保存选择项索引
 					window.sessionStorage.setItem('btn_selected',this.project_index);
 					//保存退出前的地址
-					window.sessionStorage.setItem('url',this.project_list[this.copy_select].Name+','+this.surl+','+this.index+','+this.change_index);
+					if(this.$route.params.project != undefined){
+						window.sessionStorage.setItem('url',this.project_list[this.copy_select].Name+','+this.surl+','+this.index+','+this.change_index);
+					};
 					//保存userInfo
 					window.sessionStorage.setItem('userInfo','null');
 					//返回登录页
 					this.$router.replace({
 						path: "/login"
-					})
+					});
 					return false;
 				};
 				//设置超时时间30分钟
@@ -330,13 +334,15 @@
 					//保存选择项索引
 					window.sessionStorage.setItem('btn_selected',this.project_index);
 					//保存退出前的地址
-					window.sessionStorage.setItem('url',this.project_list[this.copy_select].Name+','+this.surl+','+this.index+','+this.change_index);
+					if(this.$route.params.project != undefined){
+						window.sessionStorage.setItem('url',this.project_list[this.copy_select].Name+','+this.surl+','+this.index+','+this.change_index);
+					};
 					//保存userInfo
 					window.sessionStorage.setItem('userInfo','null');
 					//返回登录页
 					this.$router.replace({
 						path: "/login"
-					})
+					});
 					return false;
 				}else{
 					//当一直操做时时间也跟着更新避免30分钟后退出登录
@@ -1287,7 +1293,7 @@
 				});
 				//如果有url字段那么执行外部链接
 				if(name.url!=''){
-					 window.location.href=this.url+name.url;return;
+					 window.location.href=this.url+name.url;
 				};
 					//显示左侧菜单
 					this.menu_show=true;
@@ -1362,7 +1368,9 @@
 				//保存选择项的索引
 				window.sessionStorage.setItem('btn_selected',this.project_index);
 				//保存推出前的地址
-				window.sessionStorage.setItem('url',this.project_list[this.copy_select].Name+','+this.surl+','+this.index+','+this.change_index);
+				if(this.$route.params.project != undefined){
+					window.sessionStorage.setItem('url',this.project_list[this.copy_select].Name+','+this.surl+','+this.index+','+this.change_index);
+				};
 				//保存userInfo
 				window.sessionStorage.setItem('userInfo','null');
 				//返回登录页面

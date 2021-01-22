@@ -170,7 +170,8 @@
 			<!-- 项目工程组件 (Admin本地数据库[项目工程] 菜单编辑[类型] 其他页面[项目工程] 编辑Action[项目工程] 操作表字段[编辑控件 编辑操作] 数据类型[项目工程] 数据类型值[项目工程 类型id]) 
 			                 (Tank 活动商店[重置周期] 活动数据[活动类型 活动状态] 活动奖励[重置周期] 活动任务[重置周期] 客户端可见服务器管理[客户端名] 客户端资源升级[客户端名]
 							 客户端代码升级[客户端名] 兑换码生成[礼包id 生成状态] 邮件模板[删除类型] 系统邮件[邮件模板id] 房间服务器[服务器所属分组] 测试设备[类型]
-							 渠道商品定义[渠道的名字 官方id 货币类型] 商品定义[商品类型])-->
+							 渠道商品定义[渠道的名字 官方id 货币类型] 商品定义[商品类型])
+							 (巅峰战舰 礼包码[批次] 礼包生成[生成状态] 礼包管理[邮件标题 邮件内容] 资源升级[资源类型] 测试设备[设备类型])-->
 			<ppr v-if="box_data.project_engineering" :rule_data="rule_data" :ppr_action="ppr_action" :ppr_action_param="ppr_action_param" :box_fun="box_fun" @close_project="close_project" @input_data="input_data">{{head_title}}</ppr>
 			<!-- 坦克活动数据中的对应渠道组件  (Tank 活动数据[对应渠道 生效分区] 游戏内公告[生效分区] 客户端可见服务器管理[可以看见的服务器分组 测试设备可见的服务器分组]
 			系统邮件[生效分区])-->
@@ -180,7 +181,9 @@
 			<!-- 时间的组件 (Tank 活动数据[活动开始时间 活动结束时间 活动展示开始时间 活动展示结束时间] 首页公告[组后修改时间] 游戏内公告[最后修改时间 公告展示开始时间 公告展示结束时间]
 			系统公告[公告发送时间] 兑换码生成[生效时间 过期时间] 封停账号[解锁时间] 系统邮件[到期时间])-->
 			<prr v-if="box_data.time" :rule_data="rule_data" :clientY="clientY" :clientX="clientX" @close_project="close_project" @time_data="time_data"></prr>
-			<!-- 编辑框的组件 (Admin编辑Action[模板参数] Tank首页公告[测试公告 正式公告] 巅峰挑战任务[任务描述] 礼包[邮件内容] 邮件模板[邮件标题 邮件内容])-->
+			<!-- 编辑框的组件 (Admin编辑Action[模板参数] Tank首页公告[测试公告 正式公告] 巅峰挑战任务[任务描述] 礼包[邮件内容] 邮件模板[邮件标题 邮件内容])
+			巅峰战舰(礼包管理[邮件标题 邮件内容] 跑马灯[内容] 物品[describe] 首页公告[测试公告 正式公告] 服务器内公告[公告内容 落款 导航 背景图 内容 条件]
+			资源升级[下载地址 下载地址测试])-->
 			<edit v-if="box_data.edit" :rule_data="rule_data" @edit_confirm="edit_confirm" @close_project="close_project"></edit>
 			<!-- 封停角色 用户ID (Tank封停角色[用户id] 封停账号[用户id])-->
 			<select-service v-if="box_data.sel" :rule_data="rule_data" @close_project="close_project" ></select-service>
@@ -333,11 +336,11 @@
 				add_num:[],
 				//查询的添加和移除
 				condition:[],
-				//搜索输入框的不同数据
+				//搜索输入框的添加
 				search_data:0,
-				//项目选择框
+				//查询项目选择框
 				project_slected:[],
-				//类型选择框
+				//查询类型选择框
 				type_slected:[],
 				//项目条件
 				project_condition:['满足所有条件','满足任一条件'],
@@ -366,8 +369,7 @@
 				box_index:{
 					index1:null,
 					index:null,
-					box_key:null,
-					
+					box_key:null,	
 				},
 				//每条数据是否点击的标志
 				tr_flag:true,
@@ -411,7 +413,7 @@
 				if (this.rows.length < this.data_page) {
 					return this.rows.length+(this.page*this.data_page-this.data_page)+this.increasing;//页数*16-16
 				} else {
-					// return this.data_page
+					//如果是动态的页数那么返回本页最后一条页数值
 					return this.child_index_total
 				}
 			},
@@ -530,41 +532,47 @@
 				//关闭弹框
 				this.close_edit();
 			},
-			//选择的数据列表，显示在别的组件
+			//选择的数据列表，显示在别的组件（选择选中项目然后在别的组件选择项目然后再把数据放到本组件中）
 			selecte_btn(data){
+				//点击选择物品关闭物品选择框组件（select-service组件）
 				this.box_data.sel_shows=false;
+				//把选中的数据赋值给selecte_data
 				this.selecte_data=data;
+				//显示edit-items组件
 				this.box_data.items=true;
 			},
 			//权限数组组件输入值
 			auth_data(data){
 				//当新建的时候编辑带弹框的数据
 				if(this.len.length>0){
-					// alert(0)
 					this.msg[this.box_index.index1+'-'+this.box_index.index]=data;
-				}
+				};
 				//当编辑的时候编辑带弹框的数据
 				if(this.edit_list.length>0){
-					// alert(1)
 					this.rows[this.box_index.index1][this.box_index.box_key]=data;
-				}
+				};
+				//关闭组件
 				this.close_project();
 			},
-			//关闭编辑物品框
+			//关闭编辑物品框（sbmit_data确认执行关闭）
 			close_edit(){
+				//当选择好选项后让弹框组件关闭
 				if(this.box_data.items==true){
 				 	this.box_data.items=false;
 				 }
 			},
-			//关闭选择物品框
+			//关闭选择物品框（给编辑物品组件用）
 			close_select(){
+				//关闭选择框组件（select-service组件）
 				if(this.box_data.sel_shows==true){
 				 	this.box_data.sel_shows=false;
 				 }
 			},
 			//物品选择的弹框
 			sel_goods(){
+				//显示选择物品组件（select-service组件）
 				this.box_data.sel_shows=true;
+				//关闭编辑物品组件
 				this.box_data.items=false;
 			},
 			//管理员密码组件输入值
@@ -572,11 +580,12 @@
 				//当新建的时候编辑带弹框的数据
 				if(this.len.length>0){
 					this.msg[this.box_index.index1+'-'+this.box_index.index]=data;
-				}
+				};
 				//当编辑的时候编辑带弹框的数据
 				if(this.edit_list.length>0){
 					this.rows[this.box_index.index1][this.box_index.box_key]=data;
-				}
+				};
+				//关闭密码框组件（user-pas组件）
 				this.box_data.user=false;
 			},
 			//编辑内容组件输入值
@@ -584,11 +593,12 @@
 				//当新建的时候编辑带弹框的数据
 				if(this.len.length>0){
 					this.msg[this.box_index.index1+'-'+this.box_index.index]=data;
-				}
+				};
 				//当编辑的时候编辑带弹框的数据
 				if(this.edit_list.length>0){
 					this.rows[this.box_index.index1][this.box_index.box_key]=data;
-				}
+				};
+				//关闭编辑框组件
 				this.close_project();
 			},
 			//时间的选择组件
@@ -596,73 +606,84 @@
 				//当新建的时候编辑带弹框的数据
 				if(this.len.length>0){
 					this.msg[this.box_index.index1+'-'+this.box_index.index]=data;
-				}
+				};
 				//当编辑的时候编辑带弹框的数据
 				if(this.edit_list.length>0){
 					this.rows[this.box_index.index1][this.box_index.box_key]=data;
-				}
+				};
+				//关闭时间组件
 				this.close_project();
 			},
-			//让输入框中的值为弹框中的输入值  活动数据渠道组件
+			//让输入框中的值为弹框中的输入值  活动数据渠道组件（pro组件）
 			channel_input_data(data){
 				//当新建的时候编辑带弹框的数据
 				if(this.len.length>0){
 					this.msg[this.box_index.index1+'-'+this.box_index.index]=data;
-				}
+				};
 				//当编辑的时候编辑带弹框的数据
 				if(this.edit_list.length>0){
-					console.log(this.box_index.box_key)
-					console.log(this.rows[this.box_index.index1][this.box_index.box_key])
 					this.rows[this.box_index.index1][this.box_index.box_key]=data;
-				}
+				};
+				//关闭弹框
 				this.close_project();
 			},
-			//让输入框中的值为弹框中输入的值  项目工程组件
+			//让输入框中的值为弹框中输入的值  项目工程组件（ppr组件）
 			input_data(data){
 				//当新建的时候编辑带弹框的数据
 				if(this.len.length>0){
 					this.msg[this.box_index.index1+'-'+this.box_index.index]=data;
-				}
+				};
 				//当编辑的时候编辑带弹框的数据
 				if(this.edit_list.length>0){
 					 this.rows[this.box_index.index1][this.box_index.box_key]=data;
-				}
+				};
+				//关闭组件
 				this.close_project();
 			},
 			//关闭弹出框
 			close_project(){
+				//ppr组件
 				if(this.box_data.project_engineering==true){
 					this.box_data.project_engineering=false;
 				};
+				//pro组件
 				if(this.box_data.tank_channel==true){
 					this.box_data.tank_channel=false;
 				};
+				//prr组件
 				if(this.box_data.time==true){
 					this.box_data.time=false;
 				};
+				//edit组件
 				if(this.box_data.edit==true){
 					this.box_data.edit=false
 				};
+				//select-service组件
 				if(this.box_data.sel==true){
 					this.box_data.sel=false
 				};
+				//mail-conditions组件
 				if(this.box_data.mail==true){
 					this.box_data.mail=false
 				};
+				//user-pas组件
 				if(this.box_data.user==true){
 					this.box_data.user=false
 				};
+				//jurisdiction组件
 				if(this.box_data.jurisdiction==true){
 					this.box_data.jurisdiction=false;
 				};
+				//auth-role-edit组件
 				if(this.box_data.role_edit==true){
-					// alert(2)
 					this.box_data.role_edit=false
 				}
 			},
 			//查找
 			lookup(){
+				//设置序号
 				this.child_index = 0;
+				//设置页数
 				this.page=1;
 				//获取选框中的值并赋值请求参数
 				let request_parameters={};
@@ -693,14 +714,11 @@
 							request_parameters.rules[index].op=this.query_code[i]
 						}
 					})
-					// console.log(this.condition)
 						request_parameters.rules[index].data=this.condition[index];
 				})
-				// console.log(request_parameters)
 				//将对象转换成json数据
 				let project=JSON.stringify(request_parameters);
-				// console.log(this.project)
-				this.query_data=project;
+				// this.query_data=project;
 				//通过父组件执行
 				this.$emit('query',this.sub_url, this.child_index,project,this.sort);
 				//让选项数据初始化一条
@@ -708,13 +726,18 @@
 				//查询时让弹窗关闭
 				this.close_win();
 				//返回初始状态
+				//查询的添加和移除
 				this.condition=[];
+				//查询类型选择框
 				this.type_slected=[];
+				//查询项目选择框
 				this.project_slected=[];
+				//查询条件
 				this.head_data=[];
 			},
-			//重置
+			//查询重置
 			box_reset(){
+				//将输入框数据清空
 				this.condition=[];
 			},
 			//移除查询数据中的某一条
@@ -725,12 +748,15 @@
 			//查询多条数据累加选项
 			accumulation(){
 				//当点击添加的加号时给数组添加不同的项以便给input添加不同的v-model
+				//每添加一条数据就像数组push不同的值
 				this.search_data+=1;
-				console.log(this.search_data)
 				this.add_num.push(this.search_data);
 				//每添加一项都会在选择框中添加第一项数据
+				//项目值
 				this.project_slected.push(this.head_data[0]);
+				//类型值
 				this.type_slected.push(this.query_scope[0]);
+				//输入框值
 				this.condition.push('')
 			},
 			//关闭查询弹窗
@@ -739,11 +765,13 @@
 			},
 			//查询
 			query(){
+				//显示查询弹框
 				this.query_show=true;
-				// this.search_data+=1;
-				console.log(this.search_data)
+				//设置查询数据的条数
 				this.add_num.push(this.search_data);
+				//设置选择条件
 				this.project_box=this.project_condition[0];
+				//遍历数据头的数据
 				this.fields.forEach((item,index) =>{
 					//当点击查询的时候判断需要查寻的条件有哪些
 					if(item.Name!="fld_deleted"&&item.Name!=this.response.PRIMARY){
@@ -752,9 +780,11 @@
 						//在动态的选择框中始终把第一项放在框中
 									}				
 				})
-				// console.log(this.head_data[0])
+				//设置查询项目
 				this.project_slected.push(this.head_data[0]);
+				//设置查询项目的条件
 				this.type_slected.push(this.query_scope[0]);
+				//设置输入框中的值
 				this.condition.push('')
 			},
 			//关闭输入框
@@ -764,94 +794,134 @@
 			//enter事件提交请请求的页数点击底部的第几页出现输入框
 			submit_input() {
 				//输入框的数据的判断
+				//获取动态页数
 				let page = this.project_data.page;
+				//如果当前的页数不是空 是有效的数字 大于0 小于等于总页数执行
 				if (this.project_data.page != '' && !isNaN(this.project_data.page) && Number(this.project_data.page) > 0 && Number(
 						this.project_data.page) <= parseInt(this.project_data.total)) {
 					//当数据请求回来再执行下次方法
 					if (this.istrue.isnext == true) {
+						//获取本页的第一条数据的序号
 						this.child_index = this.data_page * (page - 1);
+						//当总页数大于当前页数乘每页的条数（说明有当前的页数并且不是最后一页）
 						if (this.project_data.records - page * this.data_page >= 0) {
-							this.child_index_total = this.data_page * page;
-						} else {
-							//最后一页的数据是16的几倍
-							let positive_integer = window.parseInt(this.project_data.records / this.data_page);
-							//最后一页的数据的总条数
-							let mantissa = this.project_data.records - positive_integer * this.data_page;
-							this.child_index_total = (positive_integer) * this.data_page + mantissa;
+								//本页最后一条数据
+								this.child_index_total = this.data_page * page;
+							}else{
+								//最后一页的数据是16的几倍（总页数是当前页的倍数）
+								let positive_integer = window.parseInt(this.project_data.records / this.data_page);
+								//最后一页的数据的总条数
+								let mantissa = this.project_data.records - positive_integer * this.data_page;
+								//本页最后一条数据
+								this.child_index_total = (positive_integer) * this.data_page + mantissa;
+							};
+							//父组件执行接口
+							this.$emit('lookup', this.sub_url, this.child_index, page,this.sort)
 						}
-						this.$emit('lookup', this.sub_url, this.child_index, page,this.sort)
-					}
-				} else {
-					this.input_page = false;
-					this.child_index = 0;
-					this.child_index_total = this.data_page;
-					this.child_index_page=1;
-					this.$emit('lookup', this.sub_url, this.child_index, 1,this.sort)
-					return false;
+					}else{
+						//将页数搜索输入框隐藏
+						// this.input_page = false;
+						//将序号默认为0
+						this.child_index = 0;
+						//将每页的最后一条数据序号设置为第一页的最后一条数据的序号也就是当输入的页数为false时返回第一页的数据
+						this.child_index_total = this.data_page;
+						//将第一页的第一条数据的序号赋值给第多少条中的data值
+						this.child_index_page=1;
+						//通过组组件返回第一页数据
+						this.$emit('lookup', this.sub_url, this.child_index, 1,this.sort)
+						// return false;
 				}
+				//将页数搜索输入框隐藏
 				this.input_page = false;
+				//将页数赋值为输入的页数
 				this.page=page;
+				//将第一页的第一条数据的序号赋值给第多少条中的data值
 				this.child_index_page=this.data_page*page-this.data_page+1;
 			},
 			//选择查找的页数当点击时出现输入框输入完成时点enter请求数据当没有点enter而是点击的别的地方不请求数据直接返回之前的状态
 			select_input() {
+				//显示底部（点击第几页）输入框
 				this.input_page = true;
 			},
 			//删除的确认点击
 			confirm_click() {
+				//确认删除标志
 				this.confirm_data = true;
 				var ids = [];
+				//遍历选中的列表
 				this.btn_checkeds.forEach((item, index) => {
+						//获取选中的数据的主键并push进数组
 						ids.push(this.rows[item][this.response.PRIMARY])
 				})
+				//将数组的每一项转换成字符串
 				var ids_data = ids.join();
 				if (this.confirm_data == true) {
 					this.axios.post(this.api + this.response.JQ_GRID_DEL, {
 						ids: ids_data,
 						userInfo: this.userInfo
 					}).then(res => {
-						if (this.list_some == true) {
-						this.btn_checkeds.forEach((item,i)=>{			
-								this.edit_list[item] = false;
-							})
-							this.btn_checkeds=[];
-							this.btn_check = false			
-						}
+						//如果列表有选中的按钮
+						// if (this.list_some == true) {
+						// this.btn_checkeds.forEach((item,i)=>{	
+						// 	console.log(item)		
+						// 		this.edit_list[item] = false;
+						// 	})
+						// 	this.btn_checkeds=[];
+						// 	this.btn_check = false			
+						// }
+						//删除数据后刷新数据
 						this.refresh()
 					})
-				}
+				};
+				//关闭弹框
 				this.show_hide = false;
 			},
 			//删除的取消点击
 			cancel_click() {
+				//确认删除的标志
 				this.confirm_data = false;
+				//关闭删除弹框
 				this.show_hide = false;
+				//取消选中项
 				this.btn_checkeds=[];
+				//取下总选中项
 				this.btn_check=false;
+				//将选中数据项的样式取消
 				this.dynamic={};
 			},
 			//列表复选框的选中和取消
-			tr_list(e,item,i){
+			tr_list(e,item,i){//事件对象 数据项目 数据索引
+				//如果没有选中项
 				if(this.btn_checkeds.length==0){
 					this.btn_checkeds.push(i);
-				}else if(this.btn_checkeds.every((item,index)=>{return item!=i})){
+				}else if(this.btn_checkeds.every((item,index)=>{return item!=i})){//如果选中项中没有与之相同的值那么加入
 					this.btn_checkeds.push(i);
 				}else{
-					this.btn_checkeds=this.btn_checkeds.filter((item,index)=>{
+					this.btn_checkeds=this.btn_checkeds.filter((item,index)=>{//如果选中项中有与之相同的那么移除此项
 						return i!=item;
 					});
 				};
+				//如果有选中项
 				if(this.btn_checkeds.length>0){
+					//总复选框选中
 					this.btn_check=true;
+					//有选中项的标志
 					this.list_some=true;
+					//如果有选中项可以点击撤销
 					this.revoke = false;
+					//如果有选中项不禁用撤销
  					this.btn_revoke = false;
 				}else{
+					//总复选框不选中
 					this.btn_check=false;
+					//是否选中的标志
 					this.list_some=false;
+					//不能点撤销
 					this.revoke = true;
+					//禁用撤销样式
  					this.btn_revoke = true;
-				}
+				};
+				//如果没有选中项
 				if(this.btn_checkeds.length==0){
 					this.btn_check=false;
 				};
@@ -861,12 +931,13 @@
 				}else{
 					this.dynamic[i]='';
 				}
-				console.log(this.btn_checkeds)
 			},
 			//总按钮是否选中
 			btn_check_cli() {
+				//如果总复选框选中
 				if(this.btn_check==true){
 					this.list_some=true;//表示列表中有选中项
+					//将本页全部选中
 					this.rows.forEach((item,i)=>{
 							this.btn_checkeds.push(i);
 							this.dynamic[i]=item;
@@ -883,9 +954,7 @@
 			},
 			//点击动态的数据项后边的三点请求不同的数据
 			serch(index1,index,key) {
-				// alert(0)
-				// console.log(event)
-				//计算点击元素距离左上边框的距离
+				//计算点击元素距离左上边框的距离用来判断时间组件的位置
 				this.clientX=event.clientX;
 				this.clientY=event.clientY;
 				//当访问同一个组件的时候先关闭组件因为数据不同
@@ -896,7 +965,6 @@
 				this.box_index.index=index;
 				//数据对象中的key
 				this.box_index.box_key=key;
-				// console.log(this.edit_list)
 				//当是编辑的时候拿出输入框中的值，当是新建的时候拿出新建输入框中的值
 				if(this.rows[index1]!=undefined){
 					//如果不为空把该值赋值给rule_data
@@ -932,7 +1000,6 @@
 						//判断头部三个点字段的值根据值请求不同的接口
 						case "selecttion_typevalue":
 								 //action中所有的数据项
-							// this.box_data.project_engineering=true;
 							setTimeout(()=>{this.box_data.project_engineering=true;},(0))
 							this.head_title='--选择--'
 							break;
@@ -1016,37 +1083,74 @@
 							break;
 						case "ACTION_COLUMNS_URL":
 							this.box_data.project_engineering=true;
+							break;
+						case "select_gift_batch_warship":
+							this.box_data.project_engineering=true;
+							this.head_title='--选择礼包生成批次--';
+							break;
+						case "select_gift_package_warship":
+							//2
+							alert(2)
+							break;
+						case "select_package_channel_more":
+							alert(3)
+							break;
+						case "ItemArrayEditor_warship":
+							alert(4)
+							break;
+						case "serverChoose_warship":
+							//4
+							alert(5)
+							break;
+						case "packageChoose":
+							//2
+							alert(6)
+							break;
+						case "serverChooseOne_warship":
+							alert(7)
+							break;	
 						}
 						
 				// })
 			},
 			//刷新
 			refresh() {
-				// alert(1)
+				//正反序标志
 				this.sort_flag=true;
+				//刷新完成的标志（当刷新接口执行完后在才能在次执行刷新按钮）
 				if(this.istrue.isrefresh==true){
+				//每页最后一条数据的序号数
 				var total=this.child_index_total;
+				//当有新建时刷新总页数加上新建的页数
 				this.project_data_copy=this.project_data.records+this.num;
+				//执行撤销函数（例 当新建没提交刷新时就撤销新建项目 编辑时撤销编辑）
 				this.bt_revoke()
+				//触发父组件执行刷新的方法
 				this.$emit('parent_refresh', this.sub_url, this.sort,this.project_data.page);
-				// this.$emit('parent_refresh', this.sub_url, this.sort,this.project_data.page);
+				//是否有选中项的标志
 				this.list_some =false;
+				//取消每条数据的样式
 				this.dynamic={};
+				//取消总复选框
 				this.btn_check = false;
+				//取消添加时的累加
 				this.increasing=0;
-					if(total==this.project_data_copy){
-						this.child_index_total=total;
-					}
+					//当前页的最后一条数据页数等于添加新建后的数据
+					// if(total==this.project_data_copy){
+					// 	this.child_index_total=total;
+					// }
 				}
 				
 			},
 			//撤销
 			bt_revoke() {
+				//正反序标志
 				this.sort_flag=true;
+				//减去新建时的页数
 				this.child_index_total-=this.num;
 				//当点击时把新建取消
 				this.num = 0;
-				//点击撤销是序号也跟着减少
+				//序号的标志点击撤销是序号也跟着减少（每页显示数据*当前页数-每页显示数据）
 				this.child_index =this.data_page*this.project_data.page-this.data_page;
 				//保存的禁止点击
 				this.preservation = true;
@@ -1058,28 +1162,21 @@
 				this.isdel = false;
 				//新建的禁止点击
 				this.newly_build= false,
-					//是否禁用的选项
-					this.btn_preservation = true;
+				//是否禁用的选项
+				this.btn_preservation = true;
+				//禁用撤销样式
 				this.btn_revoke = true;
+				//禁用删除样式
 				this.btn_del = false;
+				//禁用编辑样式
 				this.btn_edit = false;
+				//禁用新建样式
 				this.btn_build = false;
-				
-				
-				// 
 				//当编辑的时候撤销编辑
 				if (this.list_some == true||this.btn_checkeds.length>0) {
 						//取消选中项中的值
 						if (this.btn_checkeds.length>0) {
 							this.btn_checkeds.forEach((item,i)=>{
-								// alert(1)
-								// if(this.rule_data!=undefined&&this.num!=0){
-										// console.log(this.box_index.index1,this.box_index.box_key)
-										//当撤销时列表输入框返回之前的值新建撤销时不执行判断
-										// this.rows[item][this.box_index.box_key]=this.rule_data;
-									// }
-								// console.log(item)
-								// this.updata_edit.push(this.rows[item]);
 								//取消相中项
 								this.edit_list[item] = false;
 							})
@@ -1089,14 +1186,20 @@
 						}
 						//编辑时候撤销重新刷新数据
 						this.$emit('parent_refresh', this.sub_url, this.sort,this.project_data.page);
-				}
+				};
+				//是否能执行点击事件或者执行变化事件的标志
 				this.tr_flag=true;
-				//把之前保存的选中数清除
+				//是否有选中项的标志
 				this.list_some =false;
+				//取消选中的样式
 				this.dynamic={};
+				//总复选框取消选中
 				this.btn_check = false;
+				//将累加清零
 				this.increasing=0;
+				//输入框中的数据清空
 				this.msg = [];
+				//
 				this.check = [];
 				
 			},
@@ -1212,10 +1315,10 @@
 							//动态的保存参数获取所有的动态参数每有一条数据就会有执行一次每一条的数据就会有多项的动态值
 							if(this.fields[j].Name!=this.response.PRIMARY||this.fields[j].Name!="fld_deleted"){
 								// console.log(this.msg[i + '-' + j])
-								console.log(this.fields[j])
+								// console.log(this.fields[j])
 								parameter[this.fields[j].Name + ''] = this.msg[i + '-' + j];
 								if(this.fields[j].type=='checkbox'){
-								parameter[this.fields[j].Name + '']=Number(this.check[i+'-'+j]);
+									parameter[this.fields[j].Name + '']=Number(this.check[i+'-'+j]);
 								};
 								
 								if(this.fields[j].Name=='fld_create_time'||this.fields[j].Name=='fld_modif_time'||this.fields[j].Name=='fld_login_time'){
