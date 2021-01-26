@@ -25,7 +25,7 @@
 							<!-- 新建的列表数据   当有多个循环的时候key值不能重复-->
 							<tr v-for="(num,index1) in num" :key="index1" :class="{list_color:true}" style="margin-top: 0;  align-self:flex-end">
 								<td class="fixed">{{index1+child_index_page}}</td>
-								<td class="fixed"><input type="checkbox" v-model="add_checkeds" :value="index1" disabled></td>
+								<td class="fixed"><input type="checkbox" v-model="add_checkeds" :value="index1" ></td>
 								<td class="fixed-list" v-for="(le,index) in len" :key="index">
 									
 									<!-- 输入框根据索引显示内容当添加新项目时会把之前的索引添加到现有的索引中所以会把输入框的内容添加到新的项目中 :id="'fld'+index"-->
@@ -1177,7 +1177,7 @@
 						//取消选中项中的值
 						if (this.btn_checkeds.length>0) {
 							this.btn_checkeds.forEach((item,i)=>{
-								//取消相中项
+								//取消选中项
 								this.edit_list[item] = false;
 							})
 							//复选框清空 总复选框为false
@@ -1199,96 +1199,100 @@
 				this.increasing=0;
 				//输入框中的数据清空
 				this.msg = [];
-				//
+				//动态的内容数组清空
 				this.check = [];
 				
 			},
 			datetime2zone_x(_date_time, _zone) {
-				// console.log(_date_time.getTime(),_zone)
-				// console.log(typeof _date_time)
-				const UTC_ZONE = {
-				    "UTC-0000": -0 * 3600 * 1000,
-				    "UTC-0100": -1 * 3600 * 1000,
-				    "UTC-0200": -2 * 3600 * 1000,
-				    "UTC-0300": -3 * 3600 * 1000,
-				    "UTC-0400": -4 * 3600 * 1000,
-				    "UTC-0500": -5 * 3600 * 1000,
-				    "UTC-0600": -6 * 3600 * 1000,
-				    "UTC-0700": -7 * 3600 * 1000,
-				    "UTC-0800": -8 * 3600 * 1000,
-				    "UTC-0900": -9 * 3600 * 1000,
-				    "UTC-1000": -10 * 3600 * 1000,
-				    "UTC-1100": -11 * 3600 * 1000,
-				    "UTC-1200": -12 * 3600 * 1000,
-				    "UTC+0000": 0 * 3600 * 1000,
-				    "UTC+0100": 1 * 3600 * 1000,
-				    "UTC+0200": 2 * 3600 * 1000,
-				    "UTC+0300": 3 * 3600 * 1000,
-				    "UTC+0400": 4 * 3600 * 1000,
-				    "UTC+0500": 5 * 3600 * 1000,
-				    "UTC+0600": 6 * 3600 * 1000,
-				    "UTC+0700": 7 * 3600 * 1000,
-				    "UTC+0800": 8 * 3600 * 1000,
-				    "UTC+0900": 9 * 3600 * 1000,
-				    "UTC+1000": 10 * 3600 * 1000,
-				    "UTC+1100": 11 * 3600 * 1000,
-				    "UTC+1200": 12 * 3600 * 1000
-				};
-			    if (!_date_time){
-					return "N/A";
-					}
-					//时区毫秒数
-			    var office = UTC_ZONE["UTC+0000"];
-			    var temp_date = null;
-			    if (typeof _date_time == "string") {
-					// alert(12)
-			        if (_date_time == "1970-01-01 00:00:00"){
-						 return "N/A";
-					}
+				//时区的计算公式
+				// const UTC_ZONE = {
+				//     "UTC-0000": -0 * 3600 * 1000,
+				//     "UTC-0100": -1 * 3600 * 1000,
+				//     "UTC-0200": -2 * 3600 * 1000,
+				//     "UTC-0300": -3 * 3600 * 1000,
+				//     "UTC-0400": -4 * 3600 * 1000,
+				//     "UTC-0500": -5 * 3600 * 1000,
+				//     "UTC-0600": -6 * 3600 * 1000,
+				//     "UTC-0700": -7 * 3600 * 1000,
+				//     "UTC-0800": -8 * 3600 * 1000,
+				//     "UTC-0900": -9 * 3600 * 1000,
+				//     "UTC-1000": -10 * 3600 * 1000,
+				//     "UTC-1100": -11 * 3600 * 1000,
+				//     "UTC-1200": -12 * 3600 * 1000,
+				//     "UTC+0000": 0 * 3600 * 1000,
+				//     "UTC+0100": 1 * 3600 * 1000,
+				//     "UTC+0200": 2 * 3600 * 1000,
+				//     "UTC+0300": 3 * 3600 * 1000,
+				//     "UTC+0400": 4 * 3600 * 1000,
+				//     "UTC+0500": 5 * 3600 * 1000,
+				//     "UTC+0600": 6 * 3600 * 1000,
+				//     "UTC+0700": 7 * 3600 * 1000,
+				//     "UTC+0800": 8 * 3600 * 1000,
+				//     "UTC+0900": 9 * 3600 * 1000,
+				//     "UTC+1000": 10 * 3600 * 1000,
+				//     "UTC+1100": 11 * 3600 * 1000,
+				//     "UTC+1200": 12 * 3600 * 1000
+				// };
+				// //如果传入的时间为false
+			    // if (!_date_time){
+				// 	return "N/A";
+				// 	}
+				// 	//0时区一小时毫秒数
+			    // var office = UTC_ZONE["UTC+0000"];
+				// var temp_date = null;
+				// //如果传入的时间是字符串
+			    // if (typeof _date_time == "string") {
+				// 	//如果字符串的值是1970年的0时或者是0或者是null那么返回'N/A'
+			    //     if (_date_time == "1970-01-01 00:00:00"){
+				// 		 return "N/A";
+				// 	}
 			           
-					if (_date_time == "0000-00-00 00:00:00"){
-						 return "N/A";
-					}
+				// 	if (_date_time == "0000-00-00 00:00:00"){
+				// 		 return "N/A";
+				// 	}
 			           
-			        if (_date_time == "null"){
-						return "N/A";
-					}
-			            
-			        if (_date_time.indexOf("UTC") < 0){
-						// alert(1)
-					 _date_time += " UTC+0000";
-			        temp_date = new Date(_date_time);
-					}
+			    //     if (_date_time == "null"){
+				// 		return "N/A";
+				// 	}
+			    //     //如果时间中没有UTC字段就加上UTC   
+			    //     if (_date_time.indexOf("UTC") < 0){
+				// 		//因为返回的时间都是0时区时间所以直接加上0时区的字段
+				// 		 _date_time += " UTC+0000";
+				// 		//把当前的字符串时间转换成时间对象
+			    //     	temp_date = new Date(_date_time);
+				// 	}
 					 
-				}else{
-						temp_date = _date_time;
-					}
-
-			    function to_2_str(_value) {
-			        if (_value < 10)
-			            return "0" + _value;
-			        else
-			            return _value;
-			    }
-			    // console.log(temp_date);
-			    var temp = new Date(temp_date.getTime() + office);
-			    var date_str = temp.getUTCFullYear()
-			        + "-"
-			        + to_2_str(temp.getUTCMonth() + 1)
-			        + "-"
-			        + to_2_str(temp.getUTCDate())
-			        + " "
-			        + to_2_str(temp.getUTCHours())
-			        + ":"
-			        + to_2_str(temp.getUTCMinutes())
-			        + ":"
-			        + to_2_str(temp.getUTCSeconds())
-					// + " " + _zone;
-			    return date_str;
+				// }else{//如果不是字符串那么直接赋值给temp_date
+				// 		temp_date = _date_time;
+				// 	};
+				// //定义函数将获取的时间的字段进行转换
+			    // function to_2_str(_value) {
+			    //     if (_value < 10)
+			    //         return "0" + _value;
+			    //     else
+			    //         return _value;
+			    // }
+				// //把当前时间的毫秒数加上相应时区的毫秒数  也就是说当访问utc方法时会根据时区信息返回0时区的对应数值，当想要返回某个时区信息时就加上对应时区的毫秒数这样
+				//当转换时其实就是本时的信息
+				// var temp = new Date(temp_date.getTime() + office);
+				// //将时间方法返回的字段进行加工拼接
+			    // var date_str = temp.getUTCFullYear()
+			    //     + "-"
+			    //     + to_2_str(temp.getUTCMonth() + 1)
+			    //     + "-"
+			    //     + to_2_str(temp.getUTCDate())
+			    //     + " "
+			    //     + to_2_str(temp.getUTCHours())
+			    //     + ":"
+			    //     + to_2_str(temp.getUTCMinutes())
+			    //     + ":"
+			    //     + to_2_str(temp.getUTCSeconds())
+				// 	// + " " + _zone;
+			    // return date_str;
 			},
 			//提交数据
 			submit(fields) {
-				// alert(0)
+				//正反序的标志
 				this.sort_flag=true;
 				//保存的禁止点击
 				this.preservation = true;
@@ -1298,33 +1302,42 @@
 				this.isedit = false;
 				//删除的禁止点击
 				this.isdel = false;
-				//是否禁用的选项
+				//是否保存禁用的样式
 				this.btn_preservation = true;
+				//是否撤销禁用的样式
 				this.btn_revoke = true;
+				//是否删除禁用的样式
 				this.btn_del = false;
+				//是否编辑禁用的样式
 				this.btn_edit = false;
 				//当有新建的时候请求保存的接口
 				if (this.num > 0) {
 					//遍历有多少条数据
-					// var reg=/UTC\+\d+$/g;
 					for (var i = this.num - 1; i >= 0; i--) {
 						//请求接口需要的参数
 						var parameter = {};
 						//遍历每条数据里包含多少项需要提交的数据
 						for (var j = 0; j < this.fields.length; j++) {
 							//动态的保存参数获取所有的动态参数每有一条数据就会有执行一次每一条的数据就会有多项的动态值
-							if(this.fields[j].Name!=this.response.PRIMARY||this.fields[j].Name!="fld_deleted"){
-								// console.log(this.msg[i + '-' + j])
-								// console.log(this.fields[j])
+							if(this.fields[j].Name!=this.response.PRIMARY||this.fields[j].Name!="fld_deleted"){//判断不需要提交的字段
+								//给接口参数赋值
 								parameter[this.fields[j].Name + ''] = this.msg[i + '-' + j];
+								//如果数据项的类型是复选框
 								if(this.fields[j].type=='checkbox'){
+									//把复选款的值转换成数字类型
 									parameter[this.fields[j].Name + '']=Number(this.check[i+'-'+j]);
 								};
-								
-								if(this.fields[j].Name=='fld_create_time'||this.fields[j].Name=='fld_modif_time'||this.fields[j].Name=='fld_login_time'){
-									// alert(1)
-									var tem=new Date().getTime();
-									console.log(temp)
+									//如果项目类型是时间的字段
+									if(this.fields[j].FieldType=="datetime"||this.fields[j].FieldType=='timestamp'){
+									//获取当前时间的对象
+									var tem;
+									//当没有值的时候获取最新的时间
+									if(this.fields[j].Name=='fld_create_time'||this.fields[j].Name=='fld_modif_time'||this.fields[j].Name=='fld_login_time'){
+										tem=new Date().getTime();
+									}else{//有值的时候获取自定义的时间
+										tem=this.msg[i + '-' + j];
+									}
+									//根据时间方法返回的值进行转换
 									function to_2_str(_value) {
 			    						    if (_value < 10){
 												return "0" + _value;
@@ -1333,8 +1346,10 @@
 												return _value;
 											}       
 										};
+									//将时间毫秒数转换成时间对象
 									var temp=new Date(tem);
-						parameter[this.fields[j].Name] = temp.getUTCFullYear()
+											//将0时区的信息拼接时间字符串
+											parameter[this.fields[j].Name] = temp.getUTCFullYear()
 			        						+ "-"
 			        						+ to_2_str(temp.getUTCMonth() + 1)
 			        						+ "-"
@@ -1346,31 +1361,32 @@
 			        						+ ":"
 											+ to_2_str(temp.getUTCSeconds())														
 								}
-							}
-								
-								
+							};	
 						};
+						//定义固定接口参数
 						parameter.oper = 'edit';
 						parameter[this.response.PRIMARY] = 'row_new_';
 						parameter._oper = 'add';
 						parameter.userInfo = this.userInfo;
-						console.log(parameter)
+						//请求添加接口
 						this.axios.post(this.api + this.response.JQ_GRID_ADD, this.qs.stringify(parameter), {
 							headers: {
 								'Content-Type': 'application/x-www-form-urlencoded'
 							}
 						}).then(res => {
-							// alert(1)
 							//重新请求加载接口
 							//如果调用了查询接口那么添加的时候会自动请求查询接口
-							console.log(res)
 							if(res.data.error==-1){
+								//显示提示组件
 								this.box_data.tips=true;
+								//提示组件中的提示内容
 								this.current_state=res.data.message;
+								//控制显示时间
 								setTimeout(()=>{
 									this.box_data.tips=false;
 								},2000)
 							}else{
+								//如果有查询接口请求查询接口(当在查询数据后添加项目后加载全部的数据)
 								if(this.isquery==true){
 									this.lookup()
 								};
@@ -1380,27 +1396,58 @@
 						})
 							
 					}
-					this.child_index--;
-					
-					this.increasing=0;
+					//显示序号减1
+					// this.child_index--;
+					//累加清零
+					// this.increasing=0;
 				} //当有编辑的时候请求保存的接口
 				else if (this.list_some == true) {
-					//当点击保存后新建的按钮
+					//当点击保存后新建的按钮可以点击
 						this.newly_build= false;
 						this.btn_build=false;
 					//updata_edit是一共有多少条数据对象
 					var parameter = {};
+					//遍历编辑的数据项
 					for (var i = 0; i < this.updata_edit.length; i++) {
 						//当有复选框的时候把boolean转换成数字类型
 						for (let k in this.updata_edit[i]) {
-							console.log(this.updata_edit[i][k])
+							//如果是复选框转换成数字类型
 							if (typeof(this.updata_edit[i][k]) == 'boolean') {
 								this.updata_edit[i][k] = Number(this.updata_edit[i][k])
 							};
+							//定义正则对象判断有没有UTC字段
 							var reg=/UTC\+\d+$/g;
 							if(reg.test(this.updata_edit[i][k])){
-								this.updata_edit[i][k]=this.updata_edit[i][k].replace(/UTC\+\d+/g,'')
-							}
+							// 	this.updata_edit[i][k]=this.updata_edit[i][k].replace(/UTC\+\d+/g,'')
+							// }
+							//如果项目类型是时间的字段
+									// if(this.updata_edit[i][k].FieldType=="datetime"||this.updata_edit[i][k].FieldType=='timestamp'){
+									//获取当前时间的对象
+									// var tem=new Date().getTime(this.updata_edit[i][k]);
+									//根据时间方法返回的值进行转换
+									function to_2_str(_value) {
+			    						    if (_value < 10){
+												return "0" + _value;
+											}   
+			    						    else{
+												return _value;
+											}       
+										};
+									//将时间毫秒数转换成时间对象
+									var temp=new Date(this.updata_edit[i][k]);
+											//将0时区的信息拼接时间字符串
+									this.updata_edit[i][k] = temp.getUTCFullYear()
+			        						+ "-"
+			        						+ to_2_str(temp.getUTCMonth() + 1)
+			        						+ "-"
+			        						+ to_2_str(temp.getUTCDate())
+			        						+ " "
+			        						+ to_2_str(temp.getUTCHours())
+			        						+ ":"
+			        						+ to_2_str(temp.getUTCMinutes())
+			        						+ ":"
+											+ to_2_str(temp.getUTCSeconds())														
+								}
 							parameter[k] = this.updata_edit[i][k];
 						}
 						parameter.oper = 'edit';
@@ -1411,46 +1458,63 @@
 								'Content-Type': 'application/x-www-form-urlencoded'
 							}
 						}).then(res => {
+							//如果返回-1执行提示框
 							if(res.data.error==-1){
 								this.box_data.tips=true;
 								this.current_state=res.data.message;
 								setTimeout(()=>{
 									this.box_data.tips=false;
 								},2000)
-							}else{
-								this.rows.forEach((item, index) => {
-								if (this.btn_checkeds.length>0) {
-									this.btn_checkeds.forEach((item,i)=>{
-									this.edit_list[item] = false;
-								})
-									this.btn_checkeds=[];
-									this.btn_check = false
-								}
-								//如果调用了查询接口那么添加的时候会自动请求查询接口
+							}else{//
+								// this.rows.forEach((item, index) => {
+								// if (this.btn_checkeds.length>0) {
+								// 	this.btn_checkeds.forEach((item,i)=>{
+								// 	this.edit_list[item] = false;
+								// })
+								// 	this.btn_checkeds=[];
+								// 	this.btn_check = false
+								// }
+								//如果调用了查询接口那么添加的时候会自动请求查询接口（所有的数据）
 								if(this.isquery==true){
 									this.lookup()
 								}
-							});
+							// });
 							this.refresh()
 							}
 							
 						})
 
 					}
-					// this.refresh()
+					//把选中项清空
+					this.rows.forEach((item, index) => {
+								if (this.btn_checkeds.length>0) {
+									this.btn_checkeds.forEach((item,i)=>{
+									//不渲染编辑列表
+									this.edit_list[item] = false;
+								})
+									//复选框为空
+									this.btn_checkeds=[];
+									//总复选框为空
+									this.btn_check = false
+								}
+					})
 					//修改完成后清空数组项
 					this.updata_edit = [];	
 				}
+					//是否能执行点击事件或者执行变化事件的标志
 					this.tr_flag=true;
-					//把之前保存的选中数清除
+					//是否有选中项的标志
 					this.list_some=false ;
+					//取消选中的样式
 					this.dynamic={};
 			},
 			//编辑
 			updata() {
 				//当列表项选中的时候再进行编辑
 				if (this.list_some == true) {
+					//当有编辑项的时候执行是否有弹框的函数如果有就显示弹框按钮
 					this.serch_fn();
+					//正反序的标志
 					this.sort_flag=false;
 					//保存的禁止点击
 					this.preservation = false;
@@ -1462,11 +1526,15 @@
 					this.isdel = true;
 					//新建的禁止点击
 					this.newly_build=true;
-						//是否禁用的选项
+					//是否禁用的选项
 					this.btn_preservation = false;
+					//是否撤销禁用的样式
 					this.btn_revoke = false;
+					//是否删除禁用的样式
 					this.btn_del = true;
+					//是否编辑禁用的样式
 					this.btn_edit = true;
+					//是否新建禁用的样式
 					this.btn_build = true;
 					//当点击某一条数据时让复选框选中，点击编辑的时候禁止每一项的点击事件
 					this.tr_flag=false;
@@ -1474,12 +1542,11 @@
 						//当选中数组中的值大于0时遍历数组
 						if (this.btn_checkeds.length>0) {
 							this.btn_checkeds.forEach((item,index)=>{
-								//当点击编辑时edit_list中的索引数据为true
-								console.log(this.rows[item])
+								//当点击编辑时edit_list中的索引数据为true（渲染编辑后输入框的样式）
 								this.edit_list[item] = true;
-							this.updata_edit.push(this.rows[item]);
+								//把每条数据push进updata_edit数组中
+								this.updata_edit.push(this.rows[item]);
 							})
-
 						} else {
 							this.isedit = false;
 						}
@@ -1494,12 +1561,17 @@
 					this.isdel = false;
 					//新建的禁止点击
 					this.newly_build=false;
-						//是否禁用的选项
+					//是否禁用的选项
 					this.btn_preservation = true;
+					//是否撤销禁用的样式
 					this.btn_revoke = true;
+					//是否删除禁用的样式
 					this.btn_del = false;
+					//是否编辑禁用的样式
 					this.btn_edit = false;
+					//是否新建禁用的样式
 					this.btn_build = false;
+					//显示提示框
 					this.box_data.tips=true;
 						this.current_state='请选择编辑项';
 						setTimeout(()=>{
@@ -1509,18 +1581,23 @@
 			},
 			//新建
 			add() {
+				//正反序的标志
 				this.sort_flag=false;
+				//总复选框为true
 				this.btn_check=true;
+				// 复选框为空数组
 				this.btn_checkeds=[];
+				//取消选中的样式
 				this.dynamic={};
 				//点击新建时不能选中复选框
 				this.tr_flag=false;
 				//点击新建时增加遍历的条数
 				this.num += 1;
+				//点击新建时序号累加
 				this.child_index += 1;
+				//当数据项有复选框时新建时不选中
 				this.check.push(false)
-				// this.msg = [];
-				// this.check = []
+				//新建时根据头部类型push不同字段对象判断显示表单字段
 				this.len = [];
 				//保存的禁止点击
 				this.preservation = false;
@@ -1530,14 +1607,18 @@
 				this.isedit = true;
 				//删除的禁止点击
 				this.isdel = true;
-				//是否禁用的选项
+				//是否禁用保存的样式
 				this.btn_preservation = false;
+				//是否禁用撤销的样式
 				this.btn_revoke = false;
+				//是否禁用删除的样式
 				this.btn_del = true;
+				//是否禁用编辑的样式
 				this.btn_edit = true;
+				//新建时执行函数判断是否显示弹框的标志
 				this.serch_fn();
+				//遍历数据头根据type字段显示不同的表单字段
 				this.fields.forEach((item, index) => {
-					// console.log(item)
 					if (item.type == 'checkbox') {
 						var tem = {
 							input_show: false,
@@ -1570,7 +1651,7 @@
 							textarea_show:false,
 							date_time_show:false
 						}
-					}else if(item.type == 'date_time'){
+					}else if(item.type == 'date_time'||item.FieldType=='timestamp'){
 							var tem = {
 							input_show: false,
 							check_show: false,
@@ -1588,28 +1669,33 @@
 						}
 					};
 					//新建时时间字段显示空
-					if(item.Name=='fld_create_time'||item.Name=='fld_modif_time'||item.Name=='fld_starttime'||item.Name=='fld_expiretime'
-					||item.Name=='fld_unlock_time'||item.Name=='fld_login_time'){
+					// if(item.Name=='fld_create_time'||item.Name=='fld_modif_time'||item.Name=='fld_starttime'||item.Name=='fld_expiretime'
+					// ||item.Name=='fld_unlock_time'||item.Name=='fld_login_time'){
+					if(item.FieldType=="datetime"||item.FieldType=='timestamp'){
 						this.msg[this.num-1+'-'+index]='N/A';
 					};
 					if (item.Action!=undefined) {//当新建时看看头部数据有没有action字段如果有就显示点击标识
 						tem.span_show=true;
-					}
+					};
+					//新建的时候把每条数据的显示标志对象push进数组，然后在模板tr中遍历len数组
 					this.len.push(tem);		
-				})
+				});
 				//当点击新建时复选框跟着选中
 				for(var i=0;i<this.num;i++){
 					this.add_checkeds.push(i);
-				}
+				};
+				//每页最后一条序号数每添加一条就累加1
 				this.child_index_total+=1;
+				//总页数添加时累加
 				this.increasing+=1;
-				// this.num+1;
 			},
 			//删除数据
 			del() {
+				//如果总复选框为true
 				if (this.btn_check == true) {
+					//显示删除弹框
 					this.show_hide = true;
-				} else {
+				} else {//如果没有选中总复选框则显示提示组件
 					this.box_data.tips=true;
 						this.current_state='请选择删除项';
 						setTimeout(()=>{
@@ -1619,17 +1705,26 @@
 			},
 			//点击正反小三角切换数据的正序倒序
 			data_sort() {
+				//当数据请求完成在执行下次请求
 				if (this.istrue.isorder == true) {
+					//正序
 					if (this.isup == 'itup' && this.isdown == 'itdown') {
+						//小三角样式
 						this.isup = 'isup';
 						this.isdown = 'isdown';
+						//正序接口参数
 						this.sort='asc';
+						//执行父组件函数
 						this.$emit('parent_data_sort', this.sub_url, this.sort);
+						//页数保持第一页
 						this.page=1;
+						//项目数的序号
 						this.child_index = 0;
+						//第多少条数据
 						this.child_index_page=1;
+						//每页最后一条序号
 						this.child_index_total = this.data_page;
-					} else if (this.isup == 'isup' && this.isdown == 'isdown') {
+					} else if (this.isup == 'isup' && this.isdown == 'isdown') {//反序
 						this.isup = 'itup';
 						this.isdown = 'itdown';
 						this.sort='desc';
@@ -1642,22 +1737,29 @@
 				}
 			},
 			//首页加载
-			home_page() {		
+			home_page() {	
+				//当不是第一页的时候	
 				if(this.child_index_page!=1){
+					//接口加载完在执行下一次请求
 					if (this.istrue.isstart == true) {
-					let time = new Date().getTime();
+					// let time = new Date().getTime();
 					let page = 1;
+					//把复选框的数据清除
 					this.btn_check = false;
 					this.btn_checkeds.forEach((item, index) => {
 						this.btn_checkeds[index] = false
 					});
+					//项目序号
 					this.child_index = 0;
+					//每一页的到第多少条数据
 					this.child_index_total = this.data_page;
 					this.$emit('child_home', this.sub_url, this.child_index, page,this.sort);
+					//将页数赋值为1
 					this.page=page;
+					//每一页的第多少条数据
 					this.child_index_page=1;
 				   }
-				}else{
+				}else{//如果已经是第一页那么显示提示组件
 					this.box_data.tips=true;
 					this.current_state='已经是第一页了';
 					setTimeout(()=>{
@@ -1668,46 +1770,51 @@
 			},
 			//上一页
 			previous_page() {
+				//执行完成后的标志
 				if (this.istrue.isfirst == true) {
+					//将复选框的数据清除
 					this.btn_check = false;
 					this.btn_checkeds.forEach((item, index) => {
 						this.btn_checkeds[index] = false
 					});
 					//当前的页数
 					let page = this.project_data.page;
-					let time = new Date().getTime();
+					// let time = new Date().getTime();
 					if (page > 1 && page != undefined && page != null) {
 						page--;
-						//总条数减去当前的条数如果是最后一条会等于0
+						//总条数减去当前的条数如果是最后一页会等于0
 						if (this.project_data_copy - this.child_index_total != 0) {
-							//alert(1111111)根据索引计算序号值开始值
+							//根据索引计算序号值开始值（序号等于上一页的序号减去每页的数据条数）
 							this.child_index = this.child_index - this.data_page;
-							//每一页中最后一条数据的序号值
+							//每一页的到第多少条数据值
 							this.child_index_total = this.child_index_total - this.data_page;
+							//执行父组件函数
 							this.$emit('child', this.sub_url, this.child_index, page,this.sort)
-						} else {
+						} else {//如果是最后一页的数据
 							this.child_index = this.child_index - this.data_page;
-							//最后一页的数据是16的几倍
+							//最后一页的数据是每页条数的几倍
 							let positive_integer = window.parseInt(this.project_data.records / this.data_page);
 							//检测是不是正整数
-							let num=/^[0-9]*[1-9][0-9]*$/.test(this.project_data.records / this.data_page)
+							let num=/^[0-9]*[1-9][0-9]*$/.test(this.project_data.records / this.data_page);
 							//最后一页的数据的总条数如果是正整数那么mantissa的值就是0所以就是当为0时会直接减去定义好的每页显示的数据
 							let mantissa = this.project_data.records - positive_integer * this.data_page;
-							if(num==true){//当是正整数的时候会减去16否则永远都会减去0，也就是count值不会变化
-								if(positive_integer>page){
+							if(num==true){//当是正整数的时候会减去每页条数否则永远都会减去0，也就是count值不会变化
+								// if(positive_integer>page){
+									//如果是整数那么大于page
 									var num_z=positive_integer-page;
 									this.child_index_total = this.child_index_total - mantissa-this.data_page*num_z;
-								}else{
-									this.child_index_total = this.child_index_total - mantissa-this.data_page;
-								}
+								// }else{
+									// this.child_index_total = this.child_index_total - mantissa-this.data_page;
+								// }
 							}else{
 								//当最后一页添加数据时大于当前页的显示条数时点击前一页要多减去当前页
-								if(positive_integer>page){
-									var num_f=positive_integer-page;
-									this.child_index_total = this.child_index_total - mantissa-this.data_page*num_f;
-								}else{
+								// if(positive_integer>page){
+									// var num_f=positive_integer-page;
+									// this.child_index_total = this.child_index_total - mantissa-this.data_page*num_f;
+								// }else{
+									//如果不是整数那么小于page
 									this.child_index_total = this.child_index_total - mantissa;
-								}
+								// }
 							}
 							this.$emit('child_next', this.sub_url, this.child_index, page,this.sort);
 						}
@@ -1784,9 +1891,11 @@
 									// console.log(this.page,pasin)
 				if(this.page!=pasin){
 					this.page=pasin;
-					if(num==false){
-						this.child_index = (positive_integer) * this.data_page;//总页数减一乘以16   是第几条{{}}中的数据
-						this.child_index_page=this.project_data.records-mantissa+1;
+					//如果是正整数说明最后一页是每页条数的整数倍
+					if(num==false){//当总数据数除以总页数不是整数时则序号数为总页数的前一页乘以每页显示的数
+						this.child_index = (positive_integer) * this.data_page;//最后一页第一条数据的序号
+						this.child_index_page=this.project_data.records-mantissa+1;//最后一页的第{{}}中的数据为总数据数减去最后一页的数加上1
+						alert(0)
 					}else{
 						this.child_index = (positive_integer) * this.data_page-this.data_page;
 						this.child_index_page=this.project_data.records-this.data_page+1;
