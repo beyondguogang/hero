@@ -1,5 +1,6 @@
 <template>
-  <div class="hello" :style="{position:fliex,left:clientX-400+'px',top:clientY+110+'px'}">
+  <div class="hello" :style="{position:fliex,left:clientX-400+'px',top:clientY+20+'px'}">
+      <!-- <div class="hello" :style="{transform:'translate('+clientX-400+'px,'+clientY+20+'px)'}"> -->
     <div id="orderTime" v-drag ></div>
   </div>
 </template>
@@ -24,7 +25,7 @@ export default {
           clientY:Number
       },
    mounted() {
-       alert('prr')
+    //    alert('prr')
     //使用：执行一个laydate实例
         //获取输入框时间去掉时区字符
         this.date= this.date.replace(/UTC\+\d+/g,'');

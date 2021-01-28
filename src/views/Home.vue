@@ -545,11 +545,13 @@
 					this.fields = res.data.FIELDS;
 					//根据表模板的字段显示不同的页面，做定制表的页面 动态获取页面显示的条数
 						if(this.response.PAGE_TEMPLATE=="page_grid"){
-							this.data_page=parseInt(window.screen.height/60);
+							// this.data_page=parseInt(window.screen.height/60);
+							this.data_page=parseInt(window.screen.height*0.017);
 						}else if(this.response.PAGE_TEMPLATE=="page_grid_nacos"){
-							this.data_page=parseInt(window.screen.height/60);
+							this.data_page=parseInt(window.screen.height*0.017);
 						}else if(this.response.PAGE_TEMPLATE=="base_page"){
-							this.data_page=parseInt(window.screen.height/65)
+							// this.data_page=parseInt(window.screen.height/65)
+							this.data_page=parseInt(window.screen.height*0.015)
 						}
 					//当求情完成的标志
 					let parameter={

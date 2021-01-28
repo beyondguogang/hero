@@ -37,10 +37,10 @@
 						<button @click="lookup" style="width:45px; outline: none;margin-left:145px;background:#fff;color:#000;border:1px solid #808080;cursor: pointer">查询</button>
 						<button @click="refresh" style="outline: none;cursor: pointer">刷新</button>
 				</div>
-				<div class="col-lg-12  col-md-12 table-responsive" style="overflow: auto ;" @scroll="table_cont" >
+				<div class="col-lg-12  col-md-12 table-responsive" style="overflow: auto ;" :style="{overflow: 'auto',height:offset_height+'px'}" @scroll="table_cont" >
 						<!-- :style="{maxHeight:fontSize+'px'"} -->
 					<table class="table table-bordered text-nowrap " style="" >
-						<!-- 表格头部 -->
+						<!-- 表格头部 固定头部当设置overflow:auto时当超出高度时会出现滚动条设置translate后表头始终距离前一个元素滚动条的距离，后面的内容会在滚动的时候覆盖在表头底部-->
 						<thead class="thead" :style="{transform:'translateY('+tans_late+'px)'}">
 							<tr>
 								<!-- <td v-show="fields" class="fixed" ></td> -->
@@ -59,7 +59,7 @@
 							<!-- 新建的列表数据   当有多个循环的时候key值不能重复-->
 							<tr v-for="(num,index1) in num" :key="index1" :class="{list_color:true}" style="margin-top: 0;  align-self:flex-end">
 								<!-- <td class="fixed">{{index1+child_index_page}}</td> -->
-								<td class="fixed"><input type="checkbox" class="box_size" v-model="add_checkeds" :value="index1" disabled></td>
+								<td class="fixed"><input type="checkbox" class="box_size" v-model="add_checkeds" :value="index1" ></td>
 								<td class="fixed-list" v-for="(le,index) in len" :key="index">
 									
 									<!-- 输入框根据索引显示内容当添加新项目时会把之前的索引添加到现有的索引中所以会把输入框的内容添加到新的项目中 :id="'fld'+index"-->
@@ -430,7 +430,9 @@
 				//弹框数据
 				box_res:[],
 				//权限数组中的数据
-				sort:'desc'
+				sort:'desc',
+				//获取数据框的高度
+				offset_height:null,
 			}
 		},
 		components:{
@@ -448,8 +450,7 @@
 			   tips,
 		},
 		created(){},
-		mounted() {
-			
+		mounted() {			
 			//获取用户信息
 			this.conten_data();
 			//分页的显示模式
@@ -457,11 +458,11 @@
 			//查询的接口
 			this.query();
 			//计算显示条数
-			this.data_num();
+			// this.data_num();
 			//判断是不是ie浏览器
 			this.isIE();
-			// console.log(this.rows)
-			// console.log(this.fields)
+			//根据屏幕的高度计算数据的显示条数
+			this.count_page();
 		},
 		computed: {
 			//计算当总数据不足16条时有多少条显示到多少条
@@ -505,6 +506,14 @@
 			no_data:Boolean,
 		},
 		methods: {
+			//根据屏幕的高度计算显示的页数
+			count_page(){
+				//计算显示框的高度
+				this.offset_height=window.screen.height*0.7
+				//根据屏幕的高度计算显示的页数
+				this.data_page=parseInt(window.screen.height*0.015);
+				this.child_index_total=this.data_page
+			},
 			//判断是不是ie浏览器
 			isIE() {
   				if (!!window.ActiveXObject || "ActiveXObject" in window){
@@ -527,12 +536,13 @@
 				}
 			},
 			//根据屏幕的高端判断显示的数据条数
-			data_num(){
-				this.data_page=parseInt(window.screen.height/65);
-				this.child_index_total=this.data_page
-			},
+			// data_num(){
+			// 	this.data_page=parseInt(window.screen.height/65);
+			// 	this.child_index_total=this.data_page
+			// },
 			//判断底部按钮的显示隐藏
 			operation_isshow(){
+				//如果没有数据信息
 				if (this.response != null) {
 				//没有添加的时候
 				if (this.response.JQ_GRID_ADD == undefined) {
@@ -562,51 +572,53 @@
 			//第一页默认的按钮样式、
 			first_page(){
 				if(parseInt(this.project_data.total)==1||parseInt(this.project_data.total)==0){
-				//第一个按钮是否显示
-				this.first_flag=false;
-				//第二个按钮是否显示
-				this.second_flag=false;
-				//第三个按钮是否显示
-				this.third_flag=false;
-				//是否显示尾页按钮
-				this.is_Last_page=false;
-				//是否显示下一页按钮
-				this.is_next_page=false;
-				//是否显示页数后面的省略号
-				this.is_next_ellipsis=false;
-				//是否显示页数中前面的省略号
-				this.is_previous_ellipsis=false;
-				//是否显示前一页按钮
-				this.is_previous_page=false;
-				//是否显示首页按钮
-				this.is_home_page=false;
+					//第一个按钮是否显示
+					this.first_flag=false;
+					//第二个按钮是否显示
+					this.second_flag=false;
+					//第三个按钮是否显示
+					this.third_flag=false;
+					//是否显示尾页按钮
+					this.is_Last_page=false;
+					//是否显示下一页按钮
+					this.is_next_page=false;
+					//是否显示页数后面的省略号
+					this.is_next_ellipsis=false;
+					//是否显示页数中前面的省略号
+					this.is_previous_ellipsis=false;
+					//是否显示前一页按钮
+					this.is_previous_page=false;
+					//是否显示首页按钮
+					this.is_home_page=false;
 				}else if(parseInt(this.project_data.total)==2){
-				this.first_box_bg=true;
-				//第三个按钮是否显示
-				this.third_flag=false;
-				//是否显示尾页按钮
-				this.is_Last_page=false;
-				//是否显示下一页按钮
-				this.is_next_page=true;
-				//是否显示页数后面的省略号
-				this.is_next_ellipsis=false;
+					//第一个按钮的样式
+					this.first_box_bg=true;
+					//第三个按钮是否显示
+					this.third_flag=false;
+					//是否显示尾页按钮
+					this.is_Last_page=false;
+					//是否显示下一页按钮
+					this.is_next_page=true;
+					//是否显示页数后面的省略号
+					this.is_next_ellipsis=false;
 				}else if(parseInt(this.project_data.total)==3){
-				this.first_box_bg=true;
-				//是否显示尾页按钮
-				this.is_Last_page=true;
-				//是否显示下一页按钮
-				this.is_next_page=true;
-				//是否显示页数后面的省略号
-				this.is_next_ellipsis=true;
-				}
-				else{
-				this.first_box_bg=true;
-				
+					//第一个按钮的样式
+					this.first_box_bg=true;
+					//是否显示尾页按钮
+					this.is_Last_page=true;
+					//是否显示下一页按钮
+					this.is_next_page=true;
+					//是否显示页数后面的省略号
+					this.is_next_ellipsis=true;
+				}else{
+					//第一个按钮的样式
+					this.first_box_bg=true;
 				}
 				
 			},
 			//请求所有弹框的数据根据字段显示是否有查询的三个点
 			serch_fn(){
+				//接口需要当前的时间
 				let time=new Date().getTime(); 
 				this.axios.post(this.api+'/bin/Admin/Admin/tbl_action_data/jqgrid_oper/load',{ 
 				  _search: false,
@@ -617,14 +629,10 @@
 				  sord: 'desc',
 				  userInfo:this.userInfo
     			}).then(res=>{
-					// var a=[];
-					// res.data.rows.forEach((item)=>{
-					// 	a.push(item.fld_function)
-					// })
-					// console.log(a)
+					//遍历响应数据
 					res.data.rows.forEach((item,index)=>{
-						//  if(!(item.fld_action_name=="edit_date")&&!(item.fld_action_name=="edit_date_time")&&!(item.fld_function=="")){
-							if(!(item.fld_action_name=="edit_date")&&!(item.fld_function=="")){
+						//如果是时间字段或者没有接口函数就不push进数组
+						if(!(item.fld_action_name=="edit_date")&&!(item.fld_function=="")){
 						  this.box_res.push(item);
 						}
 					 }
@@ -633,9 +641,8 @@
 			},
 			//固定表头
 			table_cont(e){
-				// alert(1)
+				//滚动时元素距离滚动条的高度
 				this.tans_late=e.target.scrollTop;
-				// console.log(e.target.scrollTop)
 				},
 			//将选中的数据放在输入框中
 			sbmit_data(data){
@@ -2154,7 +2161,7 @@ td{
 }
 .table td{
 	padding: 0;
-    border-top: 1px solid #dee2e6;
+    border-bottom: 1px solid #dee2e6;
 }
 .list_color{
 	background:#e4fdda!important;

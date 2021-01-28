@@ -488,9 +488,12 @@
 			//根据屏幕的高度计算显示的页数
 			count_page(){
 				console.log(document.body.offsetHeight)
-				this.offset_height=window.screen.height-300
+				//计算显示框的高度
+				// this.offset_height=window.screen.height-300
+				this.offset_height=window.screen.height*0.75
 				//根据屏幕的高度计算显示的页数
-				this.data_page=parseInt(window.screen.height/60);
+				// this.data_page=parseInt(window.screen.height/60);
+				this.data_page=parseInt(window.screen.height*0.017);
 				this.child_index_total=this.data_page
 			},
 			//请求所有弹框的数据根据字段显示是否有查询的三个点
@@ -957,6 +960,7 @@
 				//计算点击元素距离左上边框的距离用来判断时间组件的位置
 				this.clientX=event.clientX;
 				this.clientY=event.clientY;
+				// console.log(this.clientY)
 				//当访问同一个组件的时候先关闭组件因为数据不同
 				this.box_data.project_engineering==false;
 				//每条数据的索引
@@ -1799,25 +1803,18 @@
 							//最后一页的数据的总条数如果是正整数那么mantissa的值就是0所以就是当为0时会直接减去定义好的每页显示的数据
 							let mantissa = this.project_data.records - positive_integer * this.data_page;
 							if(num==true){//当是正整数的时候会减去每页条数否则永远都会减去0，也就是count值不会变化
-								// if(positive_integer>page){
 									//如果是整数那么大于page
 									var num_z=positive_integer-page;
+									//是到第几条{{}}中的数据 每页的末尾页数减去每页的页数
 									this.child_index_total = this.child_index_total - mantissa-this.data_page*num_z;
-								// }else{
-									// this.child_index_total = this.child_index_total - mantissa-this.data_page;
-								// }
 							}else{
 								//当最后一页添加数据时大于当前页的显示条数时点击前一页要多减去当前页
-								// if(positive_integer>page){
-									// var num_f=positive_integer-page;
-									// this.child_index_total = this.child_index_total - mantissa-this.data_page*num_f;
-								// }else{
-									//如果不是整数那么小于page
+									//如果不是整数那么不大于page 每页的末尾页数减去最后一页的页数
 									this.child_index_total = this.child_index_total - mantissa;
-								// }
 							}
 							this.$emit('child_next', this.sub_url, this.child_index, page,this.sort);
-						}
+						};
+						////每一页的第多少条数据
 						this.child_index_page-=this.data_page
 					} else if (page <= 1) {
 						this.child_index_page=1;
@@ -1832,31 +1829,45 @@
 			},
 			//下一页
 			next_page() {
-				// console.log(this.isnext)
 				//判断当异步函数执行完成在执行同步代码
 				if (this.istrue.isnext == true) {
+					//如果此时有选中项那么将其清空
 					this.btn_check = false;
 					this.btn_checkeds.forEach((item, index) => {
 						this.btn_checkeds[index] = false
 					});
+					//当前的页数
 					let page = this.project_data.page;
-					let time = new Date().getTime();
+					// let time = new Date().getTime();
+					//表的总页数
 					let positive_integer = window.parseInt(this.project_data.total);
+					//当小于总页数的时候执行下一页的按钮
 					if (page < positive_integer && page != undefined && page != null) {
+						//页数累加
 						page++;
+						//当总页数减去上一页的最后一条数据页数大于每页的页数时说明不是最后一页
 						if (this.project_data.records - this.child_index_total > this.data_page) {
+							//当点击下一页后序号加上每页的总页数
 							this.child_index = this.child_index + this.data_page;
+							//每页的最后一条数据页数也加上每页的总页数
 							this.child_index_total = this.child_index_total + this.data_page;
+							//执行父组件函数
 							this.$emit('child_next', this.sub_url, this.child_index, page,this.sort)
-						} else {
+						} else {//如果总页数减去上一页的最后一条数据页数小于或者等于每页的页数说明是最后一页
+							//当点击下一页后序号加上每页的总页数
 							this.child_index = this.child_index + this.data_page;
-							//最后一页的数据是16的几倍
-							let positive_integer = window.parseInt(this.project_data.records / this.data_page);
+							//最后一页的数据是每页页数的几倍
+							// let positive_integer = window.parseInt(this.project_data.records / this.data_page);
 							//最后一页的数据的总条数
-							let mantissa = this.project_data.records - positive_integer * this.data_page;
-							this.child_index_total = (positive_integer) * this.data_page + mantissa;
+							// let mantissa = this.project_data.records - positive_integer * this.data_page;
+							//每页最后一条数据的页数
+							// this.child_index_total = (positive_integer) * this.data_page + mantissa;
+							// console.log(this.child_index_total==this.project_data.records)
+							//最后一页的数据数
+							this.child_index_total=this.project_data.records;
 							this.$emit('child_next', this.sub_url, this.child_index, page,this.sort);
-						}
+						};
+						//每一页的第多少条数据
 						this.child_index_page+=this.data_page
 					} else if (page >= positive_integer) {
 						// alert("已经是最后一页了")
@@ -1886,23 +1897,18 @@
 					let mantissa = this.project_data.records - positive_integer * this.data_page;
 					//总页数
 					var pasin = window.parseInt(this.project_data.total);
-					
-					//序号
-									// console.log(this.page,pasin)
+					//判断是否是最后一页
 				if(this.page!=pasin){
 					this.page=pasin;
 					//如果是正整数说明最后一页是每页条数的整数倍
 					if(num==false){//当总数据数除以总页数不是整数时则序号数为总页数的前一页乘以每页显示的数
 						this.child_index = (positive_integer) * this.data_page;//最后一页第一条数据的序号
 						this.child_index_page=this.project_data.records-mantissa+1;//最后一页的第{{}}中的数据为总数据数减去最后一页的数加上1
-						alert(0)
 					}else{
-						this.child_index = (positive_integer) * this.data_page-this.data_page;
-						this.child_index_page=this.project_data.records-this.data_page+1;
-					}
-					
-					//每页包含的项目条数
-					this.child_index_total = (positive_integer) * this.data_page + mantissa; //总页数减一乘以16+最后一页的条数   是到第几条{{}}中的数据
+						this.child_index = (positive_integer) * this.data_page-this.data_page;//如果是整数那么最后一页的数据的序号总页数乘以每页的页数减去一页的页数
+						this.child_index_page=this.project_data.records-this.data_page+1;//最后一页的第{{}}中的数据为总数据页数减去最后一页页数加上1
+					};
+					this.child_index_total = (positive_integer) * this.data_page + mantissa; //是到第几条{{}}中的数据
 					this.$emit('child_end', this.sub_url, this.child_index, pasin,this.sort)
 					}else{
 					this.box_data.tips=true;
