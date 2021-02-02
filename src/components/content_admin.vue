@@ -82,14 +82,15 @@
 		<!-- 底部结构 -->
 			<div class="row row-a" >
 				<div class="col-lg-4  col-md-2  footer " v-show="fields">
-					<button @click="query" style="outline: none;">查询</button>
-					<button @click="refresh" style="outline: none;">刷新</button>
-					<button @click="updata" v-if="option.updata" :disabled="isedit" :class="{color:btn_edit}" style="outline: none;">编辑</button>
-					<button @click="add" v-if="option.new_add" :disabled="newly_build" :class="{color:btn_build}" style="outline: none;">新建</button>
+					<button @click="query" style="outline: none;"><span class="iconfont icon-chaxun"></span>查询</button>
+					<button @click="refresh" style="outline: none;"><span class="iconfont icon-shuaxin"></span>刷新</button>
+					<button @click="updata" v-if="option.updata" :disabled="isedit" :class="{color:btn_edit}" style="outline: none;"><span class="iconfont icon-bianji"></span>编辑</button>
+					<button @click="add" v-if="option.new_add" :disabled="newly_build" :class="{color:btn_build}" style="outline: none;"><span class="iconfont icon-plus-creat
+"></span>新建</button>
 					<button @click="submit(fields)" v-if="option.updata_add" :disabled="preservation" :class="{color:btn_preservation}"
-					 style="outline: none;">保存</button>
-					<button v-if="option.revoke" @click="bt_revoke" :disabled="revoke" :class="{color:btn_revoke}" style="outline: none;">撤销</button>
-					<button @click="del" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;">删除</button>
+					 style="outline: none;"><span class="iconfont icon-baocun"></span>保存</button>
+					<button v-if="option.revoke" @click="bt_revoke" :disabled="revoke" :class="{color:btn_revoke}" style="outline: none;"><span class="iconfont icon-chexiao"></span>撤销</button>
+					<button @click="del" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;background: rgb(210, 98, 103);"><span class="iconfont icon-shanchu"></span>删除</button>
 				</div>
 				<div class="popup" v-if="show_hide">
 					<p class="content">确认要删除选择的条目吗</p>
@@ -398,11 +399,14 @@
 			   authRoleEdit,
 			   tips,
 		},
+		created(){
+			//根据屏幕的高度计算数据的显示条数
+			this.count_page();
+		},
 		mounted() {
 			//数据为空时的显示
 			this.count_data();
-			//根据屏幕的高度计算数据的显示条数
-			this.count_page();
+			
 			//判断底部操作按钮的显示隐藏
 			this.operation_isshow();
 		},
@@ -416,6 +420,7 @@
 					//如果是动态的页数那么返回本页最后一条页数值
 					return this.child_index_total
 				}
+				
 			},
 			//计算是否显示输入页数的输入框
 			input_box: function() {
@@ -487,7 +492,7 @@
 			},
 			//根据屏幕的高度计算显示的页数
 			count_page(){
-				console.log(document.body.offsetHeight)
+				// console.log(document.body.offsetHeight)
 				//计算显示框的高度
 				// this.offset_height=window.screen.height-300
 				this.offset_height=window.screen.height*0.75
@@ -1963,6 +1968,9 @@
     vertical-align: super;
     padding-bottom: 2px;
 } */
+.iconfont{
+	font-size: 12px;
+}
 .hello{
 	margin-top: -2px;
 }
@@ -2003,6 +2011,7 @@ td{
 }
 button, input{
 	outline: none;
+
 	/* width: 175px; */
 }
 .number{
@@ -2155,6 +2164,7 @@ button, input{
 
 	.color {
 		opacity: .5;
+		cursor: no-drop;
 	}
 
 	.fa-up {
@@ -2214,7 +2224,7 @@ button, input{
 		margin-left: 10px;
 		outline: none;
 		border: none;
-		width: 40px;
+		/* width: 40px; */
 		height: 25px;
 		background: #095ee8;
 		color: #ffffff;

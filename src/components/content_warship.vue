@@ -1,14 +1,15 @@
 <template>
 	<div class="hello" @click="close">
 			<div class="row no-gutters shop">
+				<!-- 头部选择按钮 -->
 				<div class="col-lg-12  col-md-12  footer " v-show="fields" style="margin-top:20px;margin-bottom:20px">
-					<button @click="add" v-if="option.new_add" :disabled="newly_build" :class="{color:btn_build}" style="outline: none;">新增</button>
-					<button @click="updata" v-if="option.updata" :disabled="isedit" :class="{color:btn_edit}" style="outline: none;">编辑</button>					
+					<button @click="add" v-if="option.new_add" :disabled="newly_build" :class="{color:btn_build}" style="outline: none;"><span class="iconfont icon-chaxun"></span>新增</button>
+					<button @click="updata" v-if="option.updata" :disabled="isedit" :class="{color:btn_edit}" style="outline: none;"><span class="iconfont icon-bianji"></span>编辑</button>					
 					<button @click="submit(fields)" v-if="option.updata_add" :disabled="preservation" :class="{color:btn_preservation}"
-					 style="outline: none;">保存</button>
-					<button v-if="option.revoke" @click="bt_revoke" :disabled="revoke" :class="{color:btn_revoke}" style="outline: none;">撤销</button>
-					<button @click="del" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;background:#d26267">删除</button>
-					<button @click="data_export" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;">导出</button>
+					 style="outline: none;"><span class="iconfont icon-baocun"></span>保存</button>
+					<button v-if="option.revoke" @click="bt_revoke" :disabled="revoke" :class="{color:btn_revoke}" style="outline: none;"><span class="iconfont icon-chexiao"></span>撤销</button>
+					<button @click="del" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;background:#d26267"><span class="iconfont icon-shanchu"></span>删除</button>
+					<button @click="data_export" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;"><span class="iconfont icon-zujian-icon-13"></span>导出</button>
 					 <div class="modal-body" style="display:inline-block">
 								
 								<!-- 当点击添加的时候要遍历这个元素 -->
@@ -35,22 +36,22 @@
 							  
 						</div>
 						<button @click="lookup" style="width:45px; outline: none;margin-left:145px;background:#fff;color:#000;border:1px solid #808080;cursor: pointer">查询</button>
-						<button @click="refresh" style="outline: none;cursor: pointer">刷新</button>
+						<button @click="refresh" style="outline: none;cursor: pointer"><span class="iconfont icon-shuaxin"></span>刷新</button>
 				</div>
 				<div class="col-lg-12  col-md-12 table-responsive" style="overflow: auto ;" :style="{overflow: 'auto',height:offset_height+'px'}" @scroll="table_cont" >
 						<!-- :style="{maxHeight:fontSize+'px'"} -->
 					<table class="table table-bordered text-nowrap " style="" >
 						<!-- 表格头部 固定头部当设置overflow:auto时当超出高度时会出现滚动条设置translate后表头始终距离前一个元素滚动条的距离，后面的内容会在滚动的时候覆盖在表头底部-->
-						<thead class="thead" :style="{transform:'translateY('+tans_late+'px)'}">
+						<thead class="thead" >
 							<tr>
 								<!-- <td v-show="fields" class="fixed" ></td> -->
-								<td v-show="fields" class="fixed" ><input type="checkbox" class="box_size" v-model="btn_check" @change="tr_flag && btn_check_cli()"></td>
-								<td class="thb" v-for="(head,index) in fields" :key="index" >{{head.Comment}} 
+								<th v-show="fields" class="fixed" :style="{transform:'translateY('+tans_late+'px)'}"><input type="checkbox" class="box_size" v-model="btn_check" @change="tr_flag && btn_check_cli()"></th>
+								<th class="thb" v-for="(head,index) in fields" :key="index" :style="{transform:'translateY('+tans_late+'px)'}">{{head.Comment}} 
 									<span v-show="head.Name==response.PRIMARY" @click="sort_flag && data_sort()" style="display: inline-block;vertical-align: -3px;">
 										<i class="fa-up" :class="[isup]"></i>
 										<i class="fa-down" :class="[isdown]"></i>
 									</span>
-								</td>
+								</th>
 							</tr>
 						</thead>
 						
@@ -116,45 +117,12 @@
 		<div style="margin-top: 100px;margin-left: 50%;color: #666;" v-show="!fields">暂无数据</div>
 		<!-- 底部结构 -->
 			<div class="row row-a" >
-				<!-- <div class="col-lg-4  col-md-2  footer " v-show="fields">
-					<button @click="query" style="outline: none;">查询</button>
-					<button @click="refresh" style="outline: none;">刷新</button>
-					<button @click="updata" v-if="option.updata" :disabled="isedit" :class="{color:btn_edit}" style="outline: none;">编辑</button>
-					<button @click="add" v-if="option.new_add" :disabled="newly_build" :class="{color:btn_build}" style="outline: none;">新建</button>
-					<button @click="submit(fields)" v-if="option.updata_add" :disabled="preservation" :class="{color:btn_preservation}"
-					 style="outline: none;">保存</button>
-					<button v-if="option.revoke" @click="bt_revoke" :disabled="revoke" :class="{color:btn_revoke}" style="outline: none;">撤销</button>
-					<button @click="del" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;">删除</button>
-				</div> -->
 				<div class="popup" v-if="show_hide">
 					<p class="content">确认要删除选择的条目吗</p>
 					<button class="confirm" @click="confirm_click" style="outline: none;">确认</button>
 					<button class="cancel" @click="cancel_click" style="outline: none;">取消</button>
 				</div>
 				<div class="col-lg-4 offset-lg-8 col-md-4 total-page footer">
-					<!-- <nav>
-						<ul class="">
-							<li>
-								<a href="javascript:void(0);" @click.prevent="home_page">
-									<i class="fa fa-fast-backward"></i>
-								</a>
-								<a href="javascript:void(0);" @click.prevent="previous_page">
-									<i class="fa fa-backward"></i>
-								</a>
-							</li>
-							<li>|<a class="page" href="javascript:void(0);" @click.stop="select_input" @keyup.enter="submit_input">第<input
-									 type="text" v-if="input_page" v-model="project_data.page" style="width:30px; height:20px">{{input_box}}页</a><a
-								 class="page page-s" href="#">共{{parseInt(this.project_data.total)}}页</a>|</li>
-							<li>
-								<a href="javascript:void(0);" @click.prevent="next_page">
-									<i class="fa fa-forward"></i>
-								</a>
-								<a href="javascript:void(0);" @click="last_page">
-									<i class="fa fa-fast-forward"></i>
-								</a>
-							</li>
-						</ul>
-					</nav> -->
 					<nav aria-label="Page navigation">
 					  <ul class="pagination pagination-lg">
 					    <li>
@@ -190,10 +158,6 @@
 					  </ul>
 					</nav>
 				</div>
-				<!-- <div v-if="no_data" class="col-lg-4  col-md-2  total footer">
-					<span class="page-num">第{{child_index_page}}到第{{count}}条</span>
-					<span class="total-num">共{{increasing+project_data.records}}条</span>
-				</div> -->
 				<div v-if="!no_data" class="col-lg-4  col-md-2  total">没有数据</div>
 			</div>
 			<!-- 项目工程组件 -->
@@ -306,9 +270,9 @@
 				input_page: false,
 				userInfo: null,
 				//child_index:this.sub_index,
-				//默认的序号
+				//第一页的默认的序号
 				child_index: 0,
-				//每一页包含的项目数目
+				//每一页的第一条的条数
 				child_index_total: 16,
 				//默认新建时遍历的多少条数据
 				num: 0,
@@ -374,7 +338,7 @@
 				edit_list: {},
 				//编辑更新的数据对象
 				updata_edit: [],
-				//当总项目条数大于16时显示一页16条数据
+				//当总项目条数大于16时显示一页16条数据（默认一页显示多少条数据）
 				data_page: 16,
 				//查询时的查询条件的数组
 				head_data:[],
@@ -396,7 +360,7 @@
 				project_condition:['满足所有条件','满足任一条件'],
 				//项目选择框
 				project_box:'',
-				//页数
+				//页数（默认显示第一页）
 				page:1,
 				//弹框数据
 				box_data:{
@@ -466,14 +430,14 @@
 		},
 		computed: {
 			//计算当总数据不足16条时有多少条显示到多少条
-			count: function() {
-				//当前页的数据条数是否比每页设定的条数小
-				if (this.rows.length < this.data_page) {
-					return this.rows.length+(this.page*this.data_page-this.data_page)+this.increasing;//页数*16-16
-				} else {
-					return this.child_index_total
-				}
-			},
+			// count: function() {
+			// 	//当前页的数据条数是否比每页设定的条数小
+			// 	if (this.rows.length < this.data_page) {
+			// 		return this.rows.length+(this.page*this.data_page-this.data_page)+this.increasing;//页数*16-16
+			// 	} else {
+			// 		return this.child_index_total
+			// 	}
+			// },
 			//计算是否显示输入页数的输入框
 			input_box: function() {
 				//如果输入了页数执行
@@ -2115,6 +2079,14 @@
     vertical-align: super;
     padding-bottom: 2px;
 } */
+.iconfont{
+	font-size: 12px;
+}
+thead th{
+	background: #ebecf0;
+    border: none;
+	color: #007bff;
+}
 .first-box-bg{
 	background: #337ab7!important;
 	color:#fff!important;
@@ -2171,7 +2143,7 @@ td{
 }
 button, input{
 	outline: none;
-	width: 175px;
+	/* width: 175px; */
 }
 .number{
 	width: 45px;
@@ -2392,7 +2364,7 @@ button, input{
 		margin-left: 10px;
 		outline: none;
 		border: none;
-		width: 40px;
+		/* width: 40px; */
 		height: 25px;
 		background: #095ee8;
 		color: #ffffff;

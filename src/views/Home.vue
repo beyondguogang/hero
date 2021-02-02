@@ -59,7 +59,7 @@
 					</div>
 				</div>
 				<!-- 加载状态 -->
-				<div class="loading" v-if="anate"><i class="fa fa-spin fa-refresh"></i></div>
+				<div class="loading" v-if="anate"><i class="fa fa-spin fa-refresh"></i><p>正在加载</p></div>
 				<div class="data" :class="[active]">
 					<!-- content-admin组件 -->
 					<content-admin @lookup="lookup" @child_home="child_home" @child="child" @child_next="child_next" @child_end="child_end"
@@ -1465,6 +1465,13 @@
 		left: 50%;
 		transform: translate(-50%, -50%);
 		text-align: center;
+	}
+	.loading p{
+		font-size: 20px;
+		width: 120px;
+		height: 30px;
+		background: darkkhaki;
+		color: #fff;
 	}
 	.home{
 		overflow: hidden;

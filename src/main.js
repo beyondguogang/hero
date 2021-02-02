@@ -9,6 +9,7 @@ import md from 'js-md5'
 // import laydate from 'layui-laydate'
 // import "layui-laydate/dist/laydate.js"
 // import "layui-laydate/dist/theme/font/laydate.css"
+import "./assets/iconfont/iconfont.css"
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap/dist/js/bootstrap.min.js"
 // import "bootstrap/scss/_pagination.scss"
