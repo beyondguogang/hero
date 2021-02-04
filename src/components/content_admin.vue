@@ -1968,6 +1968,7 @@
     vertical-align: super;
     padding-bottom: 2px;
 } */
+
 .iconfont{
 	font-size: 12px;
 }

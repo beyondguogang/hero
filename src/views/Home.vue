@@ -244,6 +244,7 @@
 		methods: {                        
 			//头部左边状态自动请求头部数据和加载本地保存的数据sessionStorage
 			getHeadData(){
+				// alert(0)
 				this.axios.get(this.api + '/Login/ProjList').then(res => {
 				//获取项目列表
 				this.project_list = res.data;
@@ -290,14 +291,12 @@
 			},
 			//登录过期
 			login_expired(){
-				// alert(0)
 				//如果userInfo为null那么返回登录页
 				if(window.sessionStorage.getItem('userInfo')==null||window.sessionStorage.getItem('userInfo')=='null'){
-					// alert(1)
 					this.$router.replace({
 						path: "/login"
 				})
-				}else{	
+				}else{
 					//把保存的用户信息转换成对象
 					let userInfo = JSON.parse(window.sessionStorage.getItem('userInfo'));
 					//保存到data对象中
@@ -346,7 +345,7 @@
 					return false;
 				}else{
 					//当一直操做时时间也跟着更新避免30分钟后退出登录
-					startTime = window.sessionStorage.setItem('startTime',time);
+					window.sessionStorage.setItem('startTime',time);
 				}
 				}
 			},
@@ -1293,10 +1292,11 @@
 						this.project_index=index;
 					}
 				});
+				let pro_url=name.url.trim();
 				//如果有url字段那么执行外部链接
-				if(name.url!=''){
+				if(pro_url!=''){
 					 window.location.href=this.url+name.url;
-				};
+				}
 					//显示左侧菜单
 					this.menu_show=true;
 					//控制菜单的显示宽度

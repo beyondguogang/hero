@@ -2079,6 +2079,9 @@
     vertical-align: super;
     padding-bottom: 2px;
 } */
+input{
+	width: 175px;
+}
 .iconfont{
 	font-size: 12px;
 }
