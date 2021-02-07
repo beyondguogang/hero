@@ -473,9 +473,9 @@
 			//根据屏幕的高度计算显示的页数
 			count_page(){
 				//计算显示框的高度
-				this.offset_height=window.screen.height*0.7
+				this.offset_height=window.screen.height-355
 				//根据屏幕的高度计算显示的页数
-				this.data_page=parseInt(window.screen.height*0.015);
+				this.data_page=parseInt(this.offset_height/43-1);
 				this.child_index_total=this.data_page
 			},
 			//判断是不是ie浏览器
@@ -1542,7 +1542,6 @@
 						parameter[this.response.PRIMARY] = 'row_new_';
 						parameter._oper = 'add';
 						parameter.userInfo = this.userInfo;
-						console.log(parameter)
 						this.axios.post(this.api + this.response.JQ_GRID_ADD, this.qs.stringify(parameter), {
 							headers: {
 								'Content-Type': 'application/x-www-form-urlencoded'

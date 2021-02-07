@@ -232,9 +232,7 @@
 			
 		},
 		created() {
-			// var a= new Date(1496376000000)+'UTC+0800';
-			// console.log(a)
-			
+
 		},
 		computed: {},
 		mounted() {
@@ -544,13 +542,13 @@
 					this.fields = res.data.FIELDS;
 					//根据表模板的字段显示不同的页面，做定制表的页面 动态获取页面显示的条数
 						if(this.response.PAGE_TEMPLATE=="page_grid"){
-							// this.data_page=parseInt(window.screen.height/60);
-							this.data_page=parseInt(window.screen.height*0.017);
+							//计算显示数据的框的高度
+							this.data_page=parseInt((window.screen.height-280)/43-1);
 						}else if(this.response.PAGE_TEMPLATE=="page_grid_nacos"){
-							this.data_page=parseInt(window.screen.height*0.017);
+							this.data_page=parseInt((window.screen.height-280)/43-1);
 						}else if(this.response.PAGE_TEMPLATE=="base_page"){
 							// this.data_page=parseInt(window.screen.height/65)
-							this.data_page=parseInt(window.screen.height*0.015)
+							this.data_page=parseInt((window.screen.height-355)/43-1)
 						}
 					//当求情完成的标志
 					let parameter={
@@ -1287,16 +1285,18 @@
 			//左边菜单栏name:项目对象 url:后台路由 index:菜单索引 chang_index:子菜单索引
 			menu_list(name,url, index, change_index) {
 				//选中某一项把项目索引赋值给project_index后续使用
-				this.project_list.forEach((item,index)=>{
-					if(item.Name==name.Name){
-						this.project_index=index;
-					}
-				});
-				let pro_url=name.url.trim();
-				//如果有url字段那么执行外部链接
-				if(pro_url!=''){
-					 window.location.href=this.url+name.url;
-				}
+				if(name!=undefined){
+					this.project_list.forEach((item,index)=>{
+						if(item.Name==name.Name){
+							this.project_index=index;
+						}
+					});
+					var pro_url=name.url.trim();
+					
+					//如果有url字段那么执行外部链接
+					if(pro_url!=''){
+						 window.location.href=this.url+name.url;
+					};
 					//显示左侧菜单
 					this.menu_show=true;
 					//控制菜单的显示宽度
@@ -1343,7 +1343,12 @@
 					}
 					//加载状态
 					this.anate=false;
-				});
+					});
+				}else{
+					return false
+				};
+					
+					
 			},
 			//控制菜单栏的显示隐藏
 			change(index) {

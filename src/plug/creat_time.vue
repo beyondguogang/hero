@@ -35,6 +35,8 @@ export default {
             type: "datetime", // 组件的类型：year,month,time···
 　　　　　　 format: 'yyyy-MM-dd HH:mm:ss',// 设置显示格式
             position:'abolute',
+            theme: 'molv',
+
             // ready: date=>{
             //      console.log(this.value);
             //       //得到初始的日期时间对象：{year: 2017, month: 8, date: 18, hours: 0, minutes: 0, seconds: 0}
@@ -53,7 +55,7 @@ export default {
             },
             //拿到这个时间的组件选择的值   当选择完毕时把组件也关闭    
         });
-         console.log(this.a)
+        //  console.log(this.a)
       },
       methods:{
        

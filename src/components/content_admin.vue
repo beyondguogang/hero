@@ -406,7 +406,9 @@
 		mounted() {
 			//数据为空时的显示
 			this.count_data();
-			
+			// window.setTimeout(()=>{
+			// 		this.table_cont()	
+			// 		},(2000))
 			//判断底部操作按钮的显示隐藏
 			this.operation_isshow();
 		},
@@ -495,10 +497,12 @@
 				// console.log(document.body.offsetHeight)
 				//计算显示框的高度
 				// this.offset_height=window.screen.height-300
-				this.offset_height=window.screen.height*0.75
+				this.offset_height=window.screen.height-280
 				//根据屏幕的高度计算显示的页数
 				// this.data_page=parseInt(window.screen.height/60);
-				this.data_page=parseInt(window.screen.height*0.017);
+				// this.data_page=parseInt(window.screen.height*0.02);
+				this.data_page=parseInt(this.offset_height/43-1)
+				console.log(this.offset_height,this.data_page)
 				this.child_index_total=this.data_page
 			},
 			//请求所有弹框的数据根据字段显示是否有查询的三个点
@@ -525,7 +529,10 @@
 			//固定表头
 			table_cont(e){
 					//获取滚动条距离盒子的高度
-					this.tans_late=e.target.scrollTop;
+					// window.setTimeout(()=>{
+						this.tans_late=e.target.scrollTop;
+					// },(100))
+					
 				},
 			//将选中的数据放在输入框中
 			sbmit_data(data){
