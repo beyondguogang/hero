@@ -21,6 +21,10 @@ let vm=new Vue({
         // namespace_id:"",
          // serverAddUrl:"",
         // codeMirror:"",
+        //正序
+		isup: 'itup',
+		//倒序
+		isdown: 'itdown',
         //分组列表
         groupList:"",
         //分组id
@@ -50,7 +54,10 @@ let vm=new Vue({
         show_tips_box:false,
         current_state:'没有添加权限',
          //是否显示数据
-         t_body:true
+         t_body:true,
+         tera:'sd',
+         //遮罩
+         view_show:false,
 },
 
 mounted(){
@@ -191,12 +198,14 @@ change: function (e) {
     },
     //服务发现添加
     serverFindAdd:function(){
+        this.$refs.datavalue.value='';
         var fld_name = this.$refs.serverFindName.value;
         var fld_project_id = this.project_id;
         // var fld_namespace_id = this.namespace_id;
         var fld_group_id = $("#groupValue").val();
         // var fld_istpt = this.$refs.serverFindYz.value;
-        var fld_des = this.$refs.datavalue.value;
+        var fld_des = this.tera;
+        // console.log(this.tera)
         fld_name=fld_name.trim();
         // fld_istpt=fld_istpt.trim();
         if(fld_name===''){
@@ -220,7 +229,7 @@ change: function (e) {
                 fld_name:fld_name,
                 fld_project_id:fld_project_id,
                 // fld_namespace_id:fld_namespace_id,
-                // fld_group_id:fld_group_id,
+                fld_group_id:fld_group_id,
                 // fld_istpt:fld_istpt,
                 fld_des:fld_des,
                 userInfo:this.userInfo
@@ -261,6 +270,7 @@ change: function (e) {
                 setTimeout( ()=> {
                     this.shows=false;
                 },2000)
+                this.serverFindList='';
                 this.getServerFindList();
             })
 
@@ -307,18 +317,41 @@ change: function (e) {
                 .post(serverUrl+'/nacos/serverFindSearch',{fld_project_id:this.project_id,fld_name:fld_name,fld_group:fld_group,userInfo:this.userInfo})
                 .then(response => {
                     if(response.data.error==-1){
-                    this.show_tips_box=true;
-                    this.current_state=response.data.message;
-                    window.setTimeout(()=>{
-                        this.show_tips_box=false;
-                    },1000)
+                        this.$refs.namevalue.value='';
+                        this.$refs.groupvalue.value='';
+                        this.show_tips_box=true;
+                        this.current_state=response.data.message;
+                        window.setTimeout(()=>{
+                            this.show_tips_box=false;
+                        },1000)
                         return false;
                     }else{
+                        this.$refs.namevalue.value='';
+                        this.$refs.groupvalue.value='';
                         this.serverFindList = response.data.serverFindList;
                     }
                     
                 })
     },
+
+    //点击正反小三角切换数据的正序倒序
+			data_sort() {
+				//当数据请求完成在执行下次请求
+				// if (this.istrue.isorder == true) {
+					//正序
+					if (this.isup == 'itup' && this.isdown == 'itdown') {
+						//小三角样式
+						this.isup = 'isup';
+						this.isdown = 'isdown';
+                        this.serverFindList=this.serverFindList.reverse()
+					} else if (this.isup == 'isup' && this.isdown == 'isdown') {//反序
+						this.isup = 'itup';
+						this.isdown = 'itdown';
+                        this.serverFindList=this.serverFindList.reverse()
+					}
+				// }
+			},
+
 //    添加服务
     findAdd:function (e) {
         e.preventDefault();
@@ -328,6 +361,7 @@ change: function (e) {
                 this.show_tips_box=false
             },1000)
         }else{
+            this.view_show=true;
             this.$refs.serverFindName.value='';
             // this.$refs.serverFindYz.value='';
             this.find_add='block';
@@ -337,6 +371,7 @@ change: function (e) {
     //关闭弹框
     findClose:function () {
         this.find_add='';
+        this.view_show=false;
     },
     //获取表权限  
     getAuth:function(table){

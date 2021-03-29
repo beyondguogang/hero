@@ -53,7 +53,7 @@ export default {
     }
   },
   mounted(){
-    alert('jurisdiction')
+    // alert('jurisdiction')
     console.log(Boolean(this.rule_data))
     if(Boolean(this.btn_data)){
       
@@ -61,7 +61,7 @@ export default {
         this.btn_check=true;
     }
     
-    this.axios.get(this.api+'/Admin/UserAuthRoles').then(res=>{
+    this.axios.get(this.api+'/Admin/UserAuthRoles'+'?userInfo='+window.sessionStorage.getItem('userInfo')).then(res=>{
       this.list_data=res.data.roles_list
       console.log(this.list_data)
       this.list_data.forEach(item=>{

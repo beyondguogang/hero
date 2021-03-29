@@ -43,15 +43,17 @@
                                 <i>*</i>
                                 Group:
                             </label><span  class="sp-seven">
-                            <select id="in-seven3" class="in-seven">
-                                    <option v-for="group in groupList" :id="'selected-'+group.fld_id" :value="group.fld_id">{{group.fld_name}}</option>
+                            <select id="in-seven3" class="in-seven" v-model="fld_group">
+                                    <!-- <option value="group1">group1</option> -->
+                                    <!-- <option value="group">group</option> -->
+                                    <option v-for="group in groupList" :id="'selected-'+group.fld_id" :value="group.fld_name">{{group.fld_name}}</option>
                             </select>
         </span>
                         </div>
                        
                         </div>
                         <div class="container-seven">
-                        <div class="text-seven " > <span>描述:</span></div>
+                        <div class="text-seven "> <span>描述:</span></div>
                        
                         <textarea ref="datades" cols="20" rows="20"></textarea>
                         </div>

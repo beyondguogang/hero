@@ -4,40 +4,51 @@
 				<!-- 设置一个动态的高度溢出时自动显示滚动条 -->
 				<div class="col-lg-12  col-md-12 table-responsive" :style="{overflow: 'auto',height:offset_height+'px'}" @scroll="table_cont" >
 						<!-- :style="{maxHeight:fontSize+'px'}" -->
-					<table class="table text-nowrap " style="" >
+						<div>
+						<div>
+					<table class="t-table text-nowrap " style="" >
 						<!-- 表格头部 -->
 						<!-- 将表头固定 translateY的优先层级最高当高度超出时出现滚动条滚动时表头一直计算滚动的高度所以内容数据一直往上滚动而表头固定-->
 						<thead class="thead" >
 							<tr >
-								<th v-show="fields" class="fixed" :style="{transform:'translateY('+tans_late+'px)'}"></th>
-								<th v-show="fields" class="fixed" :style="{transform:'translateY('+tans_late+'px)'}"><input type="checkbox" v-model="btn_check" @change="tr_flag && btn_check_cli()"></th>
-								<th class="thb" v-for="(head,index) in fields" :key="index" :style="{transform:'translateY('+tans_late+'px)'}">{{head.Comment}} 
-									<span v-show="head.Name==response.PRIMARY" @click="sort_flag && data_sort()" style="display: inline-block;vertical-align: -3px;">
-										<i class="fa-up" :class="[isup]"></i>
-										<i class="fa-down" :class="[isdown]"></i>
-									</span>
+								<th v-show="fields"  ><div class="fixed"></div></th>
+								<th v-show="fields"  ><div class="fixed"><input type="checkbox" v-model="btn_check" @change="tr_flag && btn_check_cli()"></div></th>
+								<th  class="thb" v-for="(head,index) in fields" :key="index"  @mouseenter="open_x(index)" @mouseleave="close_x(index)">
+									<div style="width:150px;text-overflow: ellipsis;overflow: hidden;" :style="{width:(head.ShowWidth?head.ShowWidth:150)+'px'}" >
+										{{head.Comment}} 
+										<span v-show="head.isSort" @click="sort_flag && data_sort(head.Name)" style="display: inline-block;vertical-align: -3px;">
+											<i class="fa-up" :class="[isup]"></i>
+											<i class="fa-down" :class="[isdown]"></i>
+										</span>
+										<span class="show_slot" v-if="show_x[index]" @click="close_clo(head,index)">x</span>
+									</div>
+									
 								</th>
 							</tr>
 						</thead>
-						
+					</table>
+					</div>
 						<!-- 表格数据 -->
+						<div>
+						<table class="t-table text-nowrap " style="" >
 						<tbody id="tbody" >
 							<!-- 新建的列表数据   当有多个循环的时候key值不能重复-->
 							<tr v-for="(num,index1) in num" :key="index1" :class="{list_color:true}" style="margin-top: 0;  align-self:flex-end">
-								<td class="fixed">{{index1+child_index_page}}</td>
-								<td class="fixed"><input type="checkbox" v-model="add_checkeds" :value="index1" ></td>
+								<td ><div class="fixed">{{index1+child_index_page}}</div></td>
+								<td ><div class="fixed"><input type="checkbox" v-model="add_checkeds" :value="index1" ></div></td>
 								<td class="fixed-list" v-for="(le,index) in len" :key="index">
 									
 									<!-- 输入框根据索引显示内容当添加新项目时会把之前的索引添加到现有的索引中所以会把输入框的内容添加到新的项目中 :id="'fld'+index"-->
-									<input v-if="le.check_show" type="checkbox" v-model="check[index1+'-'+index]">
-									<input v-if="le.input_show" type="text" v-model="msg[index1+'-'+index]">
-									<input v-if="le.textarea_show" type="text" v-model="msg[index1+'-'+index]">
+									<div class="input-width" :style="{width:(fields[index].ShowWidth?fields[index].ShowWidth:150)+'px'}">
+									<input  v-if="le.check_show" type="checkbox" v-model="check[index1+'-'+index]">
+									<input style="width:100%" v-if="le.input_show&&fields[index].Name!=response.PRIMARY" type="text" v-model="msg[index1+'-'+index]">
+									<input style="width:100%" v-if="le.textarea_show" type="text" v-model="msg[index1+'-'+index]">
 									<!-- <textarea v-if="le.textarea_show" v-model="msg[index1+'-'+index]"  :key="index" rows="1"></textarea> -->
-									<input v-if="le.password_show" type="text" v-model="msg[index1+'-'+index]">
-									<input v-if="le.date_time_show" type="text" v-model="msg[index1+'-'+index]">
+									<input style="width:100%" v-if="le.password_show" type="text" v-model="msg[index1+'-'+index]">
+									<input style="width:100%" v-if="le.date_time_show" type="text" v-model="msg[index1+'-'+index]">
 									
-									<span v-if="le.span_show" @click="serch(index1,index)" class="serch_box"><i class="fa fa-ellipsis-h fa-1x"></i></span>
-										
+									<span style="width:20%" v-if="le.span_show" @click="serch(index1,index)" class="serch_box"><i class="fa fa-ellipsis-h fa-1x"></i></span>
+									</div>
 								</td>
 								<!-- <div style="position:relative;right:600px;top:100px;background:red"> -->
 								
@@ -48,33 +59,45 @@
 							<!-- 编辑时把数据填充到输入框中 加上item是为了避免key值的和上一个tr的key值重复-->
 							<tr v-for="(item,index) in rows" :class="{list_color:dynamic[index]==item}" :key="index+item" @click="tr_flag && tr_list($event,item,index)">
 								<!-- {{item}} -->
-								<td class="fixed">{{index+1+child_index}} </td>
+								<td ><div class="fixed">{{index+1+child_index}}</div> </td>
 								<!-- 给每个复选框绑定不一样的v-model -->
-								<td class="fixed"><input type="checkbox" v-model="btn_checkeds" :value="index"></td>
+								<td ><div class="fixed"><input type="checkbox" v-model="btn_checkeds" :value="index"></div></td>
 								 <!-- v-model="btn_checkeds[index]" -->
 								<!-- 渲染多个tr project为对象的每一项-->
-								<td class="fixed-list" v-for="(project,key,index_list) in item" :key="index_list" :title="project">
+								
+									<td class="fixed-list " v-for="(project,key,index_list) in item" :key="index_list" :title="project" >
+										<div style="text-overflow: ellipsis;overflow: hidden;" :style="{width:(fields[index_list].ShowWidth?fields[index_list].ShowWidth:150)+'px'}">
 									<!-- 如果没有点击编辑则直接是渲染的数据 -->
 									<template v-if="!edit_list[index]">
 										{{project}}
 									</template>
 									<!-- 如果点击了编辑就渲染编辑后的数据 -->
 									<template v-if="edit_list[index]">
-										<input v-if="(fields[index_list].type=='textarea')" type="text" v-model="rows[index][key]">
-										<input v-if="(fields[index_list].type=='text'&&fields[index_list].Name!=response.PRIMARY)" type="text" v-model="rows[index][key]">
-										<input v-if="(fields[index_list].type=='password')" type="text" v-model="rows[index][key]">
-										<input v-if="(fields[index_list].type=='date_time')" type="text" v-model="rows[index][key]">
+										<div class="input-width">
+										<input style="width:100%"  v-if="(fields[index_list].type=='textarea')" type="text" v-model="rows[index][key]">
+										<input style="width:100%" v-if="(fields[index_list].type=='text'&&fields[index_list].Name!=response.PRIMARY&&fields[index_list].Readyonly!=true)" type="text" v-model="rows[index][key]">
+										<input style="width:100%" v-if="(fields[index_list].type=='password')" type="text" v-model="rows[index][key]">
+										<input style="width:100%" v-if="(fields[index_list].type=='date_time')" type="text" v-model="rows[index][key]">
 										<!-- 如果表头的数据字段中的的name与clumns中的主键字段相同就不能更改 -->
 										<span v-if="(fields[index_list].type=='text'&&fields[index_list].Name==response.PRIMARY)">{{project}}</span>
+										<span v-if="(fields[index_list].type=='text'&&fields[index_list].Readyonly==true)">{{project}}</span>
 										<!-- 是否显示其他页面的按钮 -->
-										<span v-if="fields[index_list].Action!=undefined" class="serch_box" @click="serch(index,index_list,key)"
+										<span style="width:20%" v-if="fields[index_list].Action!=undefined" class="serch_box" @click="serch(index,index_list,key)"
 									 ><i class="fa fa-ellipsis-h fa-1x "></i></span>
+										</div>
+										
 									</template>
+									</div>
 								</td>
+								
+								
 							</tr>
 							
+						
 						</tbody>
 					</table>
+					</div>
+					</div>
 				</div>
 			</div>
 			<!-- 如果没有数据显示 -->
@@ -85,12 +108,17 @@
 					<button @click="query" style="outline: none;"><span class="iconfont icon-chaxun"></span>查询</button>
 					<button @click="refresh" style="outline: none;"><span class="iconfont icon-shuaxin"></span>刷新</button>
 					<button @click="updata" v-if="option.updata" :disabled="isedit" :class="{color:btn_edit}" style="outline: none;"><span class="iconfont icon-bianji"></span>编辑</button>
-					<button @click="add" v-if="option.new_add" :disabled="newly_build" :class="{color:btn_build}" style="outline: none;"><span class="iconfont icon-plus-creat
+					<button @click="add" v-if="option.new_add" :disabled="newly_build" :class="{color:btn_build}" style="outline: none;"><span class="iconfont icon-xinzeng4
 "></span>新建</button>
+					<button @click="data_export"  v-if="columns.URL_TOEXCEL" :disabled="isdel" :class="{color:btn_del}" style="outline: none;">
+						<span class="iconfont icon-daochu"></span>导出</button>
+					<button @click="import_file"  v-if="columns.URL_IMPORTEXCEL" :disabled="isdel" :class="{color:btn_del}" style="outline: none;">
+						<span  class="iconfont icon-import"></span>导入</button>
 					<button @click="submit(fields)" v-if="option.updata_add" :disabled="preservation" :class="{color:btn_preservation}"
 					 style="outline: none;"><span class="iconfont icon-baocun"></span>保存</button>
 					<button v-if="option.revoke" @click="bt_revoke" :disabled="revoke" :class="{color:btn_revoke}" style="outline: none;"><span class="iconfont icon-chexiao"></span>撤销</button>
-					<button @click="del" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;background: rgb(210, 98, 103);"><span class="iconfont icon-shanchu"></span>删除</button>
+					<button @click="del" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;background: rgb(210, 98, 103);"><span class="iconfont icon-shanchu1"></span>删除</button>
+					<!-- <button @click="del" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;background: rgb(210, 98, 103);"><span class="iconfont icon-shanchu1"></span>是否显示</button> -->
 				</div>
 				<div class="popup" v-if="show_hide">
 					<p class="content">确认要删除选择的条目吗</p>
@@ -146,6 +174,7 @@
 						  <div class="modal-body" v-for="(item,index) in add_num" :key="index" >
 							  <div>
 							  <select name="" class="body-sle" v-model="project_slected[item]">
+								  <!-- <option value="">请选择</option> -->
 								  <option v-for="(item,index) in head_data" :key="index" :value="item">{{item}}</option>
 							  </select>
 							  <select name="" class="body-sle-one" v-model="type_slected[item]">
@@ -166,6 +195,10 @@
   					</div>
 				</div>
 			</div>
+			  <!-- 遮罩层 -->
+  <div style="width: 100%;height: 100%;background: #e2e2e2;color: #e2e2e2;position: fixed;top: 0;opacity: .5;" v-if="box_data.project_engineering||box_data.tank_channel||
+  box_data.user||box_data.time||box_data.edit||box_data.sel||box_data.mail||box_data.items||box_data.sel_shows||box_data.jurisdiction||box_data.role_edit||box_data.tips||
+  box_data.upload_file||query_show"></div>
 			<!-- <div style="background:red;position:relative"> -->
 		<template>
 			<!-- 项目工程组件 (Admin本地数据库[项目工程] 菜单编辑[类型] 其他页面[项目工程] 编辑Action[项目工程] 操作表字段[编辑控件 编辑操作] 数据类型[项目工程] 数据类型值[项目工程 类型id]) 
@@ -200,6 +233,9 @@
 			<auth-role-edit v-if="box_data.role_edit" :rule_data="rule_data"  @close_project="close_project" @auth_data="auth_data"></auth-role-edit>
 			<!-- 提示组件 -->
 			<tips v-if="box_data.tips" :current_state="current_state"></tips>	
+			<!-- 选择文件组件 -->
+			<upload-file v-if="box_data.upload_file" :columns="columns" :file_close="box_data.upload_file" @close_project="close_project" @import_refresh="import_refresh"></upload-file>
+
 		</template>
 			</div>	
 		
@@ -218,6 +254,7 @@
 	import jurisdiction from "../box/jurisdiction";
 	import authRoleEdit from "../box/auth_role_edit";
 	import tips from "../box/tips";
+	import uploadFile from "../box/upload_file";
 	export default {
 		name: 'shop',
 		data() {
@@ -362,7 +399,8 @@
 				    sel_shows:false,
 					jurisdiction:false,
 					role_edit:false,
-					tips:false
+					tips:false,
+					upload_file:false,
 				},
 				//传递的头部数据
 				ppr_action:null,
@@ -383,6 +421,18 @@
 				sort:'desc',
 				//获取数据框的高度
 				offset_height:null,
+				//查询的条件
+				Query_project:null,
+				//查询接口是否调用、
+				lookup_flag:false,
+				//缓存的排序结果
+				sort_name:this.columns.PRIMARY,
+				//头部内容
+				fields:this.columns.FIELDS,
+				//显示x号
+				show_x:[],
+				// //内容副本
+				// rows:this.rows
 			}
 		},
 		components:{
@@ -398,6 +448,7 @@
 			   jurisdiction,
 			   authRoleEdit,
 			   tips,
+			   uploadFile,
 		},
 		created(){
 			//根据屏幕的高度计算数据的显示条数
@@ -406,9 +457,6 @@
 		mounted() {
 			//数据为空时的显示
 			this.count_data();
-			// window.setTimeout(()=>{
-			// 		this.table_cont()	
-			// 		},(2000))
 			//判断底部操作按钮的显示隐藏
 			this.operation_isshow();
 		},
@@ -439,7 +487,7 @@
 			//内容数据
 			rows: Array,
 			//头部数据
-			fields: Array,
+			columns: Object,
 			//动态内容页数
 			project_data: Object,
 			//项目索引
@@ -456,6 +504,37 @@
 			no_data:Boolean,
 		},
 		methods: {
+			//点击小x号
+			close_clo(h,i){
+				this.fields=this.fields.filter((item,index)=>{
+					return i!=index 
+				});
+				this.$emit('close_content',h,i)
+			},
+			//开启关闭按钮
+			open_x(i){
+				this.show_x=[];
+				this.show_x[i]=true
+			},
+			//关闭关闭按钮
+			close_x(i){
+				this.show_x.pop()
+			},
+			//导入成功刷新
+			import_refresh(){
+				this.refresh()
+			},
+			//导出
+			data_export(){
+				this.axios.post(this.api+this.columns.URL_TOEXCEL,{userInfo: this.userInfo}).then((res)=>{
+					window.location.href=this.api+res.data.url+'?type=excel'
+				})
+				
+			},
+			//导入excel文件
+			import_file(){
+				this.box_data.upload_file=true;
+			},
 			//判断底部操作按钮的显示隐藏
 			operation_isshow(){
 				//判断是否有columns接口数据
@@ -502,7 +581,7 @@
 				// this.data_page=parseInt(window.screen.height/60);
 				// this.data_page=parseInt(window.screen.height*0.02);
 				this.data_page=parseInt(this.offset_height/43-1)
-				console.log(this.offset_height,this.data_page)
+				// console.log(this.offset_height,this.data_page)
 				this.child_index_total=this.data_page
 			},
 			//请求所有弹框的数据根据字段显示是否有查询的三个点
@@ -529,9 +608,44 @@
 			//固定表头
 			table_cont(e){
 					//获取滚动条距离盒子的高度
-					// window.setTimeout(()=>{
+					//滚动节流函数
+					var tur = true;
+					var late=()=>{
 						this.tans_late=e.target.scrollTop;
-					// },(100))
+						tur=true;
+					};
+					if(tur){
+						if(window.navigator.userAgent.indexOf("Chrome") > -1||navigator.userAgent.indexOf('Firefox') >= 0){
+        				late();
+      				}else{
+						setTimeout(late,10);
+						tur=false;
+					  }
+						
+					}
+					//停止滚动执行函数
+					// let t1=0;
+					// let t2=0;
+					// let timer=null;
+						
+					// 	// alert(0)
+					// let isScrollEnd=()=>{
+					// 	// console.log(e)
+					// 	// alert(1)
+					// 	t2=e.target.scrollTop;
+					// 	if(t2==t1){
+					// 		// alert(2)
+					// 		this.tans_late=e.target.scrollTop
+					// 	}
+					// };
+					// 	clearTimeout(timer);
+					// 	timer=setTimeout(isScrollEnd,5);
+					// 	t1=e.target.scrollTop;
+					//直接执行函数
+					// this.tans_late=e.target.scrollTop;
+					// window.setTimeout(()=>{
+						
+					// },(50))
 					
 				},
 			//将选中的数据放在输入框中
@@ -692,10 +806,15 @@
 				//auth-role-edit组件
 				if(this.box_data.role_edit==true){
 					this.box_data.role_edit=false
+				};
+				if(this.box_data.upload_file==true){
+					this.box_data.upload_file=false
 				}
 			},
 			//查找
 			lookup(){
+				// alert(0)
+				this.lookup_flag=true;
 				//设置序号
 				this.child_index = 0;
 				//设置页数
@@ -712,6 +831,7 @@
 				}
 				//当查询的时候看有多少条数据
 				request_parameters.rules=[];
+				// console.log(this.add_num)
 				//遍历有多少组数据
 				this.add_num.forEach((item,index)=>{
 					//有几条数据就在request_parameters对象中添加几个对象
@@ -732,10 +852,10 @@
 						request_parameters.rules[index].data=this.condition[index];
 				})
 				//将对象转换成json数据
-				let project=JSON.stringify(request_parameters);
+				this.Query_project=JSON.stringify(request_parameters);
 				// this.query_data=project;
 				//通过父组件执行
-				this.$emit('query',this.sub_url, this.child_index,project,this.sort);
+				this.$emit('query',this.sub_url, this.child_index,this.Query_project,this.sort);
 				//让选项数据初始化一条
 				this.add_num=[];
 				//查询时让弹窗关闭
@@ -749,6 +869,9 @@
 				this.project_slected=[];
 				//查询条件
 				this.head_data=[];
+				// this.search_data=0;
+				this.btn_checkeds=[];
+				this.btn_check='';
 			},
 			//查询重置
 			box_reset(){
@@ -766,6 +889,7 @@
 				//每添加一条数据就像数组push不同的值
 				this.search_data+=1;
 				this.add_num.push(this.search_data);
+				// this.add_num=this.search_data;
 				//每添加一项都会在选择框中添加第一项数据
 				//项目值
 				this.project_slected.push(this.head_data[0]);
@@ -777,6 +901,10 @@
 			//关闭查询弹窗
 			close_win(){
 				this.query_show=false;
+				if(!this.lookup_flag){
+					this.add_num=[];
+				}
+				
 			},
 			//查询
 			query(){
@@ -784,12 +912,13 @@
 				this.query_show=true;
 				//设置查询数据的条数
 				this.add_num.push(this.search_data);
+				// this.add_num=[];
 				//设置选择条件
 				this.project_box=this.project_condition[0];
 				//遍历数据头的数据
 				this.fields.forEach((item,index) =>{
 					//当点击查询的时候判断需要查寻的条件有哪些
-					if(item.Name!="fld_deleted"&&item.Name!=this.response.PRIMARY){
+					if(item.Name!="fld_deleted"&&item.Name!=this.response.PRIMARY&&item.Search==1){
 						//把需要的条件放在一个数组中
 						this.head_data.push(item.Comment);
 						//在动态的选择框中始终把第一项放在框中
@@ -800,7 +929,8 @@
 				//设置查询项目的条件
 				this.type_slected.push(this.query_scope[0]);
 				//设置输入框中的值
-				this.condition.push('')
+				this.condition.push('');
+				// this.add_num=[];
 			},
 			//关闭输入框
 			close() {
@@ -1106,24 +1236,24 @@
 							break;
 						case "select_gift_package_warship":
 							//2
-							alert(2)
+							alert('没有数据')
 							break;
 						case "select_package_channel_more":
-							alert(3)
+							alert('没有数据')
 							break;
 						case "ItemArrayEditor_warship":
-							alert(4)
+							alert('没有数据')
 							break;
 						case "serverChoose_warship":
 							//4
-							alert(5)
+							alert('没有数据')
 							break;
 						case "packageChoose":
 							//2
-							alert(6)
+							alert('没有数据')
 							break;
 						case "serverChooseOne_warship":
-							alert(7)
+							alert('没有数据')
 							break;	
 						}
 						
@@ -1131,6 +1261,10 @@
 			},
 			//刷新
 			refresh() {
+				//头部数据重新加载因为this.fields是变动的
+				this.fields=this.columns.FIELDS;
+				//取消x号标志
+				this.show_x.pop()
 				//正反序标志
 				this.sort_flag=true;
 				//刷新完成的标志（当刷新接口执行完后在才能在次执行刷新按钮）
@@ -1404,9 +1538,11 @@
 							}else{
 								//如果有查询接口请求查询接口(当在查询数据后添加项目后加载全部的数据)
 								if(this.isquery==true){
-									this.lookup()
+									this.lookup();
 								};
-									this.refresh()
+									this.refresh();
+									// console.log(this.sort,this.sort_name)
+									this.$emit('parent_data_sort', this.sub_url, this.sort,this.sort_name);
 							}
 							
 						})
@@ -1418,6 +1554,7 @@
 					// this.increasing=0;
 				} //当有编辑的时候请求保存的接口
 				else if (this.list_some == true) {
+					// alert(11)
 					//当点击保存后新建的按钮可以点击
 						this.newly_build= false;
 						this.btn_build=false;
@@ -1425,15 +1562,20 @@
 					var parameter = {};
 					//遍历编辑的数据项
 					for (var i = 0; i < this.updata_edit.length; i++) {
+						console.log(this.updata_edit[i])
 						//当有复选框的时候把boolean转换成数字类型
 						for (let k in this.updata_edit[i]) {
+							console.log(this.updata_edit[i][k])
 							//如果是复选框转换成数字类型
 							if (typeof(this.updata_edit[i][k]) == 'boolean') {
 								this.updata_edit[i][k] = Number(this.updata_edit[i][k])
 							};
 							//定义正则对象判断有没有UTC字段
 							var reg=/UTC\+\d+$/g;
-							if(reg.test(this.updata_edit[i][k])){
+							// if(!(this.updata_edit[i].fld_create_time&&this.updata_edit[i].fld_modif_time)){
+									if(reg.test(this.updata_edit[i][k])){
+										k++;
+										continue
 							// 	this.updata_edit[i][k]=this.updata_edit[i][k].replace(/UTC\+\d+/g,'')
 							// }
 							//如果项目类型是时间的字段
@@ -1441,30 +1583,33 @@
 									//获取当前时间的对象
 									// var tem=new Date().getTime(this.updata_edit[i][k]);
 									//根据时间方法返回的值进行转换
-									function to_2_str(_value) {
-			    						    if (_value < 10){
-												return "0" + _value;
-											}   
-			    						    else{
-												return _value;
-											}       
-										};
-									//将时间毫秒数转换成时间对象
-									var temp=new Date(this.updata_edit[i][k]);
-											//将0时区的信息拼接时间字符串
-									this.updata_edit[i][k] = temp.getUTCFullYear()
-			        						+ "-"
-			        						+ to_2_str(temp.getUTCMonth() + 1)
-			        						+ "-"
-			        						+ to_2_str(temp.getUTCDate())
-			        						+ " "
-			        						+ to_2_str(temp.getUTCHours())
-			        						+ ":"
-			        						+ to_2_str(temp.getUTCMinutes())
-			        						+ ":"
-											+ to_2_str(temp.getUTCSeconds())														
-								}
-							parameter[k] = this.updata_edit[i][k];
+									// function to_2_str(_value) {
+			    					// 	    if (_value < 10){
+									// 			return "0" + _value;
+									// 		}   
+			    					// 	    else{
+									// 			return _value;
+									// 		}       
+									// 	};
+									// //将时间毫秒数转换成时间对象
+									// var temp=new Date(this.updata_edit[i][k]);
+									// 		//将0时区的信息拼接时间字符串
+									// this.updata_edit[i][k] = temp.getUTCFullYear()
+			        				// 		+ "-"
+			        				// 		+ to_2_str(temp.getUTCMonth() + 1)
+			        				// 		+ "-"
+			        				// 		+ to_2_str(temp.getUTCDate())
+			        				// 		+ " "
+			        				// 		+ to_2_str(temp.getUTCHours())
+			        				// 		+ ":"
+			        				// 		+ to_2_str(temp.getUTCMinutes())
+			        				// 		+ ":"
+									// 		+ to_2_str(temp.getUTCSeconds())														
+								};
+								
+							// }
+						parameter[k] = this.updata_edit[i][k];
+							
 						}
 						parameter.oper = 'edit';
 						parameter._oper = 'edit';
@@ -1481,7 +1626,8 @@
 								setTimeout(()=>{
 									this.box_data.tips=false;
 								},2000)
-							}else{//
+							}else{
+								// alert(12)
 								// this.rows.forEach((item, index) => {
 								// if (this.btn_checkeds.length>0) {
 								// 	this.btn_checkeds.forEach((item,i)=>{
@@ -1491,11 +1637,18 @@
 								// 	this.btn_check = false
 								// }
 								//如果调用了查询接口那么添加的时候会自动请求查询接口（所有的数据）
-								if(this.isquery==true){
-									this.lookup()
+								if(this.Query_project){
+									// alert(1)
+									// this.lookup();
+									this.$emit('query',this.sub_url, this.child_index,this.Query_project,this.sort);
+									this.refresh();
+									this.$emit('parent_data_sort', this.sub_url, this.sort,this.sort_name);
+								}else{
+									this.refresh();
+									this.$emit('parent_data_sort', this.sub_url, this.sort,this.sort_name);
 								}
 							// });
-							this.refresh()
+							
 							}
 							
 						})
@@ -1523,6 +1676,8 @@
 					this.list_some=false ;
 					//取消选中的样式
 					this.dynamic={};
+					// console.log('====='+this.sort)
+					
 			},
 			//编辑
 			updata() {
@@ -1720,7 +1875,10 @@
 				}
 			},
 			//点击正反小三角切换数据的正序倒序
-			data_sort() {
+			data_sort(name) {
+				// console.log(name)
+				// alert(0)
+				this.sort_name=name;
 				//当数据请求完成在执行下次请求
 				if (this.istrue.isorder == true) {
 					//正序
@@ -1731,7 +1889,7 @@
 						//正序接口参数
 						this.sort='asc';
 						//执行父组件函数
-						this.$emit('parent_data_sort', this.sub_url, this.sort);
+						this.$emit('parent_data_sort', this.sub_url, this.sort,name);
 						//页数保持第一页
 						this.page=1;
 						//项目数的序号
@@ -1744,7 +1902,7 @@
 						this.isup = 'itup';
 						this.isdown = 'itdown';
 						this.sort='desc';
-						this.$emit('parent_data_sort', this.sub_url, this.sort);
+						this.$emit('parent_data_sort', this.sub_url, this.sort,name);
 						this.page=1;
 						this.child_index = 0;
 						this.child_index_page=1;
@@ -1975,7 +2133,15 @@
     vertical-align: super;
     padding-bottom: 2px;
 } */
-
+.show_slot{
+	float: right;
+    display: inline-block;
+	/* right: 10px; */
+    margin-top: -6px;
+    cursor: pointer;
+    color: #77797c;
+    font-weight: 100;
+}
 .iconfont{
 	font-size: 12px;
 }
@@ -2019,7 +2185,7 @@ td{
 }
 button, input{
 	outline: none;
-
+	/* padding: 0 10px; */
 	/* width: 175px; */
 }
 .number{
@@ -2028,7 +2194,7 @@ button, input{
     .fixed-list{
 		/* min-width: 150px; */
 		/* max-width: 150px; */
-		max-width: 700px;
+		/* max-width: 700px; */
 		/* min-width: 150px; */
 	}
     .row-a{
@@ -2041,6 +2207,8 @@ button, input{
 		padding: 4px 3px;
 		background-color: #AAB2BD;
 		cursor: pointer;
+	    margin-left: -15px;
+		position: relative;
 	}
 	tbody tr:hover{
 		/* background-color: #f9f9cc; */
@@ -2223,7 +2391,11 @@ button, input{
 	td {
 		overflow: hidden;
 		text-overflow: ellipsis;
-	    padding: 0.75rem 0.9rem;
+	    /* padding: 0.75rem 0.9rem; */
+		box-shadow: inset 1px 0 0 0 #dee2e6;
+    	border-bottom: 1px solid #dee2e6;
+		padding-left: 10px!important;
+    	padding-right: 10px!important;
 	}
 
 	button {
@@ -2244,7 +2416,7 @@ button, input{
 		color: #007bff;
 	}
 
-	.table {
+	.t-table {
 		font-size: 12px;
 		border: 1px solid #dee2e6
 		/* float: right; */
@@ -2278,7 +2450,7 @@ button, input{
 	.thead {
 		background-color: #ebecf0;
 	    transform: translateY(0px);
-		text-align: center;
+		/* text-align: center; */
 		/* z-index: 1; */
 	}
 
@@ -2328,5 +2500,8 @@ button, input{
 		font-size: 13px;
 		/* position: fixed; */
 		/* bottom: 10px; */
+	}
+	.input-width{
+		width: 100%;
 	}
 </style>

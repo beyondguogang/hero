@@ -15,6 +15,10 @@ let vm=new Vue({
         // a:"",
         // nameList:"",
         // groupInfo:"",
+        //正序
+		isup: 'itup',
+		//倒序
+		isdown: 'itdown',
         //项目弹框
         spring:'none',
         //项目列表数据
@@ -36,7 +40,9 @@ let vm=new Vue({
         show_tips_box:false,
         current_state:'没有添加权限',
         //是否显示数据
-        t_body:true
+        t_body:true,
+        //遮罩
+        view_show:false,
     },
 
     mounted() {
@@ -86,6 +92,24 @@ let vm=new Vue({
                 this.bor1='1px solid red';
             }
         },*/
+         //点击正反小三角切换数据的正序倒序
+			data_sort() {
+				//当数据请求完成在执行下次请求
+				// if (this.istrue.isorder == true) {
+					//正序
+					if (this.isup == 'itup' && this.isdown == 'itdown') {
+						//小三角样式
+						this.isup = 'isup';
+						this.isdown = 'isdown';
+                        this.projectList=this.projectList.reverse()
+					} else if (this.isup == 'isup' && this.isdown == 'isdown') {//反序
+						this.isup = 'itup';
+						this.isdown = 'itdown';
+                        this.projectList=this.projectList.reverse()
+					}
+				// }
+			},
+
         //是否登录过期
         login_expired:function(){
             this.userInfo=sessionStorage.getItem('userInfo');
@@ -226,6 +250,7 @@ let vm=new Vue({
                 this.$refs.projectdes.value='';
                 this.isEdit="0";
                 this.spring='block';
+                this.view_show=true;
             }else{
                 this.show_tips_box=true;
                 window.setTimeout(()=>{
@@ -236,7 +261,8 @@ let vm=new Vue({
         },
         //关闭弹框
         cross:function(){
-            this.spring='none'
+            this.spring='none';
+            this.view_show=false;
         },
         //删除项目
         projectDel:function(e){
@@ -273,7 +299,8 @@ let vm=new Vue({
         //编辑项目
         projectEdit:function(e){
             this.isEdit="1";
-            var fld_id=e.target.getAttribute('fld_id')
+            var fld_id=e.target.getAttribute('fld_id');
+            this.view_show=true;
             axios
             .post(serverUrl+'/nacos/projectfInfo',
             {

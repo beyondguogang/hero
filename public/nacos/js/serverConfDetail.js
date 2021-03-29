@@ -32,6 +32,13 @@ let vm=new Vue({
       show_tips_box:false,
       //弹框内容
       current_state:'没有添加权限',
+      //组
+      fld_group:'',
+      group_id:null,
+},
+created(){
+    // alert(0)
+    // this.fld_group='group'
 },
 mounted() {
     //登录过期
@@ -101,6 +108,13 @@ methods:{
         var value=this.codeMirror.getValue();
         var des=this.$refs.datades.value;
         key=key.trim();
+        this.groupList.forEach((item,index)=>{
+            // alert(0)
+            if(item.fld_name==this.fld_group){
+                this.group_id=item.fld_id
+                // console.log(this.group_id)
+            }
+        })
         if(key===''){
             this.shows=true;
             this.verification='ID不能为空';
@@ -121,7 +135,8 @@ methods:{
                 fld_id:this.fld_id,
                 fld_project_id:this.fld_project_id,
                 // fld_namespace_id:this.fld_namespace_id,
-                fld_group_id:$("#in-seven3").val(),
+                // fld_group_id:$("#in-seven3").val(),
+                fld_group_id:this.group_id,
                 fld_key:key,
                 fld_value:value,
                 fld_des:des,
@@ -133,7 +148,8 @@ methods:{
 
             var data={
                 fld_project_id:this.fld_project_id,
-                fld_group_id:$("#in-seven3").val(),
+                // fld_group_id:$("#in-seven3").val(),
+                fld_group_id:this.group_id,
                 fld_key:key,
                 fld_value:value,
                 fld_des:des,
@@ -145,12 +161,14 @@ methods:{
         .post(serverUrl+'/nacos/sAddOrUpdate',
             data)
         .then(response => {
+            // alert(2)
             if(response.data.error==0){
                 this.shows=true;
                 this.verification=response.data.message;
                 setTimeout( ()=> {
                     this.shows=false;
-                    window.location.href = '/serverList.html?projectId='+this.fld_project_id;
+                    console.log(this.fld_project_id)
+                    window.location.href = '/nacos/serverList.html?projectId='+this.fld_project_id;
                 },2000)
             }else{
                 this.shows=true;
@@ -189,11 +207,14 @@ methods:{
                     return false;
                 }else{
                     this.serverInfo=response.data.serverInfo;
+                    console.log(this.serverInfo)
                     this.fld_project_id=this.serverInfo.fld_project_id;
                     // this.fld_namespace_id=this.serverInfo.fld_namespace_id;
                     this.$refs.datakey.value=this.serverInfo.fld_key;
                     this.$refs.datades.value=this.serverInfo.fld_des;
                     this.fld_group_id=this.serverInfo.fld_group_id;
+                    this.fld_group=this.serverInfo.fld_group;
+                    // console.log(this.fld_group)
                     $("#selected-"+this.fld_group_id).attr("selected","selected");
                     this.codeMirror.setValue(this.serverInfo.fld_value);
                 }
@@ -204,18 +225,22 @@ methods:{
     },
     //获取分组
     getGroup:function(){
+        // alert(0)
         axios
             .post(serverUrl+'/nacos/groupList',{fld_project_id:this.fld_project_id,userInfo:this.userInfo})
             .then(response => {
                 if(response.data.error==-1){
                     this.show_tips_box=true;
                     this.current_state=response.data.message;
+                    // console.log(response.data.message)
                     window.setTimeout(()=>{
                         this.show_tips_box=false;
                     },1000)
                     return false;
                 }else{
                     this.groupList = response.data.groupList;
+                    console.log(response.data.groupList)
+                    
                 }
                 
             })

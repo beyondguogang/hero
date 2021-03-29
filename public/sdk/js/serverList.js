@@ -288,6 +288,7 @@ methods:{
             .post(serverUrl+'/sdk/usdkSearch',{fld_project_id:this.project_id,fld_productcode:fld_name,userInfo:this.userInfo})
             .then(response => {
                 if(response.data.error==-1){
+                    this.$refs.namevalue.value='';
                     this.show_tips_box=true;
                     this.current_state=response.data.message;
                     window.setTimeout(()=>{
@@ -295,7 +296,7 @@ methods:{
                     },1000)
                     return false;
                 }else{
-                    // console.log(response)
+                    this.$refs.namevalue.value='';
                     this.serverList = response.data.usdkList;
                 }
                 

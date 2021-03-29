@@ -3,28 +3,29 @@
 			<div class="row no-gutters shop">
 				<!-- 头部选择按钮 -->
 				<div class="col-lg-12  col-md-12  footer " v-show="fields" style="margin-top:20px;margin-bottom:20px">
-					<button @click="add" v-if="option.new_add" :disabled="newly_build" :class="{color:btn_build}" style="outline: none;"><span class="iconfont icon-chaxun"></span>新增</button>
+					<button @click="add" v-if="option.new_add" :disabled="newly_build" :class="{color:btn_build}" style="outline: none;"><span class="iconfont icon-xinzeng4"></span>新增</button>
 					<button @click="updata" v-if="option.updata" :disabled="isedit" :class="{color:btn_edit}" style="outline: none;"><span class="iconfont icon-bianji"></span>编辑</button>					
 					<button @click="submit(fields)" v-if="option.updata_add" :disabled="preservation" :class="{color:btn_preservation}"
 					 style="outline: none;"><span class="iconfont icon-baocun"></span>保存</button>
 					<button v-if="option.revoke" @click="bt_revoke" :disabled="revoke" :class="{color:btn_revoke}" style="outline: none;"><span class="iconfont icon-chexiao"></span>撤销</button>
-					<button @click="del" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;background:#d26267"><span class="iconfont icon-shanchu"></span>删除</button>
-					<button @click="data_export" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;"><span class="iconfont icon-zujian-icon-13"></span>导出</button>
+					<button @click="del" v-if="option.del" :disabled="isdel" :class="{color:btn_del}" style="outline: none;background:#d26267"><span class="iconfont icon-shanchu1"></span>删除</button>
+					<button @click="data_export" v-if="columns.URL_TOEXCEL" :disabled="isdel" :class="{color:btn_del}" style="outline: none;"><span class="iconfont icon-daochu"></span>导出</button>
+					<button @click="data_import" v-if="columns.URL_IMPORTEXCEL" :disabled="isdel" :class="{color:btn_del}" style="outline: none;"><span class="iconfont icon-import"></span>导</button>
 					 <div class="modal-body" style="display:inline-block">
 								
 								<!-- 当点击添加的时候要遍历这个元素 -->
 						  <div class="modal-body modal-pos" style="display:inline-block">
 							  <select class="body-sty" v-model="project_box" >
-								    <!-- <option disabled value="">请选择</option> -->
-									<option v-for="(item,index) in project_condition" :key="index" :value="item">{{item}}</option>
+								  <!-- <option disabled value="">请选择</option> -->
+								  <option v-for="(item,index) in project_condition" :key="index" :value="item">{{item}}</option>
 								</select>
 								<i @click="accumulation" :style="{'vertical-align':align}">+</i>
 							  <div style="display:inline-block;width:500px;z-index:1000" :style="{'vertical-align':align}" v-for="(item,index) in add_num" :key="index">
-							  <select class="body-sle" v-model="project_slected[item]">
+							  <select class="body-sle" v-model="project_slected[item]" :style="{'vertical-align':align}">
 								  <!-- <option disabled value="">请选择</option> -->
 								  <option v-for="(item,index) in head_data" :key="index" :value="item">{{item}}</option>
 							  </select>
-							  <select class="body-sle-one" v-model="type_slected[item]">
+							  <select class="body-sle-one" v-model="type_slected[item]" :style="{'vertical-align':align}">
 								  <!-- <option disabled value="">请选择</option> -->
 								  <option v-for="(item,index) in query_scope" :key="index" :value="item" >{{item}}</option>
 							  </select>
@@ -32,25 +33,28 @@
 							  <i class="body-i" :style="{'vertical-align':align}" @click="Query_remove(item)" :key="index">-</i>
 							</div>
   					    </div>
-						  
-							  
 						</div>
-						<button @click="lookup" style="width:45px; outline: none;margin-left:145px;background:#fff;color:#000;border:1px solid #808080;cursor: pointer">查询</button>
+						<button @click="lookup" style="width:54px; outline: none;margin-left:145px;background:#fff;color:#000;border:1px solid #808080;cursor: pointer"><span class="iconfont icon-chaxun"></span>查询</button>
 						<button @click="refresh" style="outline: none;cursor: pointer"><span class="iconfont icon-shuaxin"></span>刷新</button>
 				</div>
 				<div class="col-lg-12  col-md-12 table-responsive" style="overflow: auto ;" :style="{overflow: 'auto',height:offset_height+'px'}" @scroll="table_cont" >
 						<!-- :style="{maxHeight:fontSize+'px'"} -->
-					<table class="table table-bordered text-nowrap " style="" >
+					<table class="t-table table-bordered text-nowrap " style="" >
 						<!-- 表格头部 固定头部当设置overflow:auto时当超出高度时会出现滚动条设置translate后表头始终距离前一个元素滚动条的距离，后面的内容会在滚动的时候覆盖在表头底部-->
 						<thead class="thead" >
 							<tr>
 								<!-- <td v-show="fields" class="fixed" ></td> -->
 								<th v-show="fields" class="fixed" :style="{transform:'translateY('+tans_late+'px)'}"><input type="checkbox" class="box_size" v-model="btn_check" @change="tr_flag && btn_check_cli()"></th>
-								<th class="thb" v-for="(head,index) in fields" :key="index" :style="{transform:'translateY('+tans_late+'px)'}">{{head.Comment}} 
-									<span v-show="head.Name==response.PRIMARY" @click="sort_flag && data_sort()" style="display: inline-block;vertical-align: -3px;">
+								<th class="thb" v-for="(head,index) in fields" :key="index" :style="{transform:'translateY('+tans_late+'px)'}" @mouseenter="open_x(index)" @mouseleave="close_x(index)" :title="head.Comment">
+									<div style="width:150px;text-overflow: ellipsis;overflow: hidden;" :style="{width:(head.ShowWidth?head.ShowWidth:150)+'px'}"> 
+										<span style="width:120px;text-overflow: ellipsis;overflow: hidden; display:inline-block">{{head.Comment}}</span>
+									<span v-show="head.isSort" @click="sort_flag && data_sort(head.Name)" style="display: inline-block;vertical-align: -3px;">
 										<i class="fa-up" :class="[isup]"></i>
 										<i class="fa-down" :class="[isdown]"></i>
 									</span>
+									<span class="show_slot" v-show="show_x[index]" @click="close_clo(head,index)">x</span>
+									</div>
+									
 								</th>
 							</tr>
 						</thead>
@@ -62,7 +66,7 @@
 								<!-- <td class="fixed">{{index1+child_index_page}}</td> -->
 								<td class="fixed"><input type="checkbox" class="box_size" v-model="add_checkeds" :value="index1" ></td>
 								<td class="fixed-list" v-for="(le,index) in len" :key="index">
-									
+									<div class="input-width" :style="{width:(fields[index].ShowWidth?fields[index].ShowWidth:150)+'px'}">
 									<!-- 输入框根据索引显示内容当添加新项目时会把之前的索引添加到现有的索引中所以会把输入框的内容添加到新的项目中 :id="'fld'+index"-->
 									<input v-if="le.check_show" type="checkbox" v-model="check[index1+'-'+index]">
 									<input v-if="le.input_show" type="text" v-model="msg[index1+'-'+index]">
@@ -72,7 +76,7 @@
 									<input v-if="le.date_time_show" type="text" v-model="msg[index1+'-'+index]">
 									
 									<span v-if="le.span_show" @click="serch(index1,index)" class="serch_box"><i class="fa fa-ellipsis-h fa-1x"></i></span>
-										
+									</div>	
 								</td>
 								<!-- <div style="position:relative;right:600px;top:100px;background:red"> -->
 								
@@ -92,20 +96,25 @@
 								 <!-- v-model="btn_checkeds[index]" -->
 								<!-- 渲染多个tr project为对象的每一项-->
 								<td class="fixed-list" v-for="(project,key,index_list) in item" :key="index_list" :title="project">
+									<div style="text-overflow: ellipsis;overflow: hidden;" :style="{width:(fields[index_list].ShowWidth?fields[index_list].ShowWidth:150)+'px'}">
 									<!-- 如果没有点击编辑则直接是渲染的数据 -->
 									<template v-if="edit_list[index]">
 										{{project}}
 									</template>
 									<!-- 如果点击了编辑就渲染编辑后的数据 -->
 									<template v-if="!edit_list[index]">
+										<div class="input-width">
 										<input v-if="(fields[index_list].type=='textarea')" :unselectable="!disabled_true[index]?'on':'off'" :readonly="!disabled_true[index]" type="text" v-model="rows[index][key]">
-										<input v-if="(fields[index_list].type=='text'&&fields[index_list].Name!=response.PRIMARY)" :unselectable="!disabled_true[index]?'on':'off'" :readonly="!disabled_true[index]" type="text" v-model="rows[index][key]">
+										<input v-if="(fields[index_list].type=='text'&&fields[index_list].Name!=response.PRIMARY&&fields[index_list].Readyonly!=true)" :unselectable="!disabled_true[index]?'on':'off'" :readonly="!disabled_true[index]" type="text" v-model="rows[index][key]">
 										<input v-if="(fields[index_list].type=='password')" :unselectable="!disabled_true[index]?'on':'off'" :readonly="!disabled_true[index]" type="text" v-model="rows[index][key]">
 										<input v-if="(fields[index_list].type=='date_time')" :unselectable="!disabled_true[index]?'on':'off'" :readonly="!disabled_true[index]" type="text" v-model="rows[index][key]">
                                         <span v-if="(fields[index_list].type=='text'&&fields[index_list].Name==response.PRIMARY)">{{project}}</span>
+										<span v-if="(fields[index_list].type=='text'&&fields[index_list].Readyonly==true)">{{project}}</span>
 										<span v-if="fields[index_list].Action!=undefined && disabled_true[index]" class="serch_box" @click="serch(index,index_list,key)"
 									 ><i class="fa fa-ellipsis-h fa-1x "></i></span>
+										</div>
 									</template>
+									</div>
 								</td>
 							</tr>
 							
@@ -160,6 +169,8 @@
 				</div>
 				<div v-if="!no_data" class="col-lg-4  col-md-2  total">没有数据</div>
 			</div>
+			  <div style="width: 100%;height: 100%;background: #e2e2e2;color: #e2e2e2;position: fixed;top: 0;opacity: .5;" v-if="box_data.project_engineering||box_data.tank_channel||
+  			box_data.user||box_data.time||box_data.edit||box_data.sel||box_data.mail||box_data.items||box_data.sel_shows||box_data.jurisdiction||box_data.role_edit||box_data.tips"></div>
 			<!-- 项目工程组件 -->
 	<template>
 		<ppr v-if="box_data.project_engineering" :rule_data="rule_data" :ppr_action="ppr_action" :ppr_action_param="ppr_action_param" :box_fun="box_fun" @close_project="close_project" @input_data="input_data">{{head_title}}</ppr>
@@ -184,7 +195,9 @@
 		<!-- 权限数组 -->
 		<auth-role-edit v-if="box_data.role_edit" :rule_data="rule_data"  @close_project="close_project" @auth_data="auth_data"></auth-role-edit>
 		<!-- 提示组件 -->
-		<tips v-if="box_data.tips" :current_state="current_state"></tips>     
+		<tips v-if="box_data.tips" :current_state="current_state"></tips>
+		<!-- 选择文件组件 -->
+		<upload-file v-if="box_data.upload_file" :columns="columns" :file_close="box_data.upload_file" @close_project="close_project" @import_refresh="import_refresh"></upload-file>     
 	</template>
 			</div>	
 		
@@ -203,6 +216,7 @@
 	import jurisdiction from "../box/jurisdiction";
 	import authRoleEdit from "../box/auth_role_edit";
 	import tips from "../box/tips";
+	import uploadFile from "../box/upload_file";
 	export default {
 		name: 'shop',
 		data() {
@@ -375,7 +389,9 @@
 				    sel_shows:false,
 					jurisdiction:false,
 					role_edit:false,
-					tips:false
+					tips:false,
+					upload_file:false,
+
 				},
 				//传递的头部数据
 				ppr_action:null,
@@ -397,6 +413,14 @@
 				sort:'desc',
 				//获取数据框的高度
 				offset_height:null,
+				//查询的条件
+				Query_project:null,
+				//缓存排序结果、
+				sort_name:this.columns.PRIMARY,
+				//头部内容
+				fields:this.columns.FIELDS,
+				//显示x号
+				show_x:[],
 			}
 		},
 		components:{
@@ -412,6 +436,7 @@
 			   jurisdiction,
 			   authRoleEdit,
 			   tips,
+			   uploadFile,
 		},
 		created(){},
 		mounted() {			
@@ -450,10 +475,9 @@
 		},
 		props: {
 			// flag_head:Boolean,
-			//内容数据
 			rows: Array,
 			//头部数据
-			fields: Array,
+			columns: Object,
 			//动态内容页数
 			project_data: Object,
 			//项目索引
@@ -470,6 +494,30 @@
 			no_data:Boolean,
 		},
 		methods: {
+			//点击小x号
+			close_clo(h,i){
+				this.fields=this.fields.filter((item,index)=>{
+					return i!=index 
+				});
+				this.$emit('close_content',h,i)
+			},
+			//开启关闭按钮
+			open_x(i){
+				this.show_x=[];
+				this.show_x[i]=true
+			},
+			//关闭关闭按钮
+			close_x(i){
+				this.show_x.pop()
+			},
+			//导入成功刷新
+			import_refresh(){
+				this.refresh()
+			},
+			//导入文件
+			data_import(){
+				this.box_data.upload_file=true;
+			},
 			//根据屏幕的高度计算显示的页数
 			count_page(){
 				//计算显示框的高度
@@ -478,9 +526,11 @@
 				this.data_page=parseInt(this.offset_height/43-1);
 				this.child_index_total=this.data_page
 			},
-			//判断是不是ie浏览器
+			//判断是不是Firefox浏览器
 			isIE() {
-  				if (!!window.ActiveXObject || "ActiveXObject" in window){
+				// alert(1)
+  				if (navigator.userAgent.indexOf('Firefox') >= 0){
+					//   alert(0)
 					  this.align='bottom'
 				  }
   			},
@@ -606,7 +656,23 @@
 			//固定表头
 			table_cont(e){
 				//滚动时元素距离滚动条的高度
-				this.tans_late=e.target.scrollTop;
+				// this.tans_late=e.target.scrollTop;
+
+				//滚动节流函数
+					var tur = true;
+					var late=()=>{
+						this.tans_late=e.target.scrollTop;
+						tur=true;
+					};
+					if(tur){
+						if(window.navigator.userAgent.indexOf("Chrome") > -1||navigator.userAgent.indexOf('Firefox') >= 0){
+        				late();
+      				}else{
+						setTimeout(late,100);
+						tur=false;
+					  }
+						
+					}
 				},
 			//将选中的数据放在输入框中
 			sbmit_data(data){
@@ -791,10 +857,10 @@
 					}
 						
 				})
-				let project=JSON.stringify(request_parameters);
+				this.Query_project=JSON.stringify(request_parameters);
 				this.query_data=project;
 				console.log(project)
-				this.$emit('query',this.sub_url, this.child_index,project,this.sort);
+				this.$emit('query',this.sub_url, this.child_index,this.Query_project,this.sort);
 				//让选项数据初始化一条
 				this.add_num=[];
 				//查询时让弹窗关闭
@@ -844,7 +910,7 @@
 				this.project_box=this.project_condition[0];
 				this.fields.forEach((item,index) =>{
 					//当点击查询的时候判断需要查寻的条件有哪些
-					if(item.Name!="fld_deleted"&&item.Name!=this.response.PRIMARY){
+					if(item.Name!="fld_deleted"&&item.Name!=this.response.PRIMARY&&item.Search==1){
 						//把需要的条件放在一个数组中
 						this.head_data.push(item.Comment);
 						//在动态的选择框中始终把第一项放在框中
@@ -1283,24 +1349,24 @@
 							break;
 						case "select_gift_package_warship":
 							//2
-							alert(2)
+							alert('没有数据')
 							break;
 						case "select_package_channel_more":
-							alert(3)
+							alert('没有数据')
 							break;
 						case "ItemArrayEditor_warship":
-							alert(4)
+							alert('没有数据')
 							break;
 						case "serverChoose_warship":
 							//4
-							alert(5)
+							alert('没有数据')
 							break;
 						case "packageChoose":
 							//2
-							alert(6)
+							alert('没有数据')
 							break;
 						case "serverChooseOne_warship":
-							alert(7)
+							alert('没有数据')
 							break;
 						}
 						
@@ -1308,7 +1374,10 @@
 			},
 			//刷新
 			refresh() {
-				// alert(1)
+				//头部数据重新加载因为this.fields是变动的
+				this.fields=this.columns.FIELDS;
+				//取消x号标志
+				this.show_x.pop()
 				this.sort_flag=true;
 				if(this.istrue.isrefresh==true){
 				var total=this.child_index_total;
@@ -1561,7 +1630,8 @@
 								if(this.isquery==true){
 									this.lookup()
 								};
-									this.refresh()
+									this.refresh();
+									this.$emit('parent_data_sort', this.sub_url, this.sort,this.sort_name);
 							}
 							
 						})
@@ -1587,7 +1657,9 @@
 							};
 							var reg=/UTC\+\d+$/g;
 							if(reg.test(this.updata_edit[i][k])){
-								this.updata_edit[i][k]=this.updata_edit[i][k].replace(/UTC\+\d+/g,'')
+								k++;
+								continue
+								// this.updata_edit[i][k]=this.updata_edit[i][k].replace(/UTC\+\d+/g,'')
 							}
 							parameter[k] = this.updata_edit[i][k];
 						}
@@ -1617,10 +1689,16 @@
 								}
 								//如果调用了查询接口那么添加的时候会自动请求查询接口
 								if(this.isquery==true){
-									this.lookup()
+									// this.lookup()
+									this.$emit('query',this.sub_url, this.child_index,this.Query_project,this.sort);
+									this.refresh();
+									this.$emit('parent_data_sort', this.sub_url, this.sort,this.sort_name);
+								}else{
+									this.refresh();
+									this.$emit('parent_data_sort', this.sub_url, this.sort,this.sort_name);
 								}
 							});
-							this.refresh()
+							
 							}
 							
 						})
@@ -1820,13 +1898,14 @@
 				}
 			},
 			//点击正反小三角切换数据的正序倒序
-			data_sort() {
+			data_sort(name) {
+				this.sort_name=name;
 				if (this.istrue.isorder == true) {
 					if (this.isup == 'itup' && this.isdown == 'itdown') {
 						this.isup = 'isup';
 						this.isdown = 'isdown';
 						this.sort='asc';
-						this.$emit('parent_data_sort', this.sub_url, this.sort);
+						this.$emit('parent_data_sort', this.sub_url, this.sort,name);
 						this.page=1;
 						this.child_index = 0;
 						this.child_index_page=1;
@@ -1835,7 +1914,7 @@
 						this.isup = 'itup';
 						this.isdown = 'itdown';
 						this.sort='desc';
-						this.$emit('parent_data_sort', this.sub_url, this.sort);
+						this.$emit('parent_data_sort', this.sub_url, this.sort,name);
 						this.page=1;
 						this.child_index = 0;
 						this.child_index_page=1;
@@ -2078,6 +2157,15 @@
     vertical-align: super;
     padding-bottom: 2px;
 } */
+.show_slot{
+	float: right;
+    display: inline-block;
+	/* right: 10px; */
+    margin-top: -6px;
+    cursor: pointer;
+    color: #77797c;
+    font-weight: 100;
+}
 input{
 	width: 175px;
 }
@@ -2088,6 +2176,7 @@ thead th{
 	background: #ebecf0;
     border: none;
 	color: #007bff;
+	padding: 0.75rem 0.9rem;
 }
 .first-box-bg{
 	background: #337ab7!important;
@@ -2153,7 +2242,7 @@ button, input{
     .fixed-list{
 		/* min-width: 150px; */
 		/* max-width: 150px; */
-		max-width: 700px;
+		/* max-width: 700px; */
 		/* min-width: 150px; */
 	}
     .row-a{
@@ -2222,6 +2311,14 @@ button, input{
 		outline: none;
 		margin-left: 1px;
 	}
+	.t-table {
+		font-size: 12px;
+		border: 1px solid #dee2e6
+		
+		/* float: right; */
+		/* overflow: auto; */
+		/* max-height: 753px; */
+	}
 	.body-sle{
 		font-size: 12px; 
 		height: 26px;
@@ -2277,6 +2374,7 @@ button, input{
 	}
 	tr {
 		height: 42px;
+		border-bottom: 1px solid #dee2e6;
 	}
 
 	.popup {
@@ -2416,8 +2514,9 @@ button, input{
 	.thead {
 		background-color: #ebecf0;
 	    transform: translateY(0px);
-		text-align: center;
-		/* z-index: 1; */
+		/* text-align: center; */
+		z-index: 1;
+		position: relative;
 	}
 
 	.list {
@@ -2467,4 +2566,9 @@ button, input{
 		/* position: fixed; */
 		/* bottom: 10px; */
 	}
+
+	.input-width{
+		width: 100%;
+	}
+	
 </style>

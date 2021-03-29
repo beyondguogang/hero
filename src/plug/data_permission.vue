@@ -1,29 +1,31 @@
 <template>
-  <div class="sel"  >
+  <div :class="{sel1:ie_sle,sel2:ch_sle}"  >
     <div role="document">
     <div class="modal-content">
       <div class="modal-header" >
         <span class="modal-title1">--数据权限--</span>
         <span aria-hidden="true" class="modal-span1" @click="close">&times;</span>
       </div>
-      <div class="modal-body">
+      <div class="modal-body table-responsive">
             <div class="box-table" @scroll="table_cont">
-              <table class="table table-hover text-nowrap">
+              <table class="table table-hover text-nowrap ">
+                <!-- <colgroup v-for="(colg,index) in columns" :key="index" width="300px"></colgroup> -->
                     <thead class="th" :style="{transform:'translateY('+tans_late+'px)'}">
+                      <!-- <thead class="th" :style="{width:tabal_width+'px'}" style=""> -->
                     <tr>
                       <th v-for="(list,index) in columns" :key="index"><label>{{list.Comment}}</label></th>
                       <th><input type="checkbox" @change="th_select" v-model="th_checkbox"></th>
                     </tr>
                   </thead> 
-                    <tbody class="t-body">
-                    <tr v-for="(list1,index) in data_list" :key="index" @click="tr_select(list1.fld_record_id)">
+                    <tbody class="t-body" >
+                    <tr v-for="(list1,index) in data_list" :key="index" @click="tr_select(list1[fld])">
                       <td v-for="(item,key,i) in list1" :key="i">{{item}}</td>
                       <!-- <td>{{list1.fld_record_id}}</td>
                       <td>{{list1.fld_create_time}}</td>
                       <td>{{list1.fld_modif_time}}</td>
                       <td>{{list1.fld_deleted}}</td>
                       <td>{{list1.fld_project_name}}</td> -->
-                      <td><input type="checkbox" v-model="td_checkbox" :value="list1.fld_record_id"></td>
+                      <td><input type="checkbox" v-model="td_checkbox" :value="list1[fld]"></td>
                     </tr>   
                   </tbody>                                                       
               </table>
@@ -50,7 +52,9 @@ export default {
   name:'data_list',
   data () {
     return {
+      //提示组件的内容
       current_state:'',
+      //显示组建的标志
       data_flag:false,
       //thead复选框的选中数据
       th_checkbox:false,
@@ -65,23 +69,35 @@ export default {
       //头部数据
       columns:null,
       //列表数据
-      data_list:null 
+      data_list:null ,
+      //表的主键字段
+      fld:null,
+      //ie样式
+      ie_sle:false,
+      //chrome样式
+      ch_sle:false,
+      // tabal_width:''
     }
   },
   props: {
-    // columns:Object,
-    // data_list:Array
+    //项目名
     project:String,
+    //数据库
     db:String,
-    table:String
+    //表名
+    table:String,
+    //输入框数据
+    in_data:Array
   },
   computed: {
 
   },
   created(){
+    //获取用户信息
    this.userInfo=window.sessionStorage.getItem('userInfo');
-    // console.log(this.td_checkbox)
-    this.get_data()
+    //执行获取数据的接口
+    this.get_data();
+    this.browser_compatible()
   },
   components: {
      tips
@@ -90,49 +106,73 @@ export default {
       
   },
   methods: {
+    //浏览器不兼容的样式
+    browser_compatible(){
+      if(!(!!window.ActiveXObject || "ActiveXObject" in window)){
+        this.ch_sle=true;
+      }else{
+        this.ie_sle=true;
+      }
+    },
     //获取数据
     get_data(){
+      //头部标题的接口
       this.axios.post(this.api+'/bin/'+this.project+'/'+this.db+'/'+this.table+ '/columns',{userInfo:this.userInfo}).then((res)=>{
-          // console.log(res.data)
-          this.columns=res.data.FIELDS;
-          // console.log(this.columns)
-          this.axios.get(this.api+'/data/'+this.project+'/'+this.db+'/'+this.table).then((res)=>{
-          // console.log(res.data)
-          if(res.data.length>0){
-            if(Object.keys(res.data[0]).some((item)=>{return item=='fld_record_id'})){
-            this.data_list=res.data;
-          }else{
-            this.data_flag=true;
-            setTimeout(()=>{
-							this.data_flag=false;
-						},1000)
-            this.current_state='lack fld_record_id'
-          }
-          }
-          
-          this.anate=false
-          // this.close();
+            //标题数据
+            this.columns=res.data.FIELDS;
+            //不同表中的主键的不同字段
+            this.fld=res.data.PRIMARY;
+            //内容的接口
+            this.axios.get(this.api+'/data/'+this.project+'/'+this.db+'/'+this.table).then((res)=>{
+            //判断有没有主键如果没有提示出没有主键
+            res.data.forEach((item,index)=>{
+              if(res.data.length>0){
+                //判断数据里面有没有主键如果有渲染所有的数据
+                if(Object.keys(item).some((item)=>{return item==this.fld})){
+                    this.data_list=res.data;
+                    return false
+                }else{
+                  //显示提示框
+                  this.data_flag=true;
+                  setTimeout(()=>{
+					  	  	  this.data_flag=false;
+					  	    },1000)
+                  //提示设置主键
+                  this.current_state='lack fld_record_id'
+                  return false
+                }
+              }
+            });
+            //如果输入框中有值就根据主键中的值选中哪项
+            if(this.in_data){
+                if(this.td_checkbox.length==0||this.td_checkbox.every((item,index)=>{return item!=i})){
+                  this.td_checkbox=this.in_data;
+                  this.th_checkbox=true;
+               }
+            };
+            //没有请求出数据时的状态
+            this.anate=false
             })
         })
     },
     //固定表头
     table_cont(e){
-				// alert(1)
+				// 表头距离滚动条滚动的距离
+        // console.log(e.target.children[0].children)
+        // this.tabal_width=e.target.children[0].offsetWidth
 				this.tans_late=e.target.scrollTop;
-				// console.log(e.target.scrollTop)
         }, 
     //点击总复选框全部选中
     th_select(){
-      console.log(this.th_checkbox)
       if(this.th_checkbox==true){
         this.data_list.forEach((data,index)=>{
-          if(this.td_checkbox.length==0||this.td_checkbox.every((item,index)=>{return item!=data.fld_record_id})){
-          this.td_checkbox.push(data.fld_record_id)
+          if(this.td_checkbox.length==0||this.td_checkbox.every((item,index)=>{return item!=data[this.fld]})){
+            this.td_checkbox.push(data[this.fld])
           }
         })   
       }else{
         this.data_list.forEach((data,index)=>{
-          this.td_checkbox=this.td_checkbox.filter((item,index)=>{return item!=data.fld_record_id})
+          this.td_checkbox=this.td_checkbox.filter((item,index)=>{return item!=data[this.fld]})
         })
       }
     },
@@ -156,8 +196,6 @@ export default {
     },
      //确定按钮
     confirm(){
-      console.log(this.td_checkbox)
-      // var data='['+this.td_checkbox+']';
       var data=this.td_checkbox;
       this.$emit('confirm_data',data)
     },
@@ -256,16 +294,28 @@ export default {
   .form-inline{
     font-size: 14px;
    }
-  .sel{
-    width: 600px;
+  .sel1{
+    /* width: 600px; */
+    max-width: 100%;
     position: fixed;
-    top: 30%;
-    left: 20%;
-    z-index:999
+    top: 150px;
+    left: 0;
+    z-index:999;
     /* transform: translate(-40%, -40%); */
+    /* transform: translate(calc(-50% + 0.5px), calc(-50% + 0.5px)); */
+  }
+  .sel2{
+     /* width: 600px; */
+    max-width: 100%;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index:999;
+    /* transform: translate(-40%, -40%); */
+    transform: translate(calc(-50% + 0.5px), calc(-50% + 0.5px));
   }
   .t-body{
-    height: 500px;
+    /* height: 500px; */
     overflow: auto;
     font-size: 14px;
   }

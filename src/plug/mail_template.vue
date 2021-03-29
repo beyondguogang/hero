@@ -56,7 +56,7 @@ export default {
     }
   },
   mounted(){
-    this.axios.get(this.api+"/AnyQuery/Tank/Activity/tbl_mail_template?fld_deleted=0").then(res=>{
+    this.axios.get(this.api+"/AnyQuery/Tank/Activity/tbl_mail_template?fld_deleted=0&"+'userInfo='+window.sessionStorage.getItem('userInfo')).then(res=>{
                              console.log(res.data)
                             this.res_data=res.data.reverse();
                             this.anate=false

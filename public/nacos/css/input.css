@@ -154,6 +154,43 @@
     border-color: #dcdee3;
 }
 
+
+.fa-up {
+    margin-bottom: 2px;
+    width: 0;
+    display: block;
+    height: 0;
+    overflow: hidden;
+    font-size: 0;
+    line-height: 0;
+    border-width: 3px;
+    border-style: dashed dashed solid dashed;
+    border-color: transparent transparent #696969 transparent;
+    cursor: pointer;
+}
+
+.fa-down {
+    display: block;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    font-size: 0;
+    line-height: 0;
+    border-width: 3px;
+    border-style: solid dashed dashed dashed;
+    border-color: #000000 transparent transparent transparent;
+    cursor: pointer;
+}
+
+.isup {
+    border-color: transparent transparent #000000 transparent;
+}
+
+.isdown {
+
+    border-color: #696969 transparent transparent transparent;
+}
+
 [v-cloak] {
     display: none;
 }

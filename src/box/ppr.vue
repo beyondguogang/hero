@@ -1,6 +1,6 @@
 <template>
 <transition name="fade">
-  <div class="project" v-drag>
+  <div class="project" :style="{transform:is_ie}" v-drag>
   <div role="document">
     <div class="modal-content" >
       <div class="modal-header">
@@ -63,11 +63,31 @@ export default {
       heade_data:[],
       rows:null,
       //标题
-      value:''
+      value:'',
+      //是否是ie
+      is_ie:false
     }
   },
   mounted(){
-    alert('ppr')
+    // alert('ppr')
+    //获取数据
+      this.get_data();
+      //判断是不是ie
+      this.t_ie()
+  },
+  props:[
+    'ppr_action',
+    'ppr_action_param',
+    'box_fun',
+    'rule_data'
+  ],
+  methods:{
+    t_ie(){
+      if (!!window.ActiveXObject || "ActiveXObject" in window) {
+        this.is_ie='translate(-50%, -50%)'
+      }
+    },
+    get_data(){
         //自动请求根据action的数据接口返回需要的页面数据
         this.axios.get(this.api+this.box_fun.ACTION_COLUMNS_URL).then((res1)=>{
           // alert(0)
@@ -78,7 +98,7 @@ export default {
           console.log(res1)
           //根据action请求数据，在利用前一个接口字段返回需要的接口数据    
           if(this.ppr_action=="selecttion_typeid"){
-             this.axios.get(this.api+this.box_fun.ACTION_DATA_URL).then((res) =>{
+             this.axios.get(this.api+this.box_fun.ACTION_DATA_URL+'?userInfo='+window.sessionStorage.getItem('userInfo')).then((res) =>{
               //  alert(3)
              //获取显示字段的数组
         this.show_data=this.box_fun.ACTION_SHOW_FIELDS;
@@ -124,7 +144,7 @@ export default {
       // var b=new Date().getTime();
       //     console.log(b)
       //     console.log(b-a)
-          this.axios.get(this.api+this.box_fun.ACTION_DATA_URL+'?fld_type_id='+this.ppr_action_param).then((res) =>{
+          this.axios.get(this.api+this.box_fun.ACTION_DATA_URL+'?fld_type_id='+this.ppr_action_param+'&userInfo='+window.sessionStorage.getItem('userInfo')).then((res) =>{
              //获取显示字段的数组
           //    var d=new Date().getTime();
           // console.log(d-b)
@@ -178,15 +198,7 @@ export default {
     })
     }
         })  
-  },
-  props:[
-    'ppr_action',
-    'ppr_action_param',
-    'box_fun',
-    'rule_data'
-  ],
-  methods:{
-    
+    },
     //固定表头
     table_cont(e){
 				// alert(1)

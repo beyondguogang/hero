@@ -51,6 +51,9 @@ let vm=new Vue({
             edit_role:1,
             show_tips_box:false,
             current_state:'没有添加权限',
+            group_fld:'',
+            //遮罩
+            view_show:false,
     },
     mounted() {
         //判断过期
@@ -204,6 +207,7 @@ let vm=new Vue({
         },
         //获取详情数据
         getFindInfo:function(){
+            // alert(0)
             axios
                 .post(serverUrl+'/nacos/serverFindInfo',{
                     fld_id:this.fld_id,
@@ -219,8 +223,9 @@ let vm=new Vue({
                         },1000)
                         return false;
                     }else{
+                        // alert(1)
                         this.serverInfo=response.data.serverFindInfo;
-                        // console.log(this.serverInfo)
+                        console.log(this.serverInfo)
                         // this.$refs.datakey.value=response.data.serverFindInfo.fld_name;
                         // this.$refs.datades.value=response.data.serverFindInfo.fld_des;
                         // $("#selected1-"+this.serverInfo.fld_group_id).attr("selected","selected");
@@ -228,6 +233,7 @@ let vm=new Vue({
                         this.server_name=this.serverInfo.fld_name;
                         this.group_name=this.serverInfo.fld_group;
                         this.describe=this.serverInfo.fld_des;
+                        // console.log(this.describe)
                         this.getExample();
                     }
                     
@@ -236,13 +242,18 @@ let vm=new Vue({
         },
         //服务发现更新
         serverFindAdd:function(){
-            
+            console.log(this.serverInfo)
             var fld_name = $("#sfn").html();
             var fld_project_id = this.serverInfo.fld_project_id;
             // var fld_namespace_id = this.serverInfo.fld_namespace_id;
-            var fld_group_id = $("#selectValue2").val();
+            // var fld_group_id = $("#selectValue2").val();
+            var fld_group_id = this.serverInfo.fld_group_id;
+            // console.log(fld_group_id)
             // var fld_istpt = $("#sfyz").val();
             var fld_des = $('#code_t1').val();
+
+            // console.log(fld_des)
+            // alert(1)
             var fld_id = this.serverInfo.fld_id;
             // fld_istpt=fld_istpt.trim();
             // if(!/^[0-9]*[0-9][0-9]*$/.test(fld_istpt)){
@@ -308,6 +319,9 @@ let vm=new Vue({
         serverFindEditShow:function () {
             $("#sfn").html(this.serverInfo.fld_name);
             $("#sfyz").val(this.serverInfo.fld_istpt);
+            $('code_t1').html(this.serverInfo.fld_des);
+            // console.log( $('code_t1').val())
+            this.view_show=true;
             if(this.server===''){
                 this.server=true;
                 this.edit='';
@@ -317,10 +331,11 @@ let vm=new Vue({
         //编辑弹窗关
         updateClose:function () {
             this.server='';
+            this.view_show=false;
         },
         //返回按钮
         detailReturn:function () {
-           window.location.href='serverFindList.html';
+           window.location.href='serverFindList.html?projectId='+this.fld_project_id;
         },
         getGroup:function(){
             axios

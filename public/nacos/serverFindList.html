@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="node_modules/codemirror/theme/blackboard.css">
     <link rel="stylesheet" href="css/server-list.css">
     <link href="node_modules/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.css">
     <link href="css/item.css" rel="stylesheet">
     <link href="css/input.css" rel="stylesheet">
     <link rel="stylesheet" href="css/modify.css">
@@ -59,7 +60,7 @@
                                 <div>
                                     <div class="server-meta">描述:</div>
                                 </div>
-                                <textarea ref="datavalue" class="texttarea" name="code_textarea" id="code_textarea"></textarea>
+                                <textarea ref="datavalue" class="texttarea" name="code_textarea" id="code_textarea" v-model="tera"></textarea>
                             </div>
                             <div class="server-find-btn">
                                 <button @click="serverFindAdd" class="server-find-true">确定</button>
@@ -87,7 +88,12 @@
                             <thead>
                             <tr>  
                                 <th class="add">
-                                    <div>服务名称</div>
+                                    <div>服务名称
+                                        <span @click="data_sort" style="display: inline-block;vertical-align: -3px; border: none;position:inherit;background-color:#ebecf0 ;">
+                                            <i class="fa-up" :class="[isup]"></i>
+                                            <i class="fa-down" :class="[isdown]"></i>
+                                        </span>
+                                    </div>
                                 </th>
                                 <th class="add">
                                     <div>所属分组</div>
@@ -129,7 +135,9 @@
         <div class="popup">
             <p class="content-tips">{{current_state}}</p>
         </div>
-      </div>
+    </div>
+     <!-- 遮罩 -->
+     <div style="width: 100%;height: 100%;background: #e2e2e2;color: #e2e2e2;position: fixed;top: 0;opacity: .5;" v-if="view_show"></div>
 </div>
 </body>
 </html>

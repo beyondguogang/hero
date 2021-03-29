@@ -32,6 +32,12 @@
 										<option v-for="(item,index) in UTC_ZONE" :key="index" :value="item">{{item}}</option>
 									</select>
 								</span>
+								<!-- <span>是否显示
+									<select @change="sle_time" v-model="show_comment">
+										<option disabled value="">请选择</option>
+										<option v-for="(item,index) in fields" :key="index" :value="item.Comment">{{item.Comment}}</option>
+									</select>
+								</span> -->
 								<span>
 								<span>欢迎<b class="user_icon">{{username}}</b></span>
 								<!-- <span @click="change_psd">修改密码</span> -->
@@ -62,14 +68,14 @@
 				<div class="loading" v-if="anate"><i class="fa fa-spin fa-refresh"></i><p>正在加载</p></div>
 				<div class="data" :class="[active]">
 					<!-- content-admin组件 -->
-					<content-admin @lookup="lookup" @child_home="child_home" @child="child" @child_next="child_next" @child_end="child_end"
+					<content-admin @close_content="close_content" @lookup="lookup" @child_home="child_home" @child="child" @child_next="child_next" @child_end="child_end"
 		 				  @parent_data_sort="parent_data_sort" @parent_refresh="parent_refresh" @query="query" :sub_url="sub_url" :sub_index="sub_index"
-		                  :fields="fields" :rows="rows" :project_data="project_data" :response="response" v-if="flag" :istrue="istrue" :isquery="isquery" 
+		                  :columns="columns" :rows="rows" :project_data="project_data" :response="response" v-if="flag" :istrue="istrue" :isquery="isquery" 
 		                  :no_data="no_data" >
 					</content-admin>
-					<content-warship @lookup="lookup" @child_home="child_home" @child="child" @child_next="child_next" @child_end="child_end"
+					<content-warship @close_content="close_content" @lookup="lookup" @child_home="child_home" @child="child" @child_next="child_next" @child_end="child_end"
 		 				  @parent_data_sort="parent_data_sort" @parent_refresh="parent_refresh" @query="query" :sub_url="sub_url" :sub_index="sub_index"
-		                  :fields="fields" :rows="rows" :project_data="project_data" :response="response" v-if="flag_warship" :istrue="istrue" :isquery="isquery" 
+		                  :columns="columns" :rows="rows" :project_data="project_data" :response="response" v-if="flag_warship" :istrue="istrue" :isquery="isquery" 
 		                  :no_data="no_data" >
 					</content-warship>
 					<!-- 组件 -->
@@ -78,6 +84,7 @@
 					<nacos v-if="box_data.nacos"></nacos>
 					<!-- 提示组件 -->
 					<tips v-if="sel_tips" :current_state="current_state"></tips>
+					<pro-gress v-if='pro_flag' @parent_refresh="parent_refresh"></pro-gress>
 				</div>
 		
 			</div>
@@ -100,6 +107,8 @@
 	import nacos from '@/components/nacos';
 	//弹框提示组件
 	import tips from "../box/tips";
+	//sdk配置组件
+	import proGress from "@/components/set_progress.vue"
 	// import userPas from '@/components/user_psd.vue'
 	export default {
 		name: 'Home',
@@ -110,11 +119,14 @@
 			sendMail,
 			nacos,
 			//提示组件
-			tips
+			tips,
+			proGress
 			// userPas
 		},
 		data() {
 			return {
+				//proprogress是否显示
+				pro_flag:false,
 				//项目下拉框的索引
 				project_index:'',
 				//是否显示提示组件
@@ -158,6 +170,8 @@
 				sle_zone:'UTC+0000',
 				//项目的选择框数据
 				btn_selected:'',
+				//是否显示数据
+				show_comment:'',
 				//加载状态
 				anate:false,				
 				//头部请求的数据
@@ -228,6 +242,8 @@
 				sord:'desc',
 				//选择项目的副本
 				copy_select:null,
+				//头部数据
+				columns:null,
 			}
 			
 		},
@@ -236,14 +252,37 @@
 		},
 		computed: {},
 		mounted() {
+			console.log(this.rows)
+			// alert(1)
 			//头部左边状态自动请求头部数据1607504568
 			this.getHeadData();
 		},
-		methods: {                        
+		methods: {   
+			//删除每列的数据
+			close_content(h,i){
+					var flag=h.Name
+					for (let j=0 ;j<this.rows.length;j++){
+						for (var k in this.rows[j]){
+							if(flag==k){
+								delete  this.rows[j][k]
+							}
+						}
+					}
+					// console.log(this.rows)
+			},         
 			//头部左边状态自动请求头部数据和加载本地保存的数据sessionStorage
 			getHeadData(){
 				// alert(0)
-				this.axios.get(this.api + '/Login/ProjList').then(res => {
+				// console.log(JSON.stringify(window.sessionStorage.getItem('userInfo')))
+				// console.log(window.sessionStorage.getItem('userInfo'))
+				//
+				if(window.sessionStorage.getItem('userInfo')=='null'){
+					// alert(0)
+					this.$router.replace({
+						path: "/login"
+					})
+				}else{
+					this.axios.get(this.api + '/Login/ProjList?userInfo='+window.sessionStorage.getItem('userInfo')).then(res => {
 				//获取项目列表
 				this.project_list = res.data;
 				//获取项目索引
@@ -286,6 +325,8 @@
 				//判断是否登录过期
 				this.login_expired()
 				});
+				}
+				
 			},
 			//登录过期
 			login_expired(){
@@ -527,19 +568,21 @@
 				//设置页面铺满全屏
 				this.active='col-lg-12';
 				//当url对应的不是页面的时候直接请求不同的接口使用相同的组件
-				if(url!='/Tank/Other/QueryRoles'&&url!="/Tank/Other/SendMail"){					
+				if(url!='/Tank/Other/QueryRoles'&&url!="/Tank/Other/SendMail"&&url!="/Admin/Other/SetProgress"){					
 					let time = new Date().getTime();
 					//加载时的状态
 					this.anate=true;
 					//请求数据列表表头及相关的接口信息（增删改查）
 					this.axios.post(this.api + '/bin' + url + '/columns', {
 					//用户信息
-					userInfo: this.userInfo
+					userInfo: window.sessionStorage.getItem('userInfo')
 				}).then(res => {
 					//将数据赋值给response
 					this.response = res.data;
+					console.log(this.response)
 					//获取项目的表头数据 项目表格中的标题
-					this.fields = res.data.FIELDS;
+					this.columns = res.data;
+					this.fields=res.data.FIELDS;
 					//根据表模板的字段显示不同的页面，做定制表的页面 动态获取页面显示的条数
 						if(this.response.PAGE_TEMPLATE=="page_grid"){
 							//计算显示数据的框的高度
@@ -579,6 +622,7 @@
 											}
 										});
 									this.rows = res.data.rows;
+									// console.log(this.rows)
 									}else{//如果没有数据
 										this.sel_tips=true;
 										this.current_state='没有数据';
@@ -813,7 +857,8 @@
 				}	
 			},
 			//子组件调用父组件方法刷新数据正倒序
-			parent_data_sort(url, sort) {
+			parent_data_sort(url, sort,name) {
+				// console.log(name)
 				//当调用查询接口后请求的接口
 					if(this.isquery==true){
 					//加载的状态
@@ -826,7 +871,7 @@
 						nd: time,
 						rows: this.data_page,
 						page: 1,
-						sidx: this.response.PRIMARY,
+						sidx: name,
 						sord: sort,
 						filters:this.query_project,
 						searchField:'',
@@ -869,6 +914,7 @@
 						window.sessionStorage.setItem('sord',sort);
 							})
 				}else{//没有调用查询接口请求的数据
+				console.log(name)
 					//加载状态
 					this.anate=true;
 					//加载完成标志
@@ -879,11 +925,12 @@
 						nd: time,
 						rows: this.data_page,
 						page: 1,
-						sidx: this.response.PRIMARY,
+						sidx: name,
 						sord: sort,
 						userInfo: this.userInfo
 					}).then(res => {
 						this.project_data = res.data;
+						console.log(this.project_data)
 						//更新时区
 						if(res.data.rows!=undefined){
 								this.fields.map((ite,index,arr)=>{
@@ -1148,6 +1195,7 @@
 						 this.anate=false;
 					})
 				}else{//没有查询时的请求接口
+				// alert(0)
 					//加载状态
 					this.anate=true;
 					//加载完成的标志
@@ -1308,7 +1356,7 @@
 					//请求接口时的动画
 					this.anate=true;
 					//请求项目菜单
-					this.axios.get(this.api + '/Login/Menu?Project=' + name.Name).then(res => {
+					this.axios.get(this.api + '/Login/Menu?Project=' + name.Name+'&'+'userInfo='+window.sessionStorage.getItem('userInfo')).then(res => {
 					this.menu_data = res.data;
 					this.is_icon = '';
 					//如果项目菜单中的子菜单是页面不是数据表执行别的组件
@@ -1338,6 +1386,20 @@
 						}
 						//发送邮件组件显示
 						this.box_data.mail=true;
+						//获取项目对象
+						this.btn_selected=name;
+					}else if(url=="/Admin/Other/SetProgress"){//发送邮件页面
+						this.sub_url = url;
+						this.sub_index = index;
+						let len = window.history.length;
+						this.change(change_index);
+						if (this.is_sty === index) {
+							this.is_sty = '';
+						} else {
+							this.is_sty = index;
+						}
+						//发送邮件组件显示
+						this.pro_flag=true;
 						//获取项目对象
 						this.btn_selected=name;
 					}
@@ -1372,12 +1434,17 @@
 			},
 			//退出登录
 			out() { 
-				//保存选择项的索引
-				window.sessionStorage.setItem('btn_selected',this.project_index);
-				//保存推出前的地址
-				if(this.$route.params.project != undefined){
-					window.sessionStorage.setItem('url',this.project_list[this.copy_select].Name+','+this.surl+','+this.index+','+this.change_index);
-				};
+				console.log(this.project_list[this.copy_select])
+				// alert(0)
+				if(this.project_list[this.copy_select]){
+					// alert(1)
+					//保存选择项的索引
+					window.sessionStorage.setItem('btn_selected',this.project_index);
+					//保存推出前的地址
+					if(this.$route.params.project != undefined){
+						window.sessionStorage.setItem('url',this.project_list[this.copy_select].Name+','+this.surl+','+this.index+','+this.change_index);
+					};
+				}
 				//保存userInfo
 				window.sessionStorage.setItem('userInfo','null');
 				//返回登录页面
@@ -1524,7 +1591,7 @@
 	}
 	.menu {
 		/* width: 10%; */
-		z-index: 1;
+		z-index: 2;
 		background: gainsboro;
 		position: fixed;
 		top: 52px;

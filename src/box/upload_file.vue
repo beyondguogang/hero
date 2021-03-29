@@ -7,10 +7,12 @@
         <span aria-hidden="true" class="modal-span" @click="close">&times;</span> 
       </div>
       <div class="modal-body">
-             <textarea class="text" name="" id="" cols="100" rows="10" v-model="text_info"></textarea>
+             <!-- <textarea class="text" name="" id="" cols="100" rows="10" v-model="text_info"></textarea> -->
+                 <input type="file" name="" accept=".xls,.xlsx" id="up_file">
+             
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default btn-default-close" data-dismiss="modal" @click="cancel">取消</button>
+        <!-- <button type="button" class="btn btn-default btn-default-close" data-dismiss="modal" @click="cancel">取消</button> -->
         <button type="button" class="btn btn-default-determine" @click="confirm">确定</button>
         
       </div>
@@ -25,38 +27,61 @@ export default {
     return {
         text_info:'',
         is_ie:'',
+        cel_file:'',
+        file:''
     }
   },
   props:{
-    rule_data:String,
+    // rule_data:String,
+    columns:Object,
+    file_close:Boolean
   },
   mounted () {
-    alert('edit')
-      this.edit();
+    // alert('edit')
+    //   this.edit();
       this.t_ie()
+    //   console.dir(FormData)
   },
   methods: {
+    //   sel_file(e){
+    //       console.log(e.target.files)
+    //       this.cel_file=e.target.files;
+    //       console.log(this.cel_file[0][File])
+    //   },
      t_ie(){
       if (!!window.ActiveXObject || "ActiveXObject" in window) {
         this.is_ie='translate(-50%, -50%)'
       }
     },
     //编辑时的内容
-    edit(){
-      this.text_info=this.rule_data
-    },
+    // edit(){
+    //   this.text_info=this.rule_data
+    // },
     //   确认按钮
      confirm(){
-         this.$emit('edit_confirm', this.text_info)
+        this.file=document.getElementById('up_file').files[0];
+        let formdata = new FormData()
+        formdata.append('userInfo',window.sessionStorage.getItem('userInfo'))
+        formdata.append('upload', this.file)
+        let config = {
+            headers: {
+            'Content-Type': 'multipart/form-data'
+            }
+         };
+         this.axios.post(this.api+this.columns.URL_IMPORTEXCEL,formdata,config).then((res)=>{
+             this.$emit('close_project');
+             this.$emit('import_refresh');
+         })
      },
     //  关闭图标
      close(){
          this.$emit('close_project')
+        // this.file_close=false
      },
     //  取消按钮
-    cancel(){
-        this.text_info='';
-    }
+    // cancel(){
+    //     this.text_info='';
+    // }
   },
   components: {
      

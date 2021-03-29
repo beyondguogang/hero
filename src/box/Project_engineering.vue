@@ -67,6 +67,7 @@ export default {
   },
   mounted(){
     alert('pro')
+    console.log(window.sessionStorage.getItem('userInfo'))
     // console.log(this.check_data)
    
         switch (this.ppr_action){
@@ -83,10 +84,10 @@ export default {
           //根据action请求数据，在利用前一个接口字段返回需要的接口数据    
           if(this.ppr_action=="SelectMoreClientPacketTank"){
             // alert(1)
-             this.axios.get(this.api+this.box_fun.ACTION_DATA_URL).then((res) =>{
+             this.axios.get(this.api+this.box_fun.ACTION_DATA_URL+'?userInfo='+window.sessionStorage.getItem('userInfo')).then((res) =>{
              //获取显示字段的数组
         this.show_data=this.box_fun.ACTION_SHOW_FIELDS;
-        console.log(this.show_data)
+        // console.log(this.show_data)
         //遍历显示字段
         for(var i=0;i<this.show_data.length;i++){
           //遍历头部数据
@@ -97,12 +98,12 @@ export default {
                       })
         }
         this.list_data=res.data.reverse();
-        this.list_data.forEach(item=>{console.log(item)})
+        // this.list_data.forEach(item=>{console.log(item)})
         // this.anate=false;
     })
      }else if(this.ppr_action=="ServerGroupChooseTank"){
       //  alert(2)
-          this.axios.get(this.api+this.box_fun.ACTION_DATA_URL+'?fld_type_id='+this.ppr_action_param).then((res) =>{
+          this.axios.get(this.api+this.box_fun.ACTION_DATA_URL+'?fld_type_id='+this.ppr_action_param+'&'+'userInfo='+window.sessionStorage.getItem('userInfo')).then((res) =>{
              //获取显示字段的数组
         this.show_data=this.box_fun.ACTION_SHOW_FIELDS;
         //遍历显示字段

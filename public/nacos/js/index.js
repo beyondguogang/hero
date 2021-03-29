@@ -68,14 +68,15 @@ let vm=new Vue({
             this.heo = '';
             this.sty = true
 
-        },
+        },*/
         //退出登陆
         logout:function(){
-            sessionStorage.setItem('user',null);
-            window.location.href="./login.html";
+            sessionStorage.setItem('userInfo',null);
+            // console.log(webUrl)
+            window.location.href=webUrl;
             return false;
 
-        },*/
+        },
         //是否登录过期
         login_expired:function(){
             this.userInfo=sessionStorage.getItem('userInfo');

@@ -18,6 +18,12 @@ let vm=new Vue({
         // disappear:'',
         // nameList:"",
         // namespace_id:"",
+        //正序
+		isup: 'itup',
+		//倒序
+		isdown: 'itdown',
+        //是否禁止点击正反序的三角
+		sort_flag:true,
         groupList:"",
         group_id:"",
         //显示页面
@@ -44,7 +50,9 @@ let vm=new Vue({
         show_tips_box:false,
         current_state:'没有添加权限',
         //是否显示数据
-        t_body:true
+        t_body:true,
+        //遮罩
+        view_show:false,
     }
 },
 
@@ -165,6 +173,25 @@ methods:{
                
     //         })
     // },
+
+
+    //点击正反小三角切换数据的正序倒序
+	data_sort() {
+		//当数据请求完成在执行下次请求
+		// if (this.istrue.isorder == true) {
+			//正序
+			if (this.isup == 'itup' && this.isdown == 'itdown') {
+				//小三角样式
+				this.isup = 'isup';
+				this.isdown = 'isdown';
+                this.serverList=this.serverList.reverse()
+			} else if (this.isup == 'isup' && this.isdown == 'isdown') {//反序
+				this.isup = 'itup';
+				this.isdown = 'itdown';
+                this.serverList=this.serverList.reverse()
+			}
+		// }
+	},
   
     //根据项目id获取不同的页面
     item_id:function(){
@@ -199,7 +226,8 @@ methods:{
         }
     },
     //获取项目列表
-    getServerList: function () {   
+    getServerList: function () { 
+        // alert('正在加载')  
         axios
             .post(serverUrl+'/nacos/serverconfList',{fld_project_id:this.project_id,userInfo:this.userInfo})
             .then(response => {
@@ -208,11 +236,15 @@ methods:{
                     this.current_state=response.data.message;
                     window.setTimeout(()=>{
                         this.show_tips_box=false;
-                    },1000)
+
+                    },1000);
+                    this.serverList='';
+                    this.serverAddUrl="serverConfDetail.html?fld_project_id="+this.project_id;
                     return false;
                 }else{
                     this.serverList = response.data.serverConfList;
                     this.serverAddUrl="serverConfDetail.html?fld_project_id="+this.project_id;
+                    console.log(this.serverList)
                 } 
             }) 
     },   
@@ -237,6 +269,7 @@ methods:{
     },
     //服务编辑跳转
     serverDetail:function(fld_id){
+        // console.log(fld_id,this.project_id)
             window.location.href = 'serverConfDetail.html?fld_id='+fld_id+'&&fld_project_id='+this.project_id;
         
     },
@@ -251,6 +284,8 @@ methods:{
             .post(serverUrl+'/nacos/serverconfSearch',{fld_project_id:this.project_id,fld_name:fld_name,fld_group:fld_group,userInfo:this.userInfo})
             .then(response => {
                 if(response.data.error==-1){
+                    this.$refs.namevalue.value='';
+                    this.$refs.groupvalue.value='';
                     this.show_tips_box=true;
                     this.current_state=response.data.message;
                     window.setTimeout(()=>{
@@ -258,9 +293,10 @@ methods:{
                     },1000)
                     return false;
                 }else{
+                    this.$refs.namevalue.value='';
+                    this.$refs.groupvalue.value='';
                     this.serverList = response.data.serverConfList;
                 }
-                
             })
 
 
@@ -303,6 +339,7 @@ methods:{
     add:function(e){
         e.preventDefault();
         if(this.show_dis==true){
+            // alert(1)
             this.show_tips_box=true;
             window.setTimeout(()=>{
                 this.show_tips_box=false;

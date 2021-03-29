@@ -61,13 +61,6 @@ let vm=new Vue({
             this.sty = true
 
         },
-       // 退出登陆
-        logout:function(){
-            sessionStorage.setItem('user',null);
-            window.location.href="./login.html";
-            return false;
-
-        },
          group_fn : function () {
             if (!this.isItemList2) {
                 this.isItemList2 = true;
@@ -81,6 +74,16 @@ let vm=new Vue({
             }
 
         },*/
+       // 退出登陆
+        logout:function(){
+            window.sessionStorage.setItem('userInfo',null);
+            // this.userInfo=null;
+            // console.log(this.userInfo)
+            window.location.href=webUrl;
+            return false;
+
+        },
+        
          //是否登录过期
         login_expired:function(){
             this.userInfo=sessionStorage.getItem('userInfo');

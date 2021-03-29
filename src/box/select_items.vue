@@ -70,7 +70,7 @@ export default {
   },
   mounted () {  
     alert('selectItems')
-     this.axios.get(this.api+this.box_fun.ACTION_DATA_URL+'/summary').then((res)=>{
+     this.axios.get(this.api+this.box_fun.ACTION_DATA_URL+'/summary'+'?userInfo='+window.sessionStorage.getItem('userInfo')).then((res)=>{
          this.res_data=res.data;
          //副本
          this.copy_data=res.data;

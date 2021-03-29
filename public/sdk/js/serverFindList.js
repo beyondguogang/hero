@@ -189,6 +189,7 @@ fn3:function(){
     },
     // 获取项目列表
     getServerFindList: function () {
+        
         axios
             .post(serverUrl+'/sdk/gsdkList',{fld_project_id:this.project_id,userInfo:this.userInfo})
             .then(response => {
@@ -334,13 +335,15 @@ fn3:function(){
                 .post(serverUrl+'/sdk/gsdkSearch',{fld_project_id:this.project_id,fld_productcode:code_name,userInfo:this.userInfo})
                 .then(response => {
                     if(response.data.error==-1){
-                    this.show_tips_box=true;
-                    this.current_state=response.data.message;
-                    window.setTimeout(()=>{
-                        this.show_tips_box=false;
-                    },1000)
+                        this.$refs.codevalue.value='';
+                        this.show_tips_box=true;
+                        this.current_state=response.data.message;
+                        window.setTimeout(()=>{
+                            this.show_tips_box=false;
+                        },1000)
                         return false;
                     }else{
+                        this.$refs.codevalue.value='';
                         this.serverFindList = response.data.gsdkList;
                     }
                     

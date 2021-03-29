@@ -13,6 +13,10 @@ let vm=new Vue({
             // hide1:'none',          
             // a:"",
             // nameList:"",
+            //正序
+		    isup: 'itup',
+		    //倒序
+		    isdown: 'itdown',
             //分组列表
              groupList:"",
             //获取项目列表
@@ -38,7 +42,10 @@ let vm=new Vue({
             show_tips_box:false,
             current_state:'没有添加权限',
             //是否显示数据
-            t_body:true
+            t_body:true,
+            fld_id:'',
+            //遮罩
+            view_show:false,
     },
 
     mounted() {
@@ -90,6 +97,24 @@ let vm=new Vue({
                 this.bor1='1px solid red';
             }
         },*/
+        //点击正反小三角切换数据的正序倒序
+			data_sort() {
+				//当数据请求完成在执行下次请求
+				// if (this.istrue.isorder == true) {
+					//正序
+					if (this.isup == 'itup' && this.isdown == 'itdown') {
+						//小三角样式
+						this.isup = 'isup';
+						this.isdown = 'isdown';
+                        this.groupList=this.groupList.reverse()
+					} else if (this.isup == 'isup' && this.isdown == 'isdown') {//反序
+						this.isup = 'itup';
+						this.isdown = 'itdown';
+                        this.groupList=this.groupList.reverse()
+					}
+				// }
+			},
+
         //获取分组列表
         getGroup:function(){
             axios
@@ -239,8 +264,10 @@ let vm=new Vue({
             if(this.serverNewFlag==true){
                 this.$refs.groupname.value='';
                 this.$refs.groupdes.value='';
+                this.fld_id='';
                 this.isEdit="0";
                 this.spring='block';
+                this.view_show=true;
             }else{
                 this.show_tips_box=true;
                 window.setTimeout(()=>{
@@ -256,6 +283,7 @@ let vm=new Vue({
             //     this.shows=false;
             // },1000)
             this.spring='none'
+            this.view_show=false;
         },
         //删除分组列表
         groupDel:function(e){
@@ -292,7 +320,8 @@ let vm=new Vue({
         //编辑项目
         groupEdit:function(e){
             this.isEdit="1";
-            var fld_id=e.target.getAttribute('fld_id')
+            var fld_id=e.target.getAttribute('fld_id');
+            this.view_show=true;
             axios
             .post(serverUrl+'/nacos/groupInfo',
             {
@@ -314,7 +343,8 @@ let vm=new Vue({
                     this.$refs.groupname.value=this.groupInfo.fld_name;
                     this.$refs.groupdes.value=this.groupInfo.fld_des;
                     //console.log(this.groupInfo);
-                    $("#select-"+this.groupInfo.fld_project_id).attr("selected","selected");
+                    // $("#select-"+this.groupInfo.fld_project_id).attr("selected","selected");
+                    this.fld_id=this.groupInfo.fld_project_id;
                     //this.$refs.projectnamen.value=;
                     this.spring='block'
                 }
