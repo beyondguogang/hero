@@ -2,34 +2,36 @@
 	<div class="hello" @click="close">
 			<div class="row no-gutters shop">
 				<!-- 设置一个动态的高度溢出时自动显示滚动条 -->
-				<div class="col-lg-12  col-md-12 table-responsive" :style="{overflow: 'auto',height:offset_height+'px'}" @scroll="table_cont" >
+				<div class="col-lg-12  col-md-12 table-responsive" :style="{'overflow-x': 'auto','overflow-y':'hidden',height:offset_height+'px'}" @scroll="" >
 						<!-- :style="{maxHeight:fontSize+'px'}" -->
 						<div>
+							<table>
 						<div>
 					<table class="t-table text-nowrap " style="" >
 						<!-- 表格头部 -->
 						<!-- 将表头固定 translateY的优先层级最高当高度超出时出现滚动条滚动时表头一直计算滚动的高度所以内容数据一直往上滚动而表头固定-->
-						<thead class="thead" >
+						<thead class="thead">
 							<tr >
-								<th v-show="fields"  ><div class="fixed"></div></th>
-								<th v-show="fields"  ><div class="fixed"><input type="checkbox" v-model="btn_check" @change="tr_flag && btn_check_cli()"></div></th>
-								<th  class="thb" v-for="(head,index) in fields" :key="index"  @mouseenter="open_x(index)" @mouseleave="close_x(index)">
+								<th v-show="fields"  :style="{transform:'translateY('+tans_late+'px)'}"><div class="fixed"></div></th>
+								<th v-show="fields"  :style="{transform:'translateY('+tans_late+'px)'}"><div class="fixed"><input type="checkbox" v-model="btn_check" @change="tr_flag && btn_check_cli()"></div></th>
+								<th :style="{transform:'translateY('+tans_late+'px)'}" class="thb" v-for="(head,index) in fields" :key="index"  @mouseenter="open_x(index)" @mouseleave="close_x(index)">
 									<div style="width:150px;text-overflow: ellipsis;overflow: hidden;" :style="{width:(head.ShowWidth?head.ShowWidth:150)+'px'}" >
 										{{head.Comment}} 
 										<span v-show="head.isSort" @click="sort_flag && data_sort(head.Name)" style="display: inline-block;vertical-align: -3px;">
 											<i class="fa-up" :class="[isup]"></i>
 											<i class="fa-down" :class="[isdown]"></i>
 										</span>
-										<span class="show_slot" v-if="show_x[index]" @click="close_clo(head,index)">x</span>
+										<span class="show_slot" v-if="show_x[index]" @click="close_flag&&close_clo(head,index)">x</span>
 									</div>
 									
 								</th>
+								<th v-show="clo_flag" style="width:16px"></th>
 							</tr>
 						</thead>
 					</table>
 					</div>
 						<!-- 表格数据 -->
-						<div>
+						<div :style="{height:(offset_height-78)+'px','overflow-y': 'auto','overflow-x':'hidden'}">
 						<table class="t-table text-nowrap " style="" >
 						<tbody id="tbody" >
 							<!-- 新建的列表数据   当有多个循环的时候key值不能重复-->
@@ -97,6 +99,7 @@
 						</tbody>
 					</table>
 					</div>
+					</table>
 					</div>
 				</div>
 			</div>
@@ -431,6 +434,10 @@
 				fields:this.columns.FIELDS,
 				//显示x号
 				show_x:[],
+				//显示头部列
+				clo_flag:false,
+				//小x号标志
+				close_flag:true,
 				// //内容副本
 				// rows:this.rows
 			}
@@ -1294,6 +1301,7 @@
 			},
 			//撤销
 			bt_revoke() {
+				this.clo_flag=false;
 				//正反序标志
 				this.sort_flag=true;
 				//减去新建时的页数
@@ -1752,6 +1760,10 @@
 			},
 			//新建
 			add() {
+				//不能点击小x号
+				this.close_flag=false;
+				//显示头部多出的一列
+				this.clo_flag=true;
 				//正反序的标志
 				this.sort_flag=false;
 				//总复选框为true
@@ -2164,7 +2176,8 @@
 	padding-left: 10px!important;
 	padding-right: 10px!important;
 	vertical-align:middle;
-	box-shadow: inset 1px 0 0 0 #dee2e6;	
+	box-shadow: inset 1px 0 0 0 #dee2e6;
+	background-color: #ebecf0;	
 }
 
 	

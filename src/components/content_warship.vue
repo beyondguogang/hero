@@ -37,7 +37,10 @@
 						<button @click="lookup" style="width:54px; outline: none;margin-left:145px;background:#fff;color:#000;border:1px solid #808080;cursor: pointer"><span class="iconfont icon-chaxun"></span>查询</button>
 						<button @click="refresh" style="outline: none;cursor: pointer"><span class="iconfont icon-shuaxin"></span>刷新</button>
 				</div>
-				<div class="col-lg-12  col-md-12 table-responsive" style="overflow: auto ;" :style="{overflow: 'auto',height:offset_height+'px'}" @scroll="table_cont" >
+				<div class="col-lg-12  col-md-12 table-responsive" style="overflow: auto ;" :style="{'overflow-x': 'auto','overflow-y':'hidden',height:offset_height+'px'}" @scroll="" >
+					<div>
+						<table>
+							<div>
 						<!-- :style="{maxHeight:fontSize+'px'"} -->
 					<table class="t-table table-bordered text-nowrap " style="" >
 						<!-- 表格头部 固定头部当设置overflow:auto时当超出高度时会出现滚动条设置translate后表头始终距离前一个元素滚动条的距离，后面的内容会在滚动的时候覆盖在表头底部-->
@@ -52,13 +55,17 @@
 										<i class="fa-up" :class="[isup]"></i>
 										<i class="fa-down" :class="[isdown]"></i>
 									</span>
-									<span class="show_slot" v-show="show_x[index]" @click="close_clo(head,index)">x</span>
+									<span class="show_slot" v-show="show_x[index]" @click="close_flag&&close_clo(head,index)">x</span>
 									</div>
 									
 								</th>
+								<th v-show="clo_flag" style="width:16px"></th>
 							</tr>
 						</thead>
-						
+						</table>
+						</div>
+						<div :style="{height:(offset_height-78)+'px','overflow-y': 'auto','overflow-x':'hidden'}">
+						<table>
 						<!-- 表格数据 -->
 						<tbody id="tbody" >
 							<!-- 新建的列表数据   当有多个循环的时候key值不能重复-->
@@ -120,6 +127,10 @@
 							
 						</tbody>
 					</table>
+					</div>
+					</table>
+					</div>
+					
 				</div>
 			</div>
 			<!-- 如果没有数据显示 -->
@@ -421,6 +432,10 @@
 				fields:this.columns.FIELDS,
 				//显示x号
 				show_x:[],
+				//显示头部列
+				clo_flag:false,
+				//小x号标志
+				close_flag:true,
 			}
 		},
 		components:{
@@ -438,7 +453,10 @@
 			   tips,
 			   uploadFile,
 		},
-		created(){},
+		created(){
+			//根据屏幕的高度计算数据的显示条数
+			this.count_page();
+		},
 		mounted() {			
 			//获取用户信息
 			this.conten_data();
@@ -450,8 +468,7 @@
 			// this.data_num();
 			//判断是不是ie浏览器
 			this.isIE();
-			//根据屏幕的高度计算数据的显示条数
-			this.count_page();
+			
 		},
 		computed: {
 			//计算当总数据不足16条时有多少条显示到多少条
@@ -523,7 +540,8 @@
 				//计算显示框的高度
 				this.offset_height=window.screen.height-355
 				//根据屏幕的高度计算显示的页数
-				this.data_page=parseInt(this.offset_height/43-1);
+				console.log(this.offset_height)
+				this.data_page=parseInt(this.offset_height/53-1);
 				this.child_index_total=this.data_page
 			},
 			//判断是不是Firefox浏览器
@@ -1398,6 +1416,7 @@
 			},
 			//撤销
 			bt_revoke() {
+				this.close_flag=true;
 				// this.disabled_true=true;
 				this.sort_flag=true;
 				this.child_index_total-=this.num;
@@ -1787,6 +1806,10 @@
 			},
 			//新建
 			add() {
+				//不能点击小x号
+				this.close_flag=false;
+				//显示头部多出的一列
+				this.clo_flag=true;
 				this.sort_flag=false;
 				this.btn_check=true;
 				this.btn_checkeds=[];

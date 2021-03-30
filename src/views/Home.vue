@@ -591,7 +591,7 @@
 							this.data_page=parseInt((window.screen.height-280)/43-1);
 						}else if(this.response.PAGE_TEMPLATE=="base_page"){
 							// this.data_page=parseInt(window.screen.height/65)
-							this.data_page=parseInt((window.screen.height-355)/43-1)
+							this.data_page=parseInt((window.screen.height-355)/53-1)
 						}
 					//当求情完成的标志
 					let parameter={
