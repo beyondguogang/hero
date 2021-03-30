@@ -59,7 +59,7 @@
 									</div>
 									
 								</th>
-								<th v-show="clo_flag" style="width:16px"></th>
+								<th v-show="(num+project_data.records)>child_index_total" style="width:16px"></th>
 							</tr>
 						</thead>
 						</table>
@@ -468,7 +468,6 @@
 			// this.data_num();
 			//判断是不是ie浏览器
 			this.isIE();
-			
 		},
 		computed: {
 			//计算当总数据不足16条时有多少条显示到多少条
@@ -1904,7 +1903,7 @@
 				for(var i=0;i<this.num;i++){
 					this.add_checkeds.push(i);
 				}
-				this.child_index_total+=1;
+				// this.child_index_total+=1;
 				this.increasing+=1;
 				// this.num+1;
 			},

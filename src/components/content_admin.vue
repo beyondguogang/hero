@@ -25,7 +25,7 @@
 									</div>
 									
 								</th>
-								<th v-show="clo_flag" style="width:16px"></th>
+								<th v-show="(count+num)>child_index_total" style="width:16px"></th>
 							</tr>
 						</thead>
 					</table>
@@ -438,6 +438,7 @@
 				clo_flag:false,
 				//小x号标志
 				close_flag:true,
+				// copy_offset_height:null,
 				// //内容副本
 				// rows:this.rows
 			}
@@ -466,6 +467,7 @@
 			this.count_data();
 			//判断底部操作按钮的显示隐藏
 			this.operation_isshow();
+			console.log(this.child_index_total,this.count)
 		},
 		computed: {
 			//计算当总数据不足16条时有多少条显示到多少条
@@ -583,13 +585,14 @@
 				// console.log(document.body.offsetHeight)
 				//计算显示框的高度
 				// this.offset_height=window.screen.height-300
-				this.offset_height=window.screen.height-280
+				this.offset_height=window.screen.height-280;
 				//根据屏幕的高度计算显示的页数
 				// this.data_page=parseInt(window.screen.height/60);
 				// this.data_page=parseInt(window.screen.height*0.02);
-				this.data_page=parseInt(this.offset_height/43-1)
+				this.data_page=parseInt(this.offset_height/43-1);
 				// console.log(this.offset_height,this.data_page)
-				this.child_index_total=this.data_page
+				this.child_index_total=this.data_page;
+				// this.copy_offset_height=this.offset_height-78;
 			},
 			//请求所有弹框的数据根据字段显示是否有查询的三个点
 			serch_fn(){
