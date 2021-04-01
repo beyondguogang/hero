@@ -181,7 +181,7 @@
 				//项目菜单数据包括子菜单
 				menu_data: '',
 				//控制菜单三角图标
-				is_icon: '',
+				is_icon: null,
 				//用户名
 				username: '',
 				//菜单项的点击样式
@@ -252,12 +252,28 @@
 		},
 		computed: {},
 		mounted() {
-			console.log(this.rows)
+			// console.log(this.$route.params)
+			this.get_title();
 			// alert(1)
 			//头部左边状态自动请求头部数据1607504568
 			this.getHeadData();
 		},
-		methods: {   
+		watch:{
+			'$route'(to, from){
+				// alert(1)
+				this.getHeadData();
+				this.get_title();
+			}
+		},
+		methods: {  
+			//获取title
+			get_title(){
+				if(window.sessionStorage.getItem('title')){
+					document.title=window.sessionStorage.getItem('title');
+				}else{
+					document.title='Background-management-system';
+				}
+			} ,
 			//删除每列的数据
 			close_content(h,i){
 					var flag=h.Name
@@ -276,6 +292,9 @@
 				// console.log(JSON.stringify(window.sessionStorage.getItem('userInfo')))
 				// console.log(window.sessionStorage.getItem('userInfo'))
 				//
+				this.index=Number(window.sessionStorage.getItem('index'));
+				this.change_index=Number(window.sessionStorage.getItem('change_index'));
+				console.log(typeof this.index)
 				if(window.sessionStorage.getItem('userInfo')=='null'){
 					// alert(0)
 					this.$router.replace({
@@ -293,18 +312,29 @@
 				if(select!=''&&this.$route.params.project == undefined){
 					//获取参数地址中的参数
 					let params_url=window.sessionStorage.getItem('url');
+					// console.log(params_url)
 					//如果本地保存的数据中有值
 					if(params_url){
 						//把参数根据’，‘分割成数组
 						params_url=params_url.split(',');
+						// this.$router.push("/home/" + params_url[0] + params_url[1] + '/' + Number(params_url[3]) + '/' + Number(params_url[2]))
+						this.$router.push("/home/" + params_url[0] + params_url[1])
 						//根据参数加载对应的页面
-						window.location.href = this.url + "/home/" + params_url[0] + params_url[1] + '/' + Number(params_url[3]) + '/' + Number(params_url[2]);
+						// window.location.href = this.url + "/home/" + params_url[0] + params_url[1] + '/' + Number(params_url[3]) + '/' + Number(params_url[2]);
 					}else{
 						//如果参数为空那么直接加载第一个菜单
 						this.menu_list(this.project_list[0]);
 						this.btn_selected=this.project_list[0];
 					}
-					
+					// console.log(this.index,this.child_index)
+					// this.change(this.index);
+					// this.sty_list(this.surl,this.change_index);
+					 if (this.is_sty === this.index) {
+					 	this.is_sty = '';
+					 } else {
+					 	this.is_sty = this.index;
+					 }
+
 				}
 				//刷新时根据之前保存的时区显示时间
 				if(window.sessionStorage.getItem('time_zone')!=null){
@@ -315,13 +345,17 @@
 				//如果url参数不为undefined加载对应路由的数据
 				if (this.$route.params.project != undefined) {
 					this.surl = "/" + this.$route.params.project + '/' + this.$route.params.db + '/' + this.$route.params.table;
-					this.index = Number(this.$route.params.index);
-					this.change_index = Number(this.$route.params.change_index);
+					// this.index = Number(this.$route.params.index);
+					// this.change_index = Number(this.$route.params.change_index);
+					
 					//刷新时执行头部菜单中的函数并传入路由参数 项目对象 后台路由 菜单索引 子菜单索引
 					this.menu_list(this.project_list[select],this.surl, this.index, this.change_index);
 					//获取数据时执行的函数 后台路由 菜单索引 子菜单索引 项目对象
 					this.getRow(this.surl, this.index, this.change_index,this.project_list[select]);
+					
 				}
+				
+								
 				//判断是否登录过期
 				this.login_expired()
 				});
@@ -563,6 +597,8 @@
 			},
 			//获取数据
 			getRow(url, index, change_index,pr) {
+				// console.log(index,change_index)
+				// alert(0)
 				//当加载数据后左侧菜单隐藏
 				this.menu_show=false;
 				//设置页面铺满全屏
@@ -579,7 +615,7 @@
 				}).then(res => {
 					//将数据赋值给response
 					this.response = res.data;
-					console.log(this.response)
+					// console.log(this.response)
 					//获取项目的表头数据 项目表格中的标题
 					this.columns = res.data;
 					this.fields=res.data.FIELDS;
@@ -641,14 +677,17 @@
 								//保存地址及索引用于传递给子组件
 								this.sub_url = url;
 								this.sub_index = index;
+								// console.log(change_index)
 								//改变小三角样式的函数
 								this.change(change_index);
 								//子菜单样式
+								// console.log(this.is_sty==index)
 								if (this.is_sty === index) {
 									this.is_sty = '';
 								} else {
 									this.is_sty = index;
 								}
+								// console.log(this.is_sty)
 								//项目选择框的数据对象
 								this.btn_selected=pr;
 								//加载完成的后加载状态消失
@@ -914,7 +953,7 @@
 						window.sessionStorage.setItem('sord',sort);
 							})
 				}else{//没有调用查询接口请求的数据
-				console.log(name)
+				// console.log(name)
 					//加载状态
 					this.anate=true;
 					//加载完成标志
@@ -930,7 +969,7 @@
 						userInfo: this.userInfo
 					}).then(res => {
 						this.project_data = res.data;
-						console.log(this.project_data)
+						// console.log(this.project_data)
 						//更新时区
 						if(res.data.rows!=undefined){
 								this.fields.map((ite,index,arr)=>{
@@ -1340,8 +1379,8 @@
 						}
 					});
 					var pro_url=name.url.trim();
-					
-					//如果有url字段那么执行外部链接
+					// console.log(name)
+					//如果有url字段那么执行外部链接sdk,nacos
 					if(pro_url!=''){
 						 window.location.href=this.url+name.url;
 					};
@@ -1402,6 +1441,10 @@
 						this.pro_flag=true;
 						//获取项目对象
 						this.btn_selected=name;
+					}else{
+						this.box_data.sel=false;
+						this.box_data.mail=false;
+						this.pro_flag=false;
 					}
 					//加载状态
 					this.anate=false;
@@ -1414,8 +1457,11 @@
 			},
 			//控制菜单栏的显示隐藏
 			change(index) {
+				// alert(index)
+				
+				window.sessionStorage.setItem('change_index',index);
 				//获取菜单的索引
-				this.change_index = index;
+				// this.change_index = index;
 				//子菜单的样式选项为空
 				this.is_sty = '';
 				//控制小三角的样式
@@ -1427,14 +1473,23 @@
 			},
 			//点击项目菜单
 			sty_list(sub, index){
+				// console.log(document.title)
+				// document.title=sub.name;
+				// console.log(sub)
+				window.sessionStorage.setItem('title',sub.name);
 				//每次切换项目就把btn_selected设置为最新的值)
 				window.sessionStorage.setItem('btn_selected',this.project_index);
+				window.sessionStorage.setItem('index',index);
+				// window.sessionStorage.setItem('index',index);
+				// console.log(this.project_name,sub.url)
+				// this.$router.push("/home/" + this.project_name + sub.url + '/' + this.change_index + '/' + index)
+				this.$router.push("/home/" + this.project_name + sub.url)
 				//加载不同的表数据
-				window.location.href = this.url + "/home/" + this.project_name + sub.url + '/' + this.change_index + '/' + index;	
+				// window.location.href = this.url + "/home/" + this.project_name + sub.url + '/' + this.change_index + '/' + index;	
 			},
 			//退出登录
 			out() { 
-				console.log(this.project_list[this.copy_select])
+				// console.log(this.project_list[this.copy_select])
 				// alert(0)
 				if(this.project_list[this.copy_select]){
 					// alert(1)
@@ -1517,6 +1572,7 @@
 	}
     .left-menu{
 		color:#fff ;
+		cursor: pointer;
 	}
     .user_icon{
 		font-family: cursive;

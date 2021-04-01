@@ -37,7 +37,7 @@
 						<button @click="lookup" style="width:54px; outline: none;margin-left:145px;background:#fff;color:#000;border:1px solid #808080;cursor: pointer"><span class="iconfont icon-chaxun"></span>查询</button>
 						<button @click="refresh" style="outline: none;cursor: pointer"><span class="iconfont icon-shuaxin"></span>刷新</button>
 				</div>
-				<div class="col-lg-12  col-md-12 table-responsive" style="overflow: auto ;" :style="{'overflow-x': 'auto','overflow-y':'hidden',height:offset_height+'px'}" @scroll="" >
+				<div class="col-lg-12  col-md-12 table-responsive" style="overflow: auto ;" :style="{'overflow-x': 'auto','overflow-y':'hidden',height:offset_height+'px'}"  >
 					<div>
 						<table>
 							<div>

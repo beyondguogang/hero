@@ -30,7 +30,8 @@ Vue.use(VueRouter)
 //     ]
   },
  {
-     path: '/home/:pr/:project/:db/:table/:change_index/:index',
+//      path: '/home/:pr/:project/:db/:table/:change_index/:index',
+      path: '/home/:pr/:project/:db/:table',
      name: 'home-pdt',
      component: Home,
      props:true,
@@ -38,6 +39,10 @@ Vue.use(VueRouter)
    ]
    },
 ]
+const originalPush = VueRouter.prototype.push
+   VueRouter.prototype.push = function push(location) {
+   return originalPush.call(this, location).catch(err => err)
+};
 const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,

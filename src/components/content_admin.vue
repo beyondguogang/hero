@@ -2,7 +2,7 @@
 	<div class="hello" @click="close">
 			<div class="row no-gutters shop">
 				<!-- 设置一个动态的高度溢出时自动显示滚动条 -->
-				<div class="col-lg-12  col-md-12 table-responsive" :style="{'overflow-x': 'auto','overflow-y':'hidden',height:offset_height+'px'}" @scroll="" >
+				<div class="col-lg-12  col-md-12 table-responsive" :style="{'overflow-x': 'auto','overflow-y':'hidden',height:offset_height+'px'}"  >
 						<!-- :style="{maxHeight:fontSize+'px'}" -->
 						<div>
 							<table>
