@@ -94,7 +94,7 @@
 							<!-- 编辑时把数据填充到输入框中 加上item是为了避免key值的和上一个tr的key值重复-->
 							<!-- <tr v-for="(item,index) in rows" :class="{list_color:dynamic[index]==item}" :key="index+item" 
                             @click="tr_flag && tr_list($event,item,index)" @mouseenter="if_updata(index,item)" @mouseleave="else_updata(index)"> -->
-							<tr v-for="(item,index) in rows" :class="{list_color:dynamic[index]==item}" :key="index+item" >
+							<tr v-for="(item,index) in rows" :class="{list_color:dynamic[index]==index+1}" :key="index+item" >
 								<!-- {{item}} -->
 								<!-- <td class="fixed">{{index+1+child_index}} </td> -->
 								<!-- 给每个复选框绑定不一样的v-model -->
@@ -512,6 +512,7 @@
 		methods: {
 			//点击小x号
 			close_clo(h,i){
+				this.clo_flag=true;
 				this.fields=this.fields.filter((item,index)=>{
 					return i!=index 
 				});
@@ -1173,7 +1174,7 @@
 				};
 					//数据列表的颜色控制当复选框变化后如果dynamic的索引值为false给dynamic赋值item属性然后模板对比item值
 				if(!this.dynamic[i]){
-					this.dynamic[i]=item;
+					this.dynamic[i]=i+1;
 				}else{
 					this.dynamic[i]='';
 				}
@@ -1184,7 +1185,7 @@
 					this.list_some=true;//表示列表中有选中项
 					this.rows.forEach((item,i)=>{
 							this.btn_checkeds.push(i);
-							this.dynamic[i]=item;
+							this.dynamic[i]=i+1;
 					})
 				}else{
 					this.list_some=false;
@@ -1391,6 +1392,7 @@
 			},
 			//刷新
 			refresh() {
+				this.clo_flag=false;
 				//头部数据重新加载因为this.fields是变动的
 				this.fields=this.columns.FIELDS;
 				//取消x号标志
@@ -1733,6 +1735,44 @@
             },
 			//编辑
 			updata() {
+						//当点击了小x号时在选中某一条数据编辑时要把所有的数据拉回来
+				// var btn_checkeds={...this.btn_checkeds}
+				if(this.clo_flag){
+					this.clo_flag=false;
+				//头部数据重新加载因为this.fields是变动的
+				this.fields=this.columns.FIELDS;
+				//取消x号标志
+				this.show_x.pop()
+				//正反序标志
+				this.sort_flag=true;
+				//刷新完成的标志（当刷新接口执行完后在才能在次执行刷新按钮）
+				if(this.istrue.isrefresh==true){
+				//每页最后一条数据的序号数
+				var total=this.child_index_total;
+				//当有新建时刷新总页数加上新建的页数
+				this.project_data_copy=this.project_data.records+this.num;
+				//执行撤销函数（例 当新建没提交刷新时就撤销新建项目 编辑时撤销编辑）
+				// this.bt_revoke()
+				//触发父组件执行刷新的方法
+				this.$emit('parent_refresh', this.sub_url, this.sort,this.project_data.page);
+				//是否有选中项的标志
+				// this.list_some =false;
+				//取消每条数据的样式
+				// this.btn_checkeds.forEach((item,index)=>{
+				// 	this.dynamic[item]=this.rows[item];
+				// })
+				// this.dynamic={};
+				//取消总复选框
+				// this.btn_check = false;
+				//取消添加时的累加
+				this.increasing=0;
+					//当前页的最后一条数据页数等于添加新建后的数据
+					// if(total==this.project_data_copy){
+					// 	this.child_index_total=total;
+					// }
+				}
+				}
+				this.fields=this.columns.FIELDS;
                 // console.log(0)
 				//当列表项选中的时候再进行编辑
 				if (this.list_some == true) {
@@ -1805,10 +1845,15 @@
 			},
 			//新建
 			add() {
+				if(this.clo_flag){
+					// alert(0)
+					this.clo_flag=false;
+					this.refresh()
+				}
 				//不能点击小x号
 				this.close_flag=false;
 				//显示头部多出的一列
-				this.clo_flag=true;
+				// this.clo_flag=true;
 				this.sort_flag=false;
 				this.btn_check=true;
 				this.btn_checkeds=[];

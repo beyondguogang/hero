@@ -1,8 +1,8 @@
 // 
  let serverUrl="http://10.0.62.18:3000";
-//  let serverUrl="http://10.0.68.15:8080/appi";
+//  var serverUrl="http://10.0.68.15:8080/appi";
  let webUrl='http://127.0.0.1:8080';
-//  let webUrl='http://10.0.68.15:8080';
+//  var webUrl='http://10.0.68.15:8080';
 
 //  let serverUrl="http://10.0.18.14:3000";
 
@@ -15,5 +15,5 @@ function getUrlParam(variable){
             var pair = vars[i].split("=");
             if(pair[0] == variable){return pair[1];}
     }
-    return(false);
-}
+    return false;
+};

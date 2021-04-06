@@ -59,7 +59,7 @@
 							
 							<!-- 初始请求的列表数据 -->
 							<!-- 编辑时把数据填充到输入框中 加上item是为了避免key值的和上一个tr的key值重复-->
-							<tr v-for="(item,index) in rows" :class="{list_color:dynamic[index]==item}" :key="index+item" @click="tr_flag && tr_list($event,item,index)">
+							<tr v-for="(item,index) in rows" :class="{list_color:dynamic[index]==index+1}" :key="index+item" @click="tr_flag && tr_list($event,item,index)">
 								<!-- {{item}} -->
 								<td ><div class="fixed">{{index+1+child_index}}</div> </td>
 								<!-- 给每个复选框绑定不一样的v-model -->
@@ -441,6 +441,9 @@
 				// copy_offset_height:null,
 				// //内容副本
 				// rows:this.rows
+				//内容数据的副本
+				// cd_rows:this.c_rows,
+				// clo_project:[],
 			}
 		},
 		components:{
@@ -461,13 +464,18 @@
 		created(){
 			//根据屏幕的高度计算数据的显示条数
 			this.count_page();
+			// alert(2)
 		},
 		mounted() {
 			//数据为空时的显示
 			this.count_data();
 			//判断底部操作按钮的显示隐藏
 			this.operation_isshow();
-			console.log(this.child_index_total,this.count)
+			// console.log(this.child_index_total,this.count)
+			//  this.c_rows=JSON.parse(JSON.stringify(this.rows))
+			// console.log(this.c_rows)
+			// console.log(this.rows)
+			// alert(1)
 		},
 		computed: {
 			//计算当总数据不足16条时有多少条显示到多少条
@@ -511,14 +519,23 @@
 			isquery:Boolean,
 			//查询的数据是否为空
 			no_data:Boolean,
+			c_rows:Array,
+			
 		},
 		methods: {
 			//点击小x号
 			close_clo(h,i){
-				this.fields=this.fields.filter((item,index)=>{
-					return i!=index 
-				});
-				this.$emit('close_content',h,i)
+				// this.clo_project.push(h)
+				// this.c_rows=JSON.parse(JSON.stringify(this.rows))
+				// console.log(this.c_rows)
+				if(this.istrue.isclose){
+					this.clo_flag=true;
+					this.fields=this.fields.filter((item,index)=>{
+						return i!=index 
+					});
+					this.$emit('close_content',h,i)
+				}
+				
 			},
 			//开启关闭按钮
 			open_x(i){
@@ -824,6 +841,13 @@
 			//查找
 			lookup(){
 				// alert(0)
+				// this.refresh();
+				// this.fields=this.columns.FIELDS;
+				// if(this.clo_flag){
+				// 	this.clo_flag=false;
+				// 	this.refresh()
+				// }
+				this.fields=this.columns.FIELDS
 				this.lookup_flag=true;
 				//设置序号
 				this.child_index = 0;
@@ -847,6 +871,7 @@
 					//有几条数据就在request_parameters对象中添加几个对象
 					request_parameters.rules.push({});
 					//遍历头部数据
+					console.log(this.fields)
 					for(var i=0;i<this.fields.length;i++){
 						//因为有的项目是不能查询的点击查询时会判断哪个字段不能查询此处把不能查询的遍历出去
 						if(this.fields[i].Comment==this.project_slected[index]){
@@ -882,6 +907,7 @@
 				// this.search_data=0;
 				this.btn_checkeds=[];
 				this.btn_check='';
+				// this.refresh()
 			},
 			//查询重置
 			box_reset(){
@@ -918,6 +944,9 @@
 			},
 			//查询
 			query(){
+				// this.fields=this.columns.FIELDS;
+				// this.refresh()
+				let fields=this.columns.FIELDS
 				//显示查询弹框
 				this.query_show=true;
 				//设置查询数据的条数
@@ -926,7 +955,7 @@
 				//设置选择条件
 				this.project_box=this.project_condition[0];
 				//遍历数据头的数据
-				this.fields.forEach((item,index) =>{
+				fields.forEach((item,index) =>{
 					//当点击查询的时候判断需要查寻的条件有哪些
 					if(item.Name!="fld_deleted"&&item.Name!=this.response.PRIMARY&&item.Search==1){
 						//把需要的条件放在一个数组中
@@ -1004,10 +1033,21 @@
 				this.confirm_data = true;
 				var ids = [];
 				//遍历选中的列表
-				this.btn_checkeds.forEach((item, index) => {
+				// console.log(this.rows)
+				// if(this.clo_flag){
+				// 	this.btn_checkeds.forEach((item, index) => {
+				// 		//获取选中的数据的主键并push进数组
+				// 		ids.push(this.c_rows[item][this.response.PRIMARY])
+				// 		console.log(this.c_rows[item])
+				// 	})
+				// }else{
+					this.btn_checkeds.forEach((item, index) => {
 						//获取选中的数据的主键并push进数组
-						ids.push(this.rows[item][this.response.PRIMARY])
-				})
+						ids.push(this.c_rows[item][this.response.PRIMARY])
+						console.log(this.c_rows[item])
+					})
+				// }
+				
 				//将数组的每一项转换成字符串
 				var ids_data = ids.join();
 				if (this.confirm_data == true) {
@@ -1082,7 +1122,7 @@
 				};
 				//点击列表改变背景色
 				if(!this.dynamic[i]){
-					this.dynamic[i]=item;
+					this.dynamic[i]=i+1;
 				}else{
 					this.dynamic[i]='';
 				}
@@ -1095,7 +1135,7 @@
 					//将本页全部选中
 					this.rows.forEach((item,i)=>{
 							this.btn_checkeds.push(i);
-							this.dynamic[i]=item;
+							this.dynamic[i]=i+1;
 					})
 				}else{
 					this.list_some=false;
@@ -1271,6 +1311,7 @@
 			},
 			//刷新
 			refresh() {
+				this.clo_flag=false;
 				//头部数据重新加载因为this.fields是变动的
 				this.fields=this.columns.FIELDS;
 				//取消x号标志
@@ -1299,12 +1340,16 @@
 					// if(total==this.project_data_copy){
 					// 	this.child_index_total=total;
 					// }
+					// this.c_rows=JSON.parse(JSON.stringify(this.rows))
+					// console.log(this.rows)
 				}
 				
 			},
 			//撤销
 			bt_revoke() {
-				this.clo_flag=false;
+				//点击小x号
+				this.close_flag=true;
+				// this.clo_flag=false;
 				//正反序标志
 				this.sort_flag=true;
 				//减去新建时的页数
@@ -1546,6 +1591,8 @@
 								setTimeout(()=>{
 									this.box_data.tips=false;
 								},2000)
+								this.refresh();
+								// alert(3)
 							}else{
 								//如果有查询接口请求查询接口(当在查询数据后添加项目后加载全部的数据)
 								if(this.isquery==true){
@@ -1554,7 +1601,10 @@
 									this.refresh();
 									// console.log(this.sort,this.sort_name)
 									this.$emit('parent_data_sort', this.sub_url, this.sort,this.sort_name);
+									// alert(4)
 							}
+							// console.log(this.rows)
+							// this.c_rows=JSON.parse(JSON.stringify(this.rows))
 							
 						})
 							
@@ -1686,14 +1736,60 @@
 					//是否有选中项的标志
 					this.list_some=false ;
 					//取消选中的样式
-					this.dynamic={};
-					// console.log('====='+this.sort)
+					// this.dynamic={};
+				// setTimeout(()=>{
+					// this.add_ref()
+				// },1000)
+					
+				
 					
 			},
+			// add_ref(){
+				// console.log(this.rows)
+			// },
 			//编辑
 			updata() {
+				//当点击了小x号时在选中某一条数据编辑时要把所有的数据拉回来
+				// var btn_checkeds={...this.btn_checkeds}
+				if(this.clo_flag){
+					this.clo_flag=false;
+				//头部数据重新加载因为this.fields是变动的
+				this.fields=this.columns.FIELDS;
+				//取消x号标志
+				this.show_x.pop()
+				//正反序标志
+				this.sort_flag=true;
+				//刷新完成的标志（当刷新接口执行完后在才能在次执行刷新按钮）
+				if(this.istrue.isrefresh==true){
+				//每页最后一条数据的序号数
+				var total=this.child_index_total;
+				//当有新建时刷新总页数加上新建的页数
+				this.project_data_copy=this.project_data.records+this.num;
+				//执行撤销函数（例 当新建没提交刷新时就撤销新建项目 编辑时撤销编辑）
+				// this.bt_revoke()
+				//触发父组件执行刷新的方法
+				this.$emit('parent_refresh', this.sub_url, this.sort,this.project_data.page);
+				//是否有选中项的标志
+				// this.list_some =false;
+				//取消每条数据的样式
+				// this.btn_checkeds.forEach((item,index)=>{
+				// 	this.dynamic[item]=this.rows[item];
+				// })
+				// this.dynamic={};
+				//取消总复选框
+				// this.btn_check = false;
+				//取消添加时的累加
+				this.increasing=0;
+					//当前页的最后一条数据页数等于添加新建后的数据
+					// if(total==this.project_data_copy){
+					// 	this.child_index_total=total;
+					// }
+				}
+				}
+				this.fields=this.columns.FIELDS;
 				//当列表项选中的时候再进行编辑
 				if (this.list_some == true) {
+					console.log(this.btn_checkeds)
 					//当有编辑项的时候执行是否有弹框的函数如果有就显示弹框按钮
 					this.serch_fn();
 					//正反序的标志
@@ -1763,10 +1859,15 @@
 			},
 			//新建
 			add() {
+				if(this.clo_flag){
+					this.clo_flag=false;
+					this.refresh()
+				}
+				this.fields=this.columns.FIELDS;
 				//不能点击小x号
 				this.close_flag=false;
 				//显示头部多出的一列
-				this.clo_flag=true;
+				// this.clo_flag=true;
 				//正反序的标志
 				this.sort_flag=false;
 				//总复选框为true
@@ -1802,7 +1903,7 @@
 				//是否禁用编辑的样式
 				this.btn_edit = true;
 				//新建时执行函数判断是否显示弹框的标志
-				this.serch_fn();
+				this.serch_fn();			
 				//遍历数据头根据type字段显示不同的表单字段
 				this.fields.forEach((item, index) => {
 					if (item.type == 'checkbox') {
@@ -2016,6 +2117,11 @@
 			next_page() {
 				//判断当异步函数执行完成在执行同步代码
 				if (this.istrue.isnext == true) {
+					// console.log(this.fields)
+					// this.clo_project.forEach((item) => {
+					// 	this.close_clo(item)
+					// });
+					// this.fields=this.columns.FIELDS
 					//如果此时有选中项那么将其清空
 					this.btn_check = false;
 					this.btn_checkeds.forEach((item, index) => {
@@ -2026,6 +2132,10 @@
 					// let time = new Date().getTime();
 					//表的总页数
 					let positive_integer = window.parseInt(this.project_data.total);
+					// this.fields.forEach((item)=>{
+					// 		this.$emit('close_content',item)
+					// 	})
+					// console.log(this.fields)
 					//当小于总页数的时候执行下一页的按钮
 					if (page < positive_integer && page != undefined && page != null) {
 						//页数累加
@@ -2052,6 +2162,8 @@
 							this.child_index_total=this.project_data.records;
 							this.$emit('child_next', this.sub_url, this.child_index, page,this.sort);
 						};
+						
+						
 						//每一页的第多少条数据
 						this.child_index_page+=this.data_page
 					} else if (page >= positive_integer) {

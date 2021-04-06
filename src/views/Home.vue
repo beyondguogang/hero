@@ -2,6 +2,8 @@
 	<div class="home">
 		<!-- 头部 -->
 		<div class="container-fluid ">
+			<!-- 加载状态 -->
+				<div class="loading" v-if="anate"><i class="fa fa-spin fa-refresh"></i><p>正在加载</p></div>
 			<div class="header">
 			<div class="row ">
 				<div class="col-lg-12 ">
@@ -54,29 +56,28 @@
 					<div class=" menu-list-one">{{project_name}}</div>
 					<!-- 当点击头部列表时根据不同的接口显示不同的菜单数据 -->
 					<div v-for="(menu_data,index) in menu_data" :key="index" :id="'menu_'+index">
-						<div @click.capture="change(index)" class="menu-titel">
+						<div @click="change(index)" class="menu-titel">
 							<i class="fa fa-caret-right" :class="{'icon':is_icon===index}" aria-hidden="true"></i>
 							{{menu_data.name}}
 						</div>
 						<ul class="menu-list" v-show="is_icon===index" style="margin-top: 10px;">
-							<li @click="sty_list(sub,index)" class="menu_list" :class="{'sty_list':is_sty===index}" v-for="(sub,index) in menu_data.sub_item"
-							 :key="index"><a :title="sub.name" href="javascript:void(0)" class="list-anchor">{{sub.name}}</a></li>
+							<li @click="sty_list(sub,index)" class="menu_list" v-for="(sub,index) in menu_data.sub_item"
+							 :key="index" :class="{'sty_list':is_sty===index}"><a :title="sub.name" href="javascript:void(0)" class="list-anchor">{{sub.name}}</a></li>
 						</ul>
 					</div>
 				</div>
-				<!-- 加载状态 -->
-				<div class="loading" v-if="anate"><i class="fa fa-spin fa-refresh"></i><p>正在加载</p></div>
+				
 				<div class="data" :class="[active]">
 					<!-- content-admin组件 -->
 					<content-admin @close_content="close_content" @lookup="lookup" @child_home="child_home" @child="child" @child_next="child_next" @child_end="child_end"
 		 				  @parent_data_sort="parent_data_sort" @parent_refresh="parent_refresh" @query="query" :sub_url="sub_url" :sub_index="sub_index"
 		                  :columns="columns" :rows="rows" :project_data="project_data" :response="response" v-if="flag" :istrue="istrue" :isquery="isquery" 
-		                  :no_data="no_data" >
+		                  :no_data="no_data" :c_rows="c_rows">
 					</content-admin>
 					<content-warship @close_content="close_content" @lookup="lookup" @child_home="child_home" @child="child" @child_next="child_next" @child_end="child_end"
 		 				  @parent_data_sort="parent_data_sort" @parent_refresh="parent_refresh" @query="query" :sub_url="sub_url" :sub_index="sub_index"
 		                  :columns="columns" :rows="rows" :project_data="project_data" :response="response" v-if="flag_warship" :istrue="istrue" :isquery="isquery" 
-		                  :no_data="no_data" >
+		                  :no_data="no_data" :c_rows="c_rows">
 					</content-warship>
 					<!-- 组件 -->
 					<page v-if="box_data.sel" ></page>
@@ -109,6 +110,7 @@
 	import tips from "../box/tips";
 	//sdk配置组件
 	import proGress from "@/components/set_progress.vue"
+// import { delete } from 'vue/types/umd';
 	// import userPas from '@/components/user_psd.vue'
 	export default {
 		name: 'Home',
@@ -215,6 +217,8 @@
 					isend: true,
 					isrefresh: true,
 					isorder: true,
+					//当执行小x号完成在执行子组件函数
+					isclose:true,
 				},
 				//是否查询列表数据
 				isquery:false,
@@ -244,6 +248,11 @@
 				copy_select:null,
 				//头部数据
 				columns:null,
+				// c_rows:null,
+				//删除的数据字段
+				clo_project:[],
+				
+
 			}
 			
 		},
@@ -252,11 +261,17 @@
 		},
 		computed: {},
 		mounted() {
+			// this.anate=true
 			// console.log(this.$route.params)
 			this.get_title();
 			// alert(1)
 			//头部左边状态自动请求头部数据1607504568
 			this.getHeadData();
+			// console.log(this.rows)
+			this.c_rows=JSON.parse(JSON.stringify(this.rows))
+			// console.log(this.c_rows)
+			// alert(0)
+			
 		},
 		watch:{
 			'$route'(to, from){
@@ -276,14 +291,23 @@
 			} ,
 			//删除每列的数据
 			close_content(h,i){
+				// alert(1)
+				if(this.istrue.isclose){
+					this.istrue.isclose=false
+					this.clo_project.push(h)
 					var flag=h.Name
+					// console.log(flag)
 					for (let j=0 ;j<this.rows.length;j++){
 						for (var k in this.rows[j]){
 							if(flag==k){
+								// this.clo_project.push(this.rows[j][k])
 								delete  this.rows[j][k]
 							}
 						}
 					}
+					this.istrue.isclose=true;
+				}
+					
 					// console.log(this.rows)
 			},         
 			//头部左边状态自动请求头部数据和加载本地保存的数据sessionStorage
@@ -292,9 +316,11 @@
 				// console.log(JSON.stringify(window.sessionStorage.getItem('userInfo')))
 				// console.log(window.sessionStorage.getItem('userInfo'))
 				//
+				// alert(3)
+				this.anate=true
 				this.index=Number(window.sessionStorage.getItem('index'));
 				this.change_index=Number(window.sessionStorage.getItem('change_index'));
-				console.log(typeof this.index)
+				console.log(this.index,this.change_index)
 				if(window.sessionStorage.getItem('userInfo')=='null'){
 					// alert(0)
 					this.$router.replace({
@@ -315,13 +341,16 @@
 					// console.log(params_url)
 					//如果本地保存的数据中有值
 					if(params_url){
+						// alert(0)
 						//把参数根据’，‘分割成数组
 						params_url=params_url.split(',');
 						// this.$router.push("/home/" + params_url[0] + params_url[1] + '/' + Number(params_url[3]) + '/' + Number(params_url[2]))
 						this.$router.push("/home/" + params_url[0] + params_url[1])
+						// this.sty_list()
 						//根据参数加载对应的页面
 						// window.location.href = this.url + "/home/" + params_url[0] + params_url[1] + '/' + Number(params_url[3]) + '/' + Number(params_url[2]);
 					}else{
+						// alert(1)
 						//如果参数为空那么直接加载第一个菜单
 						this.menu_list(this.project_list[0]);
 						this.btn_selected=this.project_list[0];
@@ -329,11 +358,11 @@
 					// console.log(this.index,this.child_index)
 					// this.change(this.index);
 					// this.sty_list(this.surl,this.change_index);
-					 if (this.is_sty === this.index) {
-					 	this.is_sty = '';
-					 } else {
-					 	this.is_sty = this.index;
-					 }
+					//  if (this.is_sty === this.index) {
+					//  	this.is_sty = '';
+					//  } else {
+					//  	this.is_sty = this.index;
+					//  }
 
 				}
 				//刷新时根据之前保存的时区显示时间
@@ -344,6 +373,7 @@
 				window.sessionStorage.setItem('sord','desc');
 				//如果url参数不为undefined加载对应路由的数据
 				if (this.$route.params.project != undefined) {
+					// alert(2)
 					this.surl = "/" + this.$route.params.project + '/' + this.$route.params.db + '/' + this.$route.params.table;
 					// this.index = Number(this.$route.params.index);
 					// this.change_index = Number(this.$route.params.change_index);
@@ -360,12 +390,13 @@
 				this.login_expired()
 				});
 				}
-				
+				// alert('sadfafd')
 			},
 			//登录过期
 			login_expired(){
 				//如果userInfo为null那么返回登录页
 				if(window.sessionStorage.getItem('userInfo')==null||window.sessionStorage.getItem('userInfo')=='null'){
+					window.sessionStorage.setItem('index',this.index);
 					this.$router.replace({
 						path: "/login"
 				})
@@ -382,11 +413,12 @@
 					let time = parseInt(new Date().getTime() / 1000);
 				if (userInfo.fld_name == '' || userInfo.fld_name == undefined || userInfo.fld_name == null || userInfo.fld_name ==
 					'null') {
+					window.sessionStorage.setItem('index',this.index);
 					//保存选择项索引
 					window.sessionStorage.setItem('btn_selected',this.project_index);
 					//保存退出前的地址
 					if(this.$route.params.project != undefined){
-						window.sessionStorage.setItem('url',this.project_list[this.copy_select].Name+','+this.surl+','+this.index+','+this.change_index);
+						window.sessionStorage.setItem('url',this.project_list[this.copy_select].Name+','+this.surl);
 					};
 					//保存userInfo
 					window.sessionStorage.setItem('userInfo','null');
@@ -400,6 +432,7 @@
 				let time_control = (time - startTime) - (30 * 60);
 				//登录时间超时返回登录页
 				if (time_control > 0) {
+					window.sessionStorage.setItem('index',this.index);
 					// alert(2)
 					// console.log(this.copy_select)
 					// console.log(this.project_list)
@@ -407,7 +440,7 @@
 					window.sessionStorage.setItem('btn_selected',this.project_index);
 					//保存退出前的地址
 					if(this.$route.params.project != undefined){
-						window.sessionStorage.setItem('url',this.project_list[this.copy_select].Name+','+this.surl+','+this.index+','+this.change_index);
+						window.sessionStorage.setItem('url',this.project_list[this.copy_select].Name+','+this.surl);
 					};
 					//保存userInfo
 					window.sessionStorage.setItem('userInfo','null');
@@ -571,6 +604,8 @@
 								'Content-Type': 'application/x-www-form-urlencoded'}
 							}).then(res => {
 						this.project_data = res.data;
+						// alert(0)
+						// console.log(res.data.rows)
 						//更新时区
 						if(res.data.rows!=undefined){
 								this.fields.map((ite,index,arr)=>{
@@ -582,6 +617,7 @@
 								});
 							this.rows = res.data.rows;
 							this.sord=sort;
+							
 							};
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
 						//有查询请求时设置一个标志位用于请求下一页数据传递不同的接口
@@ -593,21 +629,24 @@
 							 this.no_data=true;
 						 }
 						 this.anate=false;
+						//  alert(1)
+						// this.parent_refresh()
 					})
 			},
 			//获取数据
 			getRow(url, index, change_index,pr) {
-				// console.log(index,change_index)
+				// console.log(typeof index,typeof change_index)
 				// alert(0)
 				//当加载数据后左侧菜单隐藏
 				this.menu_show=false;
 				//设置页面铺满全屏
 				this.active='col-lg-12';
+				//加载时的状态
+				this.anate=true;
 				//当url对应的不是页面的时候直接请求不同的接口使用相同的组件
 				if(url!='/Tank/Other/QueryRoles'&&url!="/Tank/Other/SendMail"&&url!="/Admin/Other/SetProgress"){					
 					let time = new Date().getTime();
-					//加载时的状态
-					this.anate=true;
+					
 					//请求数据列表表头及相关的接口信息（增删改查）
 					this.axios.post(this.api + '/bin' + url + '/columns', {
 					//用户信息
@@ -641,6 +680,8 @@
 						parameter.userInfo=JSON.stringify(this.userInfo);
 						//如果加载接口不为undefined执行数据接口
 						if(res.data.JQ_GRID_LOAD!=undefined){
+							
+								
 							this.axios.post(this.api + res.data.JQ_GRID_LOAD,this.qs.stringify(parameter), {
 							headers: {
 									'Content-Type': 'application/x-www-form-urlencoded'}
@@ -678,27 +719,29 @@
 								this.sub_url = url;
 								this.sub_index = index;
 								// console.log(change_index)
-								//改变小三角样式的函数
-								this.change(change_index);
-								//子菜单样式
-								// console.log(this.is_sty==index)
-								if (this.is_sty === index) {
-									this.is_sty = '';
-								} else {
-									this.is_sty = index;
-								}
+								
 								// console.log(this.is_sty)
 								//项目选择框的数据对象
 								this.btn_selected=pr;
 								//加载完成的后加载状态消失
 								this.anate=false
-							})}else{//没有显示权限
+							})
+							//改变小三角样式的函数
+								this.change(change_index);
+								//子菜单样式
+								if (this.is_sty === index) {
+									this.is_sty = '';
+								} else {
+									this.is_sty = index;
+								}
+							}else{//没有显示权限
 								this.sel_tips=true;
 								this.current_state='没有权限';
 								setTimeout(()=>{
 									this.sel_tips=false;
 								},2000)
 							}
+							
 				});
 				}
 			},
@@ -739,6 +782,16 @@
 									}
 								});
 							this.rows = res.data.rows;
+							this.clo_project.forEach((item) => {
+								var flag=item.Name
+									for (let j=0 ;j<this.rows.length;j++){
+										for (var k in this.rows[j]){
+											if(flag==k){
+											delete  this.rows[j][k]
+												}
+											}
+								}
+							});
 							};
 						//加载完成标志
 						this.istrue.isnext = true;
@@ -782,6 +835,16 @@
 									}
 								});
 							this.rows = res.data.rows;
+							this.clo_project.forEach((item) => {
+								var flag=item.Name
+									for (let j=0 ;j<this.rows.length;j++){
+										for (var k in this.rows[j]){
+											if(flag==k){
+											delete  this.rows[j][k]
+												}
+											}
+								}
+							});
 							};
 						//加载完成的标志
 						this.istrue.isnext = true;
@@ -836,7 +899,8 @@
 										})
 									}
 								});
-							this.rows = res.data.rows;							
+							this.rows = res.data.rows;
+							this.c_rows=JSON.parse(JSON.stringify(this.rows))							
 							};
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
 						this.istrue.isrefresh = true;
@@ -879,6 +943,7 @@
 									}
 								});
 							this.rows = res.data.rows;
+							this.c_rows=JSON.parse(JSON.stringify(this.rows))
 							};
 						//加载完成的标志
 						this.istrue.isrefresh = true;
@@ -933,7 +998,17 @@
 									}
 								});
 							this.rows = res.data.rows;
-							
+							this.clo_project.forEach((item) => {
+								var flag=item.Name
+									for (let j=0 ;j<this.rows.length;j++){
+										for (var k in this.rows[j]){
+											if(flag==k){
+											delete  this.rows[j][k]
+												}
+											}
+								}
+							});
+							// alert(6)
 							};
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
 						this.istrue.isorder = true;
@@ -980,6 +1055,17 @@
 									}
 								});
 							this.rows = res.data.rows;
+							this.clo_project.forEach((item) => {
+								var flag=item.Name
+									for (let j=0 ;j<this.rows.length;j++){
+										for (var k in this.rows[j]){
+											if(flag==k){
+											delete  this.rows[j][k]
+												}
+											}
+								}
+							});
+							// alert(7)/
 							};
 						//加载完成标志
 						this.istrue.isorder = true;
@@ -1035,6 +1121,16 @@
 									}
 								});
 							this.rows = res.data.rows;
+							this.clo_project.forEach((item) => {
+								var flag=item.Name
+									for (let j=0 ;j<this.rows.length;j++){
+										for (var k in this.rows[j]){
+											if(flag==k){
+											delete  this.rows[j][k]
+												}
+											}
+								}
+							});
 							};
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
 						this.istrue.isstart = true;
@@ -1075,6 +1171,16 @@
 									}
 								});
 							this.rows = res.data.rows;
+							this.clo_project.forEach((item) => {
+								var flag=item.Name
+									for (let j=0 ;j<this.rows.length;j++){
+										for (var k in this.rows[j]){
+											if(flag==k){
+											delete  this.rows[j][k]
+												}
+											}
+								}
+							});
 							};
 						//加载完成的标志
 						this.istrue.isstart = true;
@@ -1126,6 +1232,16 @@
 									}
 								});
 							this.rows = res.data.rows;
+							this.clo_project.forEach((item) => {
+								var flag=item.Name
+									for (let j=0 ;j<this.rows.length;j++){
+										for (var k in this.rows[j]){
+											if(flag==k){
+											delete  this.rows[j][k]
+												}
+											}
+								}
+							});
 							};
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
 						this.istrue.isfirst = true;
@@ -1166,6 +1282,16 @@
 									}
 								});
 							this.rows = res.data.rows;
+							this.clo_project.forEach((item) => {
+								var flag=item.Name
+									for (let j=0 ;j<this.rows.length;j++){
+										for (var k in this.rows[j]){
+											if(flag==k){
+											delete  this.rows[j][k]
+												}
+											}
+								}
+							});
 							};
 						//加载完成的标志
 						this.istrue.isfirst = true;
@@ -1184,12 +1310,15 @@
 			},
 			//子组件执行父组件方法下一页
 			child_next(url, index, page,sort) {
+				
+				// console.log(this.fields)
 				//有查询时的请求接口
 				if(this.isquery==true){
 					//加载的状态
 					this.anate=true;
 					//加载完成的标志
 					this.istrue.isnext = false;
+					alert(1)
 				let time = new Date().getTime();
 				let parameter={
 						_search: true,
@@ -1219,6 +1348,16 @@
 									}
 								});
 							this.rows = res.data.rows;
+							this.clo_project.forEach((item) => {
+								var flag=item.Name
+									for (let j=0 ;j<this.rows.length;j++){
+										for (var k in this.rows[j]){
+											if(flag==k){
+											delete  this.rows[j][k]
+												}
+											}
+								}
+							});
 							}
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
 						this.istrue.isnext = true;
@@ -1260,7 +1399,19 @@
 										})
 									}
 								});
-							this.rows = res.data.rows;
+// console.log(this.clo_project)
+							this.rows = res.data.rows;	
+							this.clo_project.forEach((item) => {
+								var flag=item.Name
+									for (let j=0 ;j<this.rows.length;j++){
+										for (var k in this.rows[j]){
+											if(flag==k){
+											delete  this.rows[j][k]
+												}
+											}
+								}
+							});
+							// console.log(this.rows)
 							};
 						//加载完成的标志
 						this.istrue.isnext = true;
@@ -1314,6 +1465,16 @@
 									}
 								});
 							this.rows = res.data.rows;
+							this.clo_project.forEach((item) => {
+								var flag=item.Name
+									for (let j=0 ;j<this.rows.length;j++){
+										for (var k in this.rows[j]){
+											if(flag==k){
+											delete  this.rows[j][k]
+												}
+											}
+								}
+							});
 							}
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
 						this.istrue.isend = true;
@@ -1353,6 +1514,16 @@
 									}
 								});
 							this.rows = res.data.rows;
+							this.clo_project.forEach((item) => {
+								var flag=item.Name
+									for (let j=0 ;j<this.rows.length;j++){
+										for (var k in this.rows[j]){
+											if(flag==k){
+											delete  this.rows[j][k]
+												}
+											}
+								}
+							});
 							}
 						//加载完成的标志
 						this.istrue.isend = true;
@@ -1371,6 +1542,7 @@
 			},
 			//左边菜单栏name:项目对象 url:后台路由 index:菜单索引 chang_index:子菜单索引
 			menu_list(name,url, index, change_index) {
+				this.anate=true
 				//选中某一项把项目索引赋值给project_index后续使用
 				if(name!=undefined){
 					this.project_list.forEach((item,index)=>{
@@ -1397,7 +1569,7 @@
 					//请求项目菜单
 					this.axios.get(this.api + '/Login/Menu?Project=' + name.Name+'&'+'userInfo='+window.sessionStorage.getItem('userInfo')).then(res => {
 					this.menu_data = res.data;
-					this.is_icon = '';
+					this.is_icon = null;
 					//如果项目菜单中的子菜单是页面不是数据表执行别的组件
 					if(url=='/Tank/Other/QueryRoles'){//查询角色页面
 						this.sub_url = url;
@@ -1457,18 +1629,26 @@
 			},
 			//控制菜单栏的显示隐藏
 			change(index) {
-				// alert(index)
+				// alert('============='+index)
 				
 				window.sessionStorage.setItem('change_index',index);
 				//获取菜单的索引
-				// this.change_index = index;
+				this.change_index = index;
 				//子菜单的样式选项为空
+				console.log(typeof this.index)
 				this.is_sty = '';
+				// if (this.is_sty === this.index) {
+				// 		this.is_sty = '';
+				// 	} else {
+				// 		this.is_sty = this.index;
+				// 	}
 				//控制小三角的样式
 				if (this.is_icon === index) {
 					this.is_icon = '';
+					// this.is_sty = this.index;
 				} else {
 					this.is_icon = index
+					// this.is_sty = '';
 				}
 			},
 			//点击项目菜单
@@ -1479,6 +1659,7 @@
 				window.sessionStorage.setItem('title',sub.name);
 				//每次切换项目就把btn_selected设置为最新的值)
 				window.sessionStorage.setItem('btn_selected',this.project_index);
+				
 				window.sessionStorage.setItem('index',index);
 				// window.sessionStorage.setItem('index',index);
 				// console.log(this.project_name,sub.url)
@@ -1491,13 +1672,15 @@
 			out() { 
 				// console.log(this.project_list[this.copy_select])
 				// alert(0)
+				window.sessionStorage.setItem('index',this.index);
 				if(this.project_list[this.copy_select]){
+					
 					// alert(1)
 					//保存选择项的索引
 					window.sessionStorage.setItem('btn_selected',this.project_index);
 					//保存推出前的地址
 					if(this.$route.params.project != undefined){
-						window.sessionStorage.setItem('url',this.project_list[this.copy_select].Name+','+this.surl+','+this.index+','+this.change_index);
+						window.sessionStorage.setItem('url',this.project_list[this.copy_select].Name+','+this.surl);
 					};
 				}
 				//保存userInfo
