@@ -248,7 +248,7 @@
 				copy_select:null,
 				//头部数据
 				columns:null,
-				// c_rows:null,
+				c_rows:null,
 				//删除的数据字段
 				clo_project:[],
 				
@@ -268,7 +268,7 @@
 			//头部左边状态自动请求头部数据1607504568
 			this.getHeadData();
 			// console.log(this.rows)
-			this.c_rows=JSON.parse(JSON.stringify(this.rows))
+			
 			// console.log(this.c_rows)
 			// alert(0)
 			
@@ -712,6 +712,7 @@
 											}
 										});
 									this.rows = res.data.rows;
+									this.c_rows=JSON.parse(JSON.stringify(this.rows))
 									// console.log(this.rows)
 									}else{//如果没有数据
 										this.sel_tips=true;
@@ -960,6 +961,8 @@
 									}
 								});
 							this.rows = res.data.rows;
+							console.log(this.rows)
+							this.clo_project=[];
 							this.c_rows=JSON.parse(JSON.stringify(this.rows))
 							};
 						//加载完成的标志

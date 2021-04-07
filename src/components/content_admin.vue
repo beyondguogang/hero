@@ -473,7 +473,7 @@
 			this.operation_isshow();
 			// console.log(this.child_index_total,this.count)
 			//  this.c_rows=JSON.parse(JSON.stringify(this.rows))
-			// console.log(this.c_rows)
+			console.log(this.c_rows)
 			// console.log(this.rows)
 			// alert(1)
 		},
@@ -1051,6 +1051,7 @@
 				//确认删除标志
 				this.confirm_data = true;
 				var ids = [];
+				console.log(this.c_rows)
 				//遍历选中的列表
 				// console.log(this.rows)
 				// if(this.clo_flag){
@@ -1060,7 +1061,8 @@
 				// 		console.log(this.c_rows[item])
 				// 	})
 				// }else{
-					this.btn_checkeds.forEach((item, index) => {
+					// if(this.istrue.isrefresh==true){
+						this.btn_checkeds.forEach((item, index) => {
 						//获取选中的数据的主键并push进数组
 						ids.push(this.c_rows[item][this.response.PRIMARY])
 						console.log(this.c_rows[item])
@@ -1087,6 +1089,8 @@
 						this.refresh()
 					})
 				};
+					// }
+					
 				//关闭弹框
 				this.show_hide = false;
 			},
@@ -1622,7 +1626,7 @@
 									this.$emit('parent_data_sort', this.sub_url, this.sort,this.sort_name);
 									// alert(4)
 							}
-							// console.log(this.rows)
+							console.log(this.rows)
 							// this.c_rows=JSON.parse(JSON.stringify(this.rows))
 							
 						})
@@ -1882,7 +1886,8 @@
 					this.clo_flag=false;
 					this.refresh()
 				}
-				// this.fields=this.columns.FIELDS;
+				this.fields=this.columns.FIELDS;
+				// this.rows=this.c_rows;
 				//不能点击小x号
 				this.close_flag=false;
 				//显示头部多出的一列
