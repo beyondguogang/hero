@@ -580,6 +580,7 @@
 			},*/
 			//查询数据
 			query(url, index,project,sort){	
+				console.log(this.clo_project)
 				//加载时的状态
 				this.anate=true;
 				//接口需要的数据
@@ -616,13 +617,25 @@
 									}
 								});
 							this.rows = res.data.rows;
+							this.clo_project=[];
+							// this.clo_project.forEach((item) => {
+							// 	var flag=item.Name
+							// 		for (let j=0 ;j<this.rows.length;j++){
+							// 			for (var k in this.rows[j]){
+							// 				if(flag==k){
+							// 				delete  this.rows[j][k]
+							// 					}
+							// 				}
+							// 	}
+							// });
 							this.sord=sort;
-							
+							this.isquery=true;
 							};
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
 						//有查询请求时设置一个标志位用于请求下一页数据传递不同的接口
 						this.isquery=true;
 						//查询数据是否为空
+						// console.log(res.data)
 						if(res.data.rows.length==0){
 							 	this.no_data=false;
 						 }else{
@@ -782,7 +795,8 @@
 									}
 								});
 							this.rows = res.data.rows;
-							this.clo_project.forEach((item) => {
+							if(this.clo_project.length>0){
+								this.clo_project.forEach((item) => {
 								var flag=item.Name
 									for (let j=0 ;j<this.rows.length;j++){
 										for (var k in this.rows[j]){
@@ -792,6 +806,8 @@
 											}
 								}
 							});
+							}
+							
 							};
 						//加载完成标志
 						this.istrue.isnext = true;
@@ -900,6 +916,7 @@
 									}
 								});
 							this.rows = res.data.rows;
+							this.clo_project=[];
 							this.c_rows=JSON.parse(JSON.stringify(this.rows))							
 							};
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
@@ -998,6 +1015,7 @@
 									}
 								});
 							this.rows = res.data.rows;
+							if(this.clo_project.length>0){
 							this.clo_project.forEach((item) => {
 								var flag=item.Name
 									for (let j=0 ;j<this.rows.length;j++){
@@ -1008,6 +1026,7 @@
 											}
 								}
 							});
+							}
 							// alert(6)
 							};
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
@@ -1121,6 +1140,7 @@
 									}
 								});
 							this.rows = res.data.rows;
+							if(this.clo_project.length>0){
 							this.clo_project.forEach((item) => {
 								var flag=item.Name
 									for (let j=0 ;j<this.rows.length;j++){
@@ -1131,6 +1151,7 @@
 											}
 								}
 							});
+							}
 							};
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
 						this.istrue.isstart = true;
@@ -1232,6 +1253,7 @@
 									}
 								});
 							this.rows = res.data.rows;
+							if(this.clo_project.length>0){
 							this.clo_project.forEach((item) => {
 								var flag=item.Name
 									for (let j=0 ;j<this.rows.length;j++){
@@ -1242,6 +1264,7 @@
 											}
 								}
 							});
+							}
 							};
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
 						this.istrue.isfirst = true;
@@ -1318,7 +1341,7 @@
 					this.anate=true;
 					//加载完成的标志
 					this.istrue.isnext = false;
-					alert(1)
+					// alert(1)
 				let time = new Date().getTime();
 				let parameter={
 						_search: true,
@@ -1348,6 +1371,7 @@
 									}
 								});
 							this.rows = res.data.rows;
+							if(this.clo_project.length>0){
 							this.clo_project.forEach((item) => {
 								var flag=item.Name
 									for (let j=0 ;j<this.rows.length;j++){
@@ -1358,6 +1382,7 @@
 											}
 								}
 							});
+							}
 							}
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
 						this.istrue.isnext = true;
@@ -1465,6 +1490,7 @@
 									}
 								});
 							this.rows = res.data.rows;
+							if(this.clo_project.length>0){
 							this.clo_project.forEach((item) => {
 								var flag=item.Name
 									for (let j=0 ;j<this.rows.length;j++){
@@ -1475,6 +1501,7 @@
 											}
 								}
 							});
+							}
 							}
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
 						this.istrue.isend = true;

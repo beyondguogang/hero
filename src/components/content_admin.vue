@@ -847,7 +847,26 @@
 				// 	this.clo_flag=false;
 				// 	this.refresh()
 				// }
+
+				// if(this.clo_flag){
+				// 	this.clo_flag=false;
+				// //头部数据重新加载因为this.fields是变动的
+				// this.fields=this.columns.FIELDS;
+				// //取消x号标志
+				// this.show_x.pop()
+				// //正反序标志
+				// this.sort_flag=true;
+				// //刷新完成的标志（当刷新接口执行完后在才能在次执行刷新按钮）
+				// if(this.istrue.isrefresh==true){
+				
+				// //触发父组件执行刷新的方法
+				// this.$emit('parent_refresh', this.sub_url, this.sort,this.project_data.page);
+			
+				// }
+				// }
+
 				this.fields=this.columns.FIELDS
+				console.log(this.fields)
 				this.lookup_flag=true;
 				//设置序号
 				this.child_index = 0;
@@ -871,7 +890,7 @@
 					//有几条数据就在request_parameters对象中添加几个对象
 					request_parameters.rules.push({});
 					//遍历头部数据
-					console.log(this.fields)
+					// console.log(this.fields)
 					for(var i=0;i<this.fields.length;i++){
 						//因为有的项目是不能查询的点击查询时会判断哪个字段不能查询此处把不能查询的遍历出去
 						if(this.fields[i].Comment==this.project_slected[index]){
@@ -1863,7 +1882,7 @@
 					this.clo_flag=false;
 					this.refresh()
 				}
-				this.fields=this.columns.FIELDS;
+				// this.fields=this.columns.FIELDS;
 				//不能点击小x号
 				this.close_flag=false;
 				//显示头部多出的一列
