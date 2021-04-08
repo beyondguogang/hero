@@ -651,6 +651,7 @@
 				// console.log(typeof index,typeof change_index)
 				// alert(0)
 				let page=Number(window.sessionStorage.getItem('page'));
+				console.log(page)
 				//当加载数据后左侧菜单隐藏
 				this.menu_show=false;
 				//设置页面铺满全屏

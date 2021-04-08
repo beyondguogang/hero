@@ -441,6 +441,8 @@
 				//新建保存完数据的标志
 				new_data:false,
 				// a_rows:this.rows,
+				//第几页
+				// what_page:this.project_data,
 			}
 		},
 		components:{
@@ -476,6 +478,7 @@
 			}else{
 				this.child_index==0;
 				this.child_index_page=1;
+				// this.project_data.page=1;
 			}
 			// console.log(this.rows)
 			
@@ -1032,6 +1035,7 @@
 				// window.sessionStorage.setItem('child_index_page',this.child_index_page);
 				this.local_storage();
 			},
+			//保存项目的页数
 			local_storage(){
 				window.sessionStorage.setItem('child_index',this.child_index);
 				window.sessionStorage.setItem('child_index_total',this.child_index_total);
@@ -1583,6 +1587,9 @@
 							//新建时项目数据从零开始
 							this.child_index=0;
 							this.child_index_page=1;
+							this.child_index_total=this.data_page+1;
+							// this.project_data.page=1;
+							window.sessionStorage.setItem('page',1)
 							//重新请求加载接口
 							//如果调用了查询接口那么添加的时候会自动请求查询接口
 							if(res.data.error==-1){
@@ -1603,7 +1610,8 @@
 								};
 									this.refresh();
 									this.$emit('parent_data_sort', this.sub_url, this.sort,this.sort_name,1);
-							}							
+							}	
+							this.local_storage()						
 						})
 							
 					}					
@@ -2163,6 +2171,7 @@
 					});
 					//当前的页数
 					let page = this.project_data.page;
+					// this.what_page=this.project_data.page;
 					// let time = new Date().getTime();
 					//表的总页数
 					let positive_integer = window.parseInt(this.project_data.total);
