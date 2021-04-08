@@ -579,7 +579,7 @@
 				];
 			},*/
 			//查询数据
-			query(url, index,project,sort){	
+			query(url, index,project,sort,page){	
 				console.log(this.clo_project)
 				//加载时的状态
 				this.anate=true;
@@ -590,7 +590,7 @@
 						_search: true,
 						nd: time,
 						rows: this.data_page,
-						page: 1,
+						page: page,
 						sidx: this.response.PRIMARY,
 						sord: sort,
 						filters:project,
@@ -650,6 +650,7 @@
 			getRow(url, index, change_index,pr) {
 				// console.log(typeof index,typeof change_index)
 				// alert(0)
+				let page=Number(window.sessionStorage.getItem('page'));
 				//当加载数据后左侧菜单隐藏
 				this.menu_show=false;
 				//设置页面铺满全屏
@@ -686,7 +687,7 @@
 						_search: false,
 						nd: time,
 						rows: this.data_page,
-						page: 1,
+						page: page,
 						sidx: this.response.PRIMARY,
 						sord: 'desc',
 						}
@@ -879,6 +880,7 @@
 				};
 				//获取当前页
 				this.page=page;
+				window.sessionStorage.setItem('page',page);
 			},
 			//子组件刷新数据
 			parent_refresh(url,sort,page) {
@@ -918,7 +920,7 @@
 								});
 							this.rows = res.data.rows;
 							this.clo_project=[];
-							this.c_rows=JSON.parse(JSON.stringify(this.rows))							
+							this.c_rows=JSON.parse(JSON.stringify(this.rows));						
 							};
 						//当数据请求完成时istrue赋值true此时子组件才能继续请求下一个接口
 						this.istrue.isrefresh = true;
@@ -981,7 +983,7 @@
 				}	
 			},
 			//子组件调用父组件方法刷新数据正倒序
-			parent_data_sort(url, sort,name) {
+			parent_data_sort(url, sort,name,page) {
 				// console.log(name)
 				//当调用查询接口后请求的接口
 					if(this.isquery==true){
@@ -994,7 +996,7 @@
 						_search: true,
 						nd: time,
 						rows: this.data_page,
-						page: 1,
+						page: page,
 						sidx: name,
 						sord: sort,
 						filters:this.query_project,
@@ -1060,7 +1062,7 @@
 						_search: false,
 						nd: time,
 						rows: this.data_page,
-						page: 1,
+						page: page,
 						sidx: name,
 						sord: sort,
 						userInfo: this.userInfo
@@ -1093,6 +1095,7 @@
 						this.istrue.isorder = true;
 						//加载动态
 						this.anate=false;
+						console.log(res.data.rows)
 						//如果没有数据
 						if(res.data.rows.length==0){
 							 	this.no_data=false;
@@ -1218,6 +1221,7 @@
 						this.anate=false;
 					})
 				}
+				window.sessionStorage.setItem('page',page);
 			},
 			//子组件执行父组件方法上一页
 			child(url, index, page,sort) {
@@ -1333,6 +1337,7 @@
 				}
 				//当前的页数
 				this.page=page;
+				window.sessionStorage.setItem('page',page);
 			},
 			//子组件执行父组件方法下一页
 			child_next(url, index, page,sort) {
@@ -1455,6 +1460,7 @@
 				}
 				//当前的页数
 				this.page=page;
+				window.sessionStorage.setItem('page',page);
 			},
 			//尾页加载
 			child_end(url, index, page,sort) {
@@ -1569,6 +1575,7 @@
 				}
 				//当前页数
 				this.page=page;
+				window.sessionStorage.setItem('page',page);
 			},
 			//左边菜单栏name:项目对象 url:后台路由 index:菜单索引 chang_index:子菜单索引
 			menu_list(name,url, index, change_index) {
@@ -1686,6 +1693,7 @@
 				// console.log(document.title)
 				// document.title=sub.name;
 				// console.log(sub)
+				window.sessionStorage.setItem('page',1);
 				window.sessionStorage.setItem('title',sub.name);
 				//每次切换项目就把btn_selected设置为最新的值)
 				window.sessionStorage.setItem('btn_selected',this.project_index);

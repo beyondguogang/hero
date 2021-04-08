@@ -436,6 +436,8 @@
 				clo_flag:false,
 				//小x号标志
 				close_flag:true,
+				//新建保存完数据的标志
+				new_data:false,
 			}
 		},
 		components:{
@@ -508,15 +510,19 @@
 			isquery:Boolean,
 			//查询的数据是否为空
 			no_data:Boolean,
+			//内容数据的副本用于删除时用的数据（当点击小x号时元数据会有删减）
+			c_rows:Array,
 		},
 		methods: {
 			//点击小x号
 			close_clo(h,i){
+				if(this.istrue.isclose){
 				this.clo_flag=true;
 				this.fields=this.fields.filter((item,index)=>{
 					return i!=index 
 				});
 				this.$emit('close_content',h,i)
+				}
 			},
 			//开启关闭按钮
 			open_x(i){
@@ -837,6 +843,10 @@
 			lookup(){
 				// this.condition=[];
 				console.log(this.condition)
+				//当点击查找时因为头部数据存在过滤所有重新拉回数据
+				this.fields=this.columns.FIELDS
+				//查询接口是否调用
+				this.lookup_flag=true;
 				this.child_index = 0;
 				this.page=1;
 				//获取选框中的值并赋值请求参数
@@ -878,7 +888,7 @@
 				this.Query_project=JSON.stringify(request_parameters);
 				this.query_data=project;
 				console.log(project)
-				this.$emit('query',this.sub_url, this.child_index,this.Query_project,this.sort);
+				this.$emit('query',this.sub_url, this.child_index,this.Query_project,this.sort,this.page);
 				//让选项数据初始化一条
 				this.add_num=[];
 				//查询时让弹窗关闭
@@ -925,6 +935,8 @@
 				// this.search_data+=1;
 				// console.log(this.search_data)
 				// this.add_num.push(this.search_data);
+				//重新拉回头部数据
+				let fields=this.columns.FIELDS
 				this.project_box=this.project_condition[0];
 				this.fields.forEach((item,index) =>{
 					//当点击查询的时候判断需要查寻的条件有哪些
