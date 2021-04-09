@@ -113,9 +113,9 @@
 					<button @click="updata" v-if="option.updata" :disabled="isedit" :class="{color:btn_edit}" style="outline: none;"><span class="iconfont icon-bianji"></span>编辑</button>
 					<button @click="add" v-if="option.new_add" :disabled="newly_build" :class="{color:btn_build}" style="outline: none;"><span class="iconfont icon-xinzeng4
 "></span>新建</button>
-					<button @click="data_export"  v-if="columns.URL_TOEXCEL" :disabled="isdel" :class="{color:btn_del}" style="outline: none;">
+					<button @click="data_export"  v-if="columns.URL_TOEXCEL" :disabled="isdel"  style="outline: none;">
 						<span class="iconfont icon-daochu"></span>导出</button>
-					<button @click="import_file"  v-if="columns.URL_IMPORTEXCEL" :disabled="isdel" :class="{color:btn_del}" style="outline: none;">
+					<button @click="import_file"  v-if="columns.URL_IMPORTEXCEL" :disabled="isdel"  style="outline: none;">
 						<span  class="iconfont icon-import"></span>导入</button>
 					<button @click="submit(fields)" v-if="option.updata_add" :disabled="preservation" :class="{color:btn_preservation}"
 					 style="outline: none;"><span class="iconfont icon-baocun"></span>保存</button>
@@ -470,16 +470,7 @@
 			this.count_data();
 			//判断底部操作按钮的显示隐藏
 			this.operation_isshow();
-			this.page=Number(window.sessionStorage.getItem('page'));
-			if(this.page!=1){
-				this.child_index=Number(window.sessionStorage.getItem('child_index'));
-				this.child_index_total=Number(window.sessionStorage.getItem('child_index_total'));
-				this.child_index_page=Number(window.sessionStorage.getItem('child_index_page'));
-			}else{
-				this.child_index==0;
-				this.child_index_page=1;
-				// this.project_data.page=1;
-			}
+			this.refresh_status();
 			// console.log(this.rows)
 			
 			
@@ -537,6 +528,19 @@
 		// 	}
 		// },
 		methods: {
+			//刷新时记住状态
+			refresh_status(){
+				this.page=Number(window.sessionStorage.getItem('page'));
+				if(this.page!=1){
+					this.child_index=Number(window.sessionStorage.getItem('child_index'));
+					this.child_index_total=Number(window.sessionStorage.getItem('child_index_total'));
+					this.child_index_page=Number(window.sessionStorage.getItem('child_index_page'));
+				}else{
+					this.child_index==0;
+					this.child_index_page=1;
+					// this.project_data.page=1;
+				}
+			},
 			//点击小x号
 			close_clo(h,i){
 				//当点击x号执行完成在执行下一次的x号
@@ -1034,6 +1038,7 @@
 				this.child_index_page=this.data_page*page-this.data_page+1;
 				// window.sessionStorage.setItem('child_index_page',this.child_index_page);
 				this.local_storage();
+				this.deselect();
 			},
 			//保存项目的页数
 			local_storage(){
@@ -1087,6 +1092,7 @@
 			},
 			//列表复选框的选中和取消
 			tr_list(e,item,i){//事件对象 数据项目 数据索引
+			// alert(0)
 				//如果没有选中项
 				if(this.btn_checkeds.length==0){
 					this.btn_checkeds.push(i);
@@ -1147,6 +1153,32 @@
 							});
 					})		
 						}
+			},
+			//取消选中
+			deselect(){
+				// this.btn_checkeds=[];
+				// this.btn_check=false;
+				// this.dynamic={};
+				this.tr_flag=true;
+				this.newly_build=false;
+				this.btn_build = false;
+				this.isedit = false;
+				this.btn_edit = false;
+				if(this.list_some == true){
+					// this.rows.forEach((item, index) => {
+								if (this.btn_checkeds.length>0) {
+									this.btn_checkeds.forEach((item,i)=>{
+									//不渲染编辑列表
+									this.edit_list[item] = false;
+								})
+									//复选框为空
+									this.btn_checkeds=[];
+									//总复选框为空
+									this.btn_check = false
+									this.dynamic={};
+								}
+					// })
+				}
 			},
 			//点击动态的数据项后边的三点请求不同的数据
 			serch(index1,index,key) {
@@ -2074,10 +2106,10 @@
 					// let time = new Date().getTime();
 					let page = 1;
 					//把复选框的数据清除
-					this.btn_check = false;
-					this.btn_checkeds.forEach((item, index) => {
-						this.btn_checkeds[index] = false
-					});
+					// this.btn_check = false;
+					// this.btn_checkeds.forEach((item, index) => {
+					// 	this.btn_checkeds[index] = false
+					// });
 					//项目序号
 					this.child_index = 0;
 					//每一页的到第多少条数据
@@ -2097,17 +2129,17 @@
 					},1000)
 
 				}
-				
+				this.deselect()
 			},
 			//上一页
 			previous_page() {
 				//执行完成后的标志
 				if (this.istrue.isfirst == true) {
 					//将复选框的数据清除
-					this.btn_check = false;
-					this.btn_checkeds.forEach((item, index) => {
-						this.btn_checkeds[index] = false
-					});
+					// this.btn_check = false;
+					// this.btn_checkeds.forEach((item, index) => {
+					// 	this.btn_checkeds[index] = false
+					// });
 					//当前的页数
 					let page = this.project_data.page;
 					// let time = new Date().getTime();
@@ -2154,6 +2186,7 @@
 					}
 					this.page=page;
 				}		
+				this.deselect()
 			},
 			//下一页
 			next_page() {
@@ -2165,10 +2198,10 @@
 					// });
 					// this.fields=this.columns.FIELDS
 					//如果此时有选中项那么将其清空
-					this.btn_check = false;
-					this.btn_checkeds.forEach((item, index) => {
-						this.btn_checkeds[index] = false
-					});
+					// this.btn_check = false;
+					// this.btn_checkeds.forEach((item, index) => {
+					// 	this.btn_checkeds[index] = false
+					// });
 					//当前的页数
 					let page = this.project_data.page;
 					// this.what_page=this.project_data.page;
@@ -2220,16 +2253,17 @@
 					}
 					this.page=page;
 				} 
+				this.deselect()
 			},
 			//尾页
 			last_page() {
 				//当返回数据时在请求
 					if (this.istrue.isend == true) {
 					//把按钮选中的时候取消
-					this.btn_check = false;
-					this.btn_checkeds.forEach((item, index) => {
-						this.btn_checkeds[index] = false
-					});
+					// this.btn_check = false;
+					// this.btn_checkeds.forEach((item, index) => {
+					// 	this.btn_checkeds[index] = false
+					// });
 					//最后一页的数据是16的几倍
 					let positive_integer = window.parseInt(this.project_data.records / this.data_page);
 					//检测是不是正整数
@@ -2260,7 +2294,7 @@
 					},1000)
 				}
 					}
-
+				this.deselect()
 			},
 		},
 		//移动弹框

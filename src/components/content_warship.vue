@@ -470,6 +470,7 @@
 			// this.data_num();
 			//判断是不是ie浏览器
 			this.isIE();
+			this.refresh_status();
 		},
 		computed: {
 			//计算当总数据不足16条时有多少条显示到多少条
@@ -514,6 +515,19 @@
 			c_rows:Array,
 		},
 		methods: {
+			//刷新时记住状态
+			refresh_status(){
+				this.page=Number(window.sessionStorage.getItem('page'));
+				if(this.page!=1){
+					this.child_index=Number(window.sessionStorage.getItem('child_index'));
+					this.child_index_total=Number(window.sessionStorage.getItem('child_index_total'));
+					this.child_index_page=Number(window.sessionStorage.getItem('child_index_page'));
+				}else{
+					this.child_index==0;
+					this.child_index_page=1;
+					// this.project_data.page=1;
+				}
+			},
 			//点击小x号
 			close_clo(h,i){
 				if(this.istrue.isclose){
@@ -652,7 +666,13 @@
 					//第一个按钮的样式
 					this.first_box_bg=true;
 				}
-				
+				this.local_storage()
+			},
+			//保存项目的页数
+			local_storage(){
+				window.sessionStorage.setItem('child_index',this.child_index);
+				window.sessionStorage.setItem('child_index_total',this.child_index_total);
+				window.sessionStorage.setItem('child_index_page',this.child_index_page);
 			},
 			//请求所有弹框的数据根据字段显示是否有查询的三个点
 			serch_fn(){
@@ -906,9 +926,9 @@
 			//移除查询数据中的某一条
 			Query_remove(p){
 				//遍历数组中添加的数据有多少移除点击的项
-				console.log(p,this.add_num)
+				// console.log(p,this.add_num)
 					this.add_num=this.add_num.filter((item)=>{return p!=item})
-					console.log(this.add_num)
+					// console.log(this.add_num)
 			},
 			//查询多条数据累加选项
 			accumulation(){		
